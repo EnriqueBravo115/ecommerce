@@ -6,7 +6,7 @@ services:
     ports:
       - '5432:5432'
     environment:
-      - 'POSTGRES_USER=rwca'
-      - 'POSTGRES_PASSWORD=rwca'
-      - 'POSTGRES_DB=rwca'
+      - 'POSTGRES_USER=ecommerce'
+      - 'POSTGRES_PASSWORD=ecommerce'
+      - 'POSTGRES_DB=ecommerce'
       - "POSTGRES_INITDB_ARGS='--encoding=UTF-8'"
