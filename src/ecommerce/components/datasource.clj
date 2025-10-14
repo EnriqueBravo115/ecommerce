@@ -1,4 +1,4 @@
-(ns api.components.datasource
+(ns ecommerce.components.datasource
   (:require [next.jdbc.connection :as connection]
             [clojure.tools.logging :as log])
   (:import (com.zaxxer.hikari HikariDataSource)

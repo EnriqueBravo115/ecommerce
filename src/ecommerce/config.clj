@@ -1,4 +1,4 @@
-(ns api.config
+(ns ecommerce.config
   (:require [aero.core :as aero]
             [clojure.java.io :as io]))
 

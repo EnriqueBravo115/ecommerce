@@ -1,7 +1,7 @@
-(ns api.core
+(ns ecommerce.core
   (:require [com.stuartsierra.component :as component]
-            [api.config :as config]
-            [api.components.system :as system]))
+            [ecommerce.config :as config]
+            [ecommerce.components.system :as system]))
 
 (defn -main
   []

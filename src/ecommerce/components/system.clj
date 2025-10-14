@@ -1,6 +1,6 @@
-(ns api.components.system
+(ns ecommerce.components.system
   (:require [com.stuartsierra.component :as component]
-            [api.components.datasource :as datasource]))
+            [ecommerce.components.datasource :as datasource]))
 
 (defn system-component
   [config]

@@ -37,9 +37,8 @@
   (b/uber {:class-dir class-dir
            :uber-file uber-file
            :basis basis
-           :main 'api.core
-           :main-class 'api.core
-           }))
+           :main 'ecommerce.core
+           :main-class 'ecommerce.core}))
 
 (defn install [_]
   (jar nil)
