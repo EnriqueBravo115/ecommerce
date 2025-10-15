@@ -1,4 +1,4 @@
-CREATE TABLE addresses (
+CREATE TABLE address (
     id          BIGSERIAL PRIMARY KEY,
     user_id     INTEGER REFERENCES users(id),
     country     VARCHAR(100),
