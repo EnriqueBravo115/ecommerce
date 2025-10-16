@@ -1,4 +1,4 @@
-(ns ecommerce.components.webserver
+(ns ecommerce.components.web-server
   (:require
    [com.stuartsierra.component :as component]
    [compojure.core :refer [defroutes GET POST]]
