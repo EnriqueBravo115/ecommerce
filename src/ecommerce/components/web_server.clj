@@ -1,31 +1,12 @@
 (ns ecommerce.components.web-server
   (:require
    [com.stuartsierra.component :as component]
-   [compojure.core :refer [defroutes GET POST]]
-   [compojure.route :as route]
    [ring.adapter.jetty :as jetty]
+   [ecommerce.routes.core :as routes]
    [ring.middleware.json :refer [wrap-json-body wrap-json-response]]))
 
-(defroutes app-routes
-  (GET "/" []
-    {:status 200
-     :body {:message "hello"}})
-
-  (GET "/users" []
-    {:status 200
-     :body {:users [{:id 1 :name "Juan"}
-                    {:id 2 :name "Maria"}]}})
-
-  (POST "/users" {body :body}
-    {:status 201
-     :body {:message "user created" :user body}})
-
-  (route/not-found
-   {:status 404
-    :body {:error "endpoint dont found"}}))
-
 (def app
-  (-> app-routes
+  (-> routes/api-routes
       wrap-json-response
       (wrap-json-body {:keywords? true})))
 
