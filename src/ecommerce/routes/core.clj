@@ -1,22 +1,14 @@
 (ns ecommerce.routes.core
   (:require
-   [compojure.core :refer [context GET routes]]
-   [compojure.route :as route]
-   [ecommerce.routes.order-routes :refer [order-routes]]
-   [ecommerce.routes.product-routes :refer [product-routes]]
+   [compojure.core :refer [context GET defroutes]]
    [ecommerce.routes.user-routes :refer [user-routes]]))
 
-(def api-routes
-  (routes
-   (context "/api/v1" []
-     (routes
-      user-routes
-      product-routes
-      order-routes))
+(defroutes api-routes
+  (context "/api/v1" [] user-routes)
 
-   (GET "/health" []
-     {:status 200 :body {:status "healthy"}})
+  (GET "/health" [request]
+    {:status 200 :body {:status "healthy"}})
 
-   (route/not-found
+  (GET "*" [request]
     {:status 404
-     :body {:error "Endpoint not found"}})))
+     :body {:error "Endpoint not found"}}))

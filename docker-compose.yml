@@ -2,9 +2,9 @@ services:
   database:
     image: postgres:15.4
     ports:
-      - '5432:5432'
+      - "5432:5432"
     environment:
-      - 'POSTGRES_USER=ecommerce'
-      - 'POSTGRES_PASSWORD=ecommerce'
-      - 'POSTGRES_DB=ecommerce'
+      - "POSTGRES_USER=ecommerce"
+      - "POSTGRES_PASSWORD=ecommerce"
+      - "POSTGRES_DB=ecommerce"
       - "POSTGRES_INITDB_ARGS='--encoding=UTF-8'"

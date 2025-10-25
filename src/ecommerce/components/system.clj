@@ -7,4 +7,6 @@
   [config]
   (component/system-map
    :datasource (datasource/datasource-component config)
-   :web-server (web-server/new-web-server config)))
+   :web-server (component/using
+                (web-server/new-web-server config)
+                [:datasource])))

@@ -1,19 +1,30 @@
 (ns ecommerce.components.datasource
-  (:require [next.jdbc.connection :as connection]
+  (:require [com.stuartsierra.component :as component]
+            [next.jdbc.connection :as connection]
             [clojure.tools.logging :as log])
   (:import (com.zaxxer.hikari HikariDataSource)
            (org.flywaydb.core Flyway)))
 
-(defn datasource-component
-  [config]
-  (connection/component
-   HikariDataSource
-   (assoc (:db-spec config)
-          :init-fn (fn [datasource]
-                     (log/info "Running database init")
-                     (.migrate
-                      (.. (Flyway/configure)
-                          (dataSource datasource)
-                          (locations (into-array String ["classpath:db/migrations"]))
-                          (table "schema_version")
-                          (load)))))))
+(defrecord Datasource [config datasource]
+  component/Lifecycle
+
+  (start [this]
+    (println "Starting datasource")
+    (let [ds (connection/->pool HikariDataSource (:db-spec config))]
+      (log/info "Running database migrations")
+      (.migrate
+       (.. (Flyway/configure)
+           (dataSource ds)
+           (locations (into-array String ["classpath:db/migrations"]))
+           (table "schema_version")
+           (load)))
+      (assoc this :datasource ds)))
+
+  (stop [this]
+    (println "Stopping datasource")
+    (when datasource
+      (.close datasource))
+    (assoc this :datasource nil)))
+
+(defn datasource-component [config]
+  (map->Datasource {:config config}))

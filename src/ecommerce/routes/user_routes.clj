@@ -1,18 +1,8 @@
 (ns ecommerce.routes.user-routes
   (:require
-   [compojure.core :refer [GET POST DELETE PUT]]
-   [ecommerce.controllers.user-controller :as user-controller]))
+   [compojure.core :refer [GET defroutes]]
+   [ecommerce.handlers.user-handler :as user-handler]))
 
-(def user-routes
-  (compojure.core/routes
-   (GET "/users" []
-     (user-controller/get-users))
-
-   (GET "/users/:id" [id]
-     (user-controller/get-user id))
-
-   (POST "/users" {body :body}
-     (user-controller/create-user body))
-
-   (DELETE "/users/:id" [id]
-     (user-controller/delete-user id))))
+(defroutes user-routes
+  (GET "/users/:id" request
+    (user-handler/get-user request)))
