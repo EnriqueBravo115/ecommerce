@@ -1,8 +1,8 @@
 (ns ecommerce.routes.customer-routes
   (:require
    [compojure.core :refer [GET defroutes]]
-   [ecommerce.handlers.user-handler :as user-handler]))
+   [ecommerce.handlers.customer-handler :as customer-handler]))
 
 (defroutes customer-routes
-  (GET "/users/:id" request
-    (user-handler/get-user request)))
+  (GET "/customer/basic/:id" request
+    (customer-handler/get-customer-basic request)))

@@ -1,22 +1,22 @@
-(ns ecommerce.handlers.user-handler
+(ns ecommerce.handlers.customer-handler
   (:require
    [honey.sql :as sql]
    [next.jdbc :as jdbc]))
 
-(defn get-user [request]
+(defn get-customer-basic [request]
   (let [ds (:datasource request)
         user-id (get-in request [:params :id])
         query (sql/format
-               {:select [:*]
+               {:select [:names :first_surname :second_surname :email :registration_date :active]
                 :from [:customer]
                 :where [:= :id user-id]}
                :inline true)
-        user (jdbc/execute-one! ds query)]
+        customer (jdbc/execute-one! ds query)]
 
-    (if user
+    (if customer
       {:status 200
        :headers {"Content-Type" "application/json"}
-       :body {:user user}}
+       :body {:customer customer}}
       {:status 404
        :headers {"Content-Type" "application/json"}
        :body {:error "User not found"}})))
