@@ -1,7 +1,7 @@
 (ns ecommerce.components.web-server
   (:require
    [com.stuartsierra.component :as component]
-   [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
+   [ring.middleware.json :refer [wrap-json-response]]
    [ecommerce.commons.middleware :refer [wrap-datasource]]
    [ecommerce.routes.core :as routes]
    [ring.adapter.jetty :as jetty]))

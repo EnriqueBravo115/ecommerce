@@ -1,10 +1,10 @@
 (ns ecommerce.routes.core
   (:require
    [compojure.core :refer [context GET defroutes]]
-   [ecommerce.routes.user-routes :refer [user-routes]]))
+   [ecommerce.routes.customer-routes :refer [customer-routes]]))
 
 (defroutes api-routes
-  (context "/api/v1" [] user-routes)
+  (context "/api/v1" [] customer-routes)
 
   (GET "/health" [request]
     {:status 200 :body {:status "healthy"}})

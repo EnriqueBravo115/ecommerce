@@ -11,7 +11,6 @@
                 :from [:customer]
                 :where [:= :id user-id]}
                :inline true)
-
         user (jdbc/execute-one! ds query)]
 
     (if user
