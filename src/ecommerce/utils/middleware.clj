@@ -1,4 +1,4 @@
-(ns ecommerce.commons.middleware)
+(ns ecommerce.utils.middleware)
 
 (defn wrap-datasource [handler datasource]
   (fn [request]

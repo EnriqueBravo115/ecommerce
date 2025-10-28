@@ -1,4 +1,4 @@
-(ns ecommerce.commons.jwt
+(ns ecommerce.utils.jwt
   (:require [buddy.sign.jwt :as jwt]
             [buddy.core.keys :as keys]
             [buddy.auth :refer [authenticated?]]

@@ -2,7 +2,7 @@
   (:require
    [com.stuartsierra.component :as component]
    [ring.middleware.json :refer [wrap-json-response]]
-   [ecommerce.commons.middleware :refer [wrap-datasource]]
+   [ecommerce.utils.middleware :refer [wrap-datasource]]
    [ecommerce.routes.core :as routes]
    [ring.adapter.jetty :as jetty]))
 

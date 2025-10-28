@@ -1,4 +1,4 @@
-(ns ecommerce.persistance.customer-test
+(ns ecommerce.integration.customer-test
   (:require
    [cheshire.core :as cheshire]
    [clj-http.client :as client]
@@ -14,21 +14,21 @@
        (finally
          (component/stop ~bound-var)))))
 
-(deftest get-customer
+(deftest get-customer-by-id
   (testing "first test"
     (with-system
       [sut (system/system-component {:server {:port 3000}
                                      :db-spec {:jdbcUrl "jdbc:postgresql://localhost:5432/ecommerce"
                                                :username "ecommerce"
                                                :password "ecommerce"}})]
-      (let [response (client/get "http://localhost:3000/api/v1/customer/basic/1" {:accept :json})
-            body (-> response :body (cheshire/parse-string true))]
+      (let [response (client/get "http://localhost:3000/api/v1/customer/1" {:accept :json})
+            body (-> response :body (cheshire/parse-string true))
+            customer (:customer body)]
 
         (is (= 200 (:status response)))
-        (is (= {:customer/names "María Elena"
-                :customer/first_surname "García"
-                :customer/second_surname "López"
-                :customer/email "maria.garcia@email.com"
-                :customer/registration_date "2025-10-26T12:01:02Z"
-                :customer/active true}
-               (:customer body)))))))
+        (is (= {:names "María Elena"
+                :first_surname "García"
+                :second_surname "López"
+                :email "maria.garcia@email.com"
+                :active true}
+               customer))))))
