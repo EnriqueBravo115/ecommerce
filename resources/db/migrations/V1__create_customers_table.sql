@@ -6,7 +6,7 @@ CREATE TABLE customer
     second_surname      VARCHAR(255) NOT NULL UNIQUE,
     email               VARCHAR(255) NOT NULL UNIQUE,
     country_of_birth    VARCHAR(255) NOT NULL,
-    birthday            VARCHAR(255) NOT NULL,
+    birthday            DATE         NOT NULL,
     gender              VARCHAR(255) NOT NULL,
     rfc                 VARCHAR(255) NOT NULL,
     curp                VARCHAR(255) NOT NULL,
