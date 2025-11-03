@@ -2,7 +2,8 @@
   (:require
    [honey.sql :as sql]
    [next.jdbc :as jdbc]
-   [next.jdbc.result-set :as rs]))
+   [next.jdbc.result-set :as rs]
+   [ecommerce.utils.analytics :as analytics]))
 
 (defn get-customer-by-id [request]
   (let [ds (:datasource request)
@@ -90,10 +91,18 @@
 (defn get-registration-trend [request]
   (let [ds (:datasource request)
         period (get-in request [:body :period])
-        query (sql/format {:select
-                           :from [:customer]
-                           :where})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+        query (sql/format {:select [:registration_date]
+                           :from [:customer]})
+        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
+    (if (seq result)
+      (let [trends (analytics/calculate-trends result period)]
+        {:status 200
+         :headers {"Content-Type" "application/json"}
+         :body {:period period
+                :trends trends}})
+      {:status 404
+       :headers {"Content-Type" "application/json"}
+       :body {:error "No customers found"}})))
 
 (defn get-active-rate [request]
   (let [ds (:datasource request)

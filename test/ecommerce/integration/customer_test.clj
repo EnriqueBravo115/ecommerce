@@ -4,7 +4,7 @@
    [clj-http.client :as client]
    [clojure.test :refer [deftest is testing]]
    [com.stuartsierra.component :as component]
-   [ecommerce.components.system :as system])
+   [ecommerce.core :as system])
   (:import (org.testcontainers.containers PostgreSQLContainer)))
 
 (defmacro with-system
@@ -81,6 +81,7 @@
             (is (= 200 (:status response)))
             (is (vector? age-group))
             (let [age-map (into {} (map (juxt :age-range :count) age-group))]
+              (print age-map)
               (is (= 2 (get age-map "18-29")))
               (is (= 4 (get age-map "30-39")))
               (is (= 1 (get age-map "40-49")))
@@ -88,6 +89,7 @@
               (is (= 2 (get age-map "60-69"))))))
         (finally (.stop database-container))))))
 
+;; month - year - week - day
 (deftest get-customers-by-gender
   (testing "GET /api/v1/customer/gender should return customer by gender"
     (let [database-container (PostgreSQLContainer. "postgres:15.4")]

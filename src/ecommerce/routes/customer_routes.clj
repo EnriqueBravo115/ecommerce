@@ -11,5 +11,7 @@
       (customer-handler/get-customers-by-age-group request))
     (GET "/gender" request
       (customer-handler/get-customers-by-gender request))
+    (GET "/registration-trend" request
+      (customer-handler/get-registration-trend request))
     (GET "/:id" request
       (customer-handler/get-customer-by-id request))))
