@@ -1,6 +1,6 @@
 (ns dev
   (:require [com.stuartsierra.component.repl :as component-repl]
-            [ecommerce.components.system :as system]))
+            [ecommerce.core :as system]))
 
 (component-repl/set-init
  (fn [_]
