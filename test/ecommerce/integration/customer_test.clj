@@ -21,11 +21,11 @@
       (try
         (.start database-container)
         (with-system
-          [sut (system/system-component {:server {:port 3000}
+          [sut (system/system-component {:server {:port 3001}
                                          :db-spec {:jdbcUrl (.getJdbcUrl database-container)
                                                    :username (.getUsername database-container)
                                                    :password (.getPassword database-container)}})]
-          (let [response (client/get "http://localhost:3000/api/v1/customer/1" {:accept :json})
+          (let [response (client/get "http://localhost:3001/api/v1/customer/1" {:accept :json})
                 body (-> response :body (cheshire/parse-string true))
                 customer (:customer body)]
 
@@ -38,26 +38,75 @@
                    customer))))
         (finally (.stop database-container))))))
 
-(deftest get-customer-country-count
+(deftest get-customers-country-count
   (testing "GET /api/v1/customer/country-count should return country count aggregation"
     (let [database-container (PostgreSQLContainer. "postgres:15.4")]
       (try
         (.start database-container)
         (with-system
-          [sut (system/system-component {:server {:port 3000}
+          [sut (system/system-component {:server {:port 3001}
                                          :db-spec {:jdbcUrl (.getJdbcUrl database-container)
                                                    :username (.getUsername database-container)
                                                    :password (.getPassword database-container)}})]
-          (let [response (client/get "http://localhost:3000/api/v1/customer/country-count" {:accept :json})
+          (let [response (client/get "http://localhost:3001/api/v1/customer/country-count" {:accept :json})
                 body (-> response :body (cheshire/parse-string true))
-                country_count (:country_count body)]
+                country-count (:country-count body)]
 
             (is (= 200 (:status response)))
-            (is (vector? country_count))
+            (is (vector? country-count))
             (let [country-map
-                  (into {} (map (fn [item] [(:country_of_birth item) (:count item)]) country_count))]
+                  (into {} (map (fn [item] [(:country_of_birth item) (:count item)]) country-count))]
               (is (= 1 (get country-map "COL")))
+              (is (= 1 (get country-map "CHL")))
+              (is (= 1 (get country-map "ARG")))
               (is (= 1 (get country-map "ESP")))
-              (is (= 2 (get country-map "MEX")))
+              (is (= 5 (get country-map "MEX")))
               (is (= 1 (get country-map "USA"))))))
+        (finally (.stop database-container))))))
+
+(deftest get-customers-by-age-group
+  (testing "GET /api/v1/customer/age-group should return country count aggregation"
+    (let [database-container (PostgreSQLContainer. "postgres:15.4")]
+      (try
+        (.start database-container)
+        (with-system
+          [sut (system/system-component {:server {:port 3001}
+                                         :db-spec {:jdbcUrl (.getJdbcUrl database-container)
+                                                   :username (.getUsername database-container)
+                                                   :password (.getPassword database-container)}})]
+          (let [response (client/get "http://localhost:3001/api/v1/customer/age-group" {:accept :json})
+                body (-> response :body (cheshire/parse-string true))
+                age-group (:age-group body)]
+
+            (is (= 200 (:status response)))
+            (is (vector? age-group))
+            (let [age-map (into {} (map (juxt :age-range :count) age-group))]
+              (is (= 2 (get age-map "18-29")))
+              (is (= 4 (get age-map "30-39")))
+              (is (= 1 (get age-map "40-49")))
+              (is (= 1 (get age-map "50-59")))
+              (is (= 2 (get age-map "60-69"))))))
+        (finally (.stop database-container))))))
+
+(deftest get-customers-by-gender
+  (testing "GET /api/v1/customer/gender should return customer by gender"
+    (let [database-container (PostgreSQLContainer. "postgres:15.4")]
+      (try
+        (.start database-container)
+        (with-system
+          [sut (system/system-component {:server {:port 3001}
+                                         :db-spec {:jdbcUrl (.getJdbcUrl database-container)
+                                                   :username (.getUsername database-container)
+                                                   :password (.getPassword database-container)}})]
+          (let [response (client/get "http://localhost:3001/api/v1/customer/gender"
+                                     {:accept :json
+                                      :content-type :json
+                                      :body (cheshire/generate-string {:gender "FEMALE"})})
+                body (-> response :body (cheshire/parse-string true))
+                customers (:customer-by-gender body)]
+
+            (is (= 200 (:status response)))
+            (is (vector? customers))
+            (is (= 5 (count customers)))
+            (is (every? #(= "FEMALE" (:gender %)) customers))))
         (finally (.stop database-container))))))

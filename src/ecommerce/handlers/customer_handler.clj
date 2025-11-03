@@ -35,7 +35,7 @@
     (if result
       {:status 200
        :headers {"Content-Type" "application/json"}
-       :body {:country_count result}}
+       :body {:country-count result}}
       {:status 404
        :headers {"Content-Type" "application/json"}
        :body {:error "No customers found"}})))
@@ -66,7 +66,53 @@
     (if result
       {:status 200
        :headers {"Content-Type" "application/json"}
-       :body {:age_group grouped-result}}
+       :body {:age-group grouped-result}}
       {:status 404
        :headers {"Content-Type" "application/json"}
        :body {:error "No customers found"}})))
+
+(defn get-customers-by-gender [request]
+  (let [ds (:datasource request)
+        gender (get-in request [:body :gender])
+        query (sql/format {:select [:names :first_surname :second_surname :email :active :gender]
+                           :from [:customer]
+                           :where [:= :gender gender]})
+        result (jdbc/execute! ds query  {:builder-fn rs/as-unqualified-maps})]
+
+    (if result
+      {:status 200
+       :headers {"Content-Type" "application/json"}
+       :body {:customer-by-gender result}}
+      {:status 404
+       :headers {"Content-Type" "application/json"}
+       :body {:error "No customers found"}})))
+
+(defn get-registration-trend [request]
+  (let [ds (:datasource request)
+        period (get-in request [:body :period])
+        query (sql/format {:select
+                           :from [:customer]
+                           :where})
+        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+
+(defn get-active-rate [request]
+  (let [ds (:datasource request)
+        query (sql/format {:select []
+                           :from [:customer]
+                           :where []})
+        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+
+(defn get-activation-trend [request]
+  (let [ds (:datasource request)
+        query (sql/format {:select
+                           :from [:customer]
+                           :where})
+        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+
+(defn get-inactive-customers [request]
+  (let [ds (:datasource request)
+        date (get-in request [:body :date])
+        query (sql/format {:select []
+                           :from [:customer]
+                           :where [:= :date date]})
+        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))

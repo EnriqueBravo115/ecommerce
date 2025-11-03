@@ -1,7 +1,7 @@
 (ns ecommerce.components.web-server
   (:require
    [com.stuartsierra.component :as component]
-   [ring.middleware.json :refer [wrap-json-response]]
+   [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
    [ecommerce.utils.middleware :refer [wrap-datasource]]
    [ecommerce.routes.core :as routes]
    [ring.adapter.jetty :as jetty]))
@@ -12,6 +12,7 @@
   (start [this]
     (println "Starting Webserver on port:" (-> config :server :port))
     (let [app (-> routes/api-routes
+                  (wrap-json-body {:keywords? true})
                   (wrap-datasource datasource)
                   wrap-json-response)]
       (assoc this :server (jetty/run-jetty app {:port (-> config :server :port) :join? false}))))
