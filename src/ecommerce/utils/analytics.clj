@@ -8,7 +8,6 @@
                (.toLocalDateTime %)))
        (group-by (case period
                    "day" #(.format (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd") %)
-                   "week" #(str (.getYear %) "-W" (.get (.weekOfWeekBasedYear java.time.temporal.WeekFields/ISO) %))
                    "month" #(str (.getYear %) "-" (.getMonthValue %))
                    "year" #(str (.getYear %))
                    #(str (.getYear %) "-" (.getMonthValue %))))
