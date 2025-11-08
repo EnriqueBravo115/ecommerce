@@ -2,115 +2,73 @@
   (:require
    [ecommerce.utils.analytics :as analytics]
    [ecommerce.utils.validations :as validations]
+   [ecommerce.queries.customer-queries :as queries]
    [honey.sql :as sql]
    [next.jdbc :as jdbc]
    [next.jdbc.result-set :as rs]))
 
+(def ^:private json-headers {"Content-Type" "application/json"})
+
+(defn- build-response [status body]
+  {:status status :headers json-headers :body body})
+
 (defn get-customer-by-id [request]
   (let [ds (:datasource request)
-        user-id (get-in request [:params :id])
-        query (sql/format
-               {:select [:names :first_surname :second_surname :email :active]
-                :from   [:customer]
-                :where  [:= :id user-id]}
-               :inline true)
+        id (get-in request [:params :id])
+        query (queries/customer-by-id id)
         result (jdbc/execute-one! ds query {:builder-fn rs/as-unqualified-maps})]
 
     (if result
-      {:status  200
-       :headers {"Content-Type" "application/json"}
-       :body    {:customer result}}
-      {:status  404
-       :headers {"Content-Type" "application/json"}
-       :body    {:error "User not found"}})))
+      (build-response 200 {:customer result})
+      (build-response 404 {:error "Customer not found"}))))
 
 (defn get-customers-country-count [request]
   (let [ds (:datasource request)
-        query (sql/format
-               {:select   [:country_of_birth
-                           [(sql/call :count :*) :count]]
-                :from     [:customer]
-                :group-by [:country_of_birth]}
-               :inline true)
+        query (queries/country-count)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
     (if result
-      {:status  200
-       :headers {"Content-Type" "application/json"}
-       :body    {:country-count result}}
-      {:status  404
-       :headers {"Content-Type" "application/json"}
-       :body    {:error "No customers found"}})))
+      (build-response 200 {:country-count result})
+      (build-response 404 {:error "No customers found"}))))
 
 (defn get-customers-by-age-group [request]
   (let [ds (:datasource request)
-        query (sql/format {:select [[[:raw "EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthday::date))"] :age]]
-                           :from   [:customer]}
-                          :inline true)
+        query (queries/customers-age-groups)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
-        classify-age (fn [age]
-                       (cond
-                         (<= 0 age 17) "0-17"
-                         (<= 18 age 29) "18-29"
-                         (<= 30 age 39) "30-39"
-                         (<= 40 age 49) "40-49"
-                         (<= 50 age 59) "50-59"
-                         (<= 60 age 69) "60-69"
-                         :else "70+"))
-        grouped-result (->> result
-                            (map :age)
-                            (remove nil?)
-                            (map #(classify-age (int %)))
-                            frequencies
-                            (map (fn [[age-group count]] {:age-range age-group :count count}))
-                            (sort-by :age-range))]
+        grouped-result (analytics/grouped-result result)]
 
     (if result
-      {:status  200
-       :headers {"Content-Type" "application/json"}
-       :body    {:age-group grouped-result}}
-      {:status  404
-       :headers {"Content-Type" "application/json"}
-       :body    {:error "No customers found"}})))
+      (build-response 200 {:age-group grouped-result})
+      (build-response 404 {:error "No customers found"}))))
 
 (defn get-customers-by-gender [request]
   (let [gender (get-in request [:body :gender])
         validation-error (validations/validate-gender gender)]
 
     (if validation-error
-      {:status 400
-       :headers {"Content-Type" "application/json"}
-       :body {:error validation-error}}
-
+      (build-response 400 {:error validation-error})
       (let [ds (:datasource request)
-            query (sql/format {:select [:names :first_surname :second_surname :email :active :gender]
-                               :from [:customer]
-                               :where [:= :gender gender]})
+            query (queries/customers-by-gender gender)
             result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
-        (if (seq result)
-          {:status 200
-           :headers {"Content-Type" "application/json"}
-           :body {:customer-by-gender result}}
-          {:status 404
-           :headers {"Content-Type" "application/json"}
-           :body {:error "No customers found"}})))))
+        (if result
+          (build-response 200 {:customer-by-gender result})
+          (build-response 404 {:error "No customers found"}))))))
 
 (defn get-registration-trend [request]
-  (let [ds (:datasource request)
-        period (get-in request [:body :period])
-        query (sql/format {:select [:registration_date]
-                           :from   [:customer]})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
-    (if (seq result)
-      (let [trends (analytics/calculate-trends result period)]
-        {:status  200
-         :headers {"Content-Type" "application/json"}
-         :body    {:period period
-                   :trends trends}})
-      {:status  404
-       :headers {"Content-Type" "application/json"}
-       :body    {:error "No customers found"}})))
+  (let [period (get-in request [:body :period])
+        validation-error (validations/validate-period period)]
+
+    (if validation-error
+      (build-response 400 {:error validation-error})
+      (let [ds (:datasource request)
+            query (queries/registration-date)
+            result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
+            trends (analytics/calculate-trends result period)]
+
+        (if result
+          (build-response 200 {:period period :trends trends})
+          (build-response 404 {:error "No customers found"}))))))
 
 (defn get-active-rate [request]
   (let [ds (:datasource request)
@@ -155,20 +113,6 @@
                            :where []})
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
 
-(defn get-high-value-demographics [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
-
-(defn get-customer-activity-by-time-of-day [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
-
 (defn get-registration-by-country-code [request]
   (let [ds (:datasource request)
         query (sql/format {:select []
@@ -182,3 +126,25 @@
                            :from [:customer]
                            :where []})
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+
+(defn get-growth-metrics [request]
+  (let [ds (:datasource request)
+        query (sql/format {:select []
+                           :from [:customer]
+                           :where []})
+        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+
+(defn predict-demographic-trends [request]
+  (let [ds (:datasource request)
+        query (sql/format {:select []
+                           :from [:customer]
+                           :where []})
+        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+
+(defn identify-at-risk-segments [request]
+  (let [ds (:datasource request)
+        query (sql/format {:select []
+                           :from [:customer]
+                           :where []})
+        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+

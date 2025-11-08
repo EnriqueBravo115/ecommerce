@@ -3,6 +3,13 @@
             [malli.util :as mu]
             [ecommerce.utils.types :as types]))
 
+(defn validate-id [id]
+  (when-not (m/validate )))
+
 (defn validate-gender [gender]
-  (when-not (m/validate types/Gender gender)
-    "Invalid gender format, must be FEMALE or MALE"))
+  (when-not (m/validate types/gender-schema gender)
+    "Invalid gender format, must be FEMALE-MALE"))
+
+(defn validate-period [period]
+  (when-not (m/validate types/period-schema period)
+    "Invalid period format, must be YEAR-MONTH-DAY"))

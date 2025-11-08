@@ -1,4 +1,7 @@
 (ns ecommerce.utils.types)
 
-(def Gender
+(def gender-schema
   [:enum "MALE" "FEMALE"])
+
+(def period-schema
+  [:enum "YEAR" "MONTH" "DAY"])
