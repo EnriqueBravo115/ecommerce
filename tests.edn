@@ -1,0 +1,13 @@
+#kaocha/v1
+{:tests [{:id :unit
+          :source-paths ["src"]
+          :test-paths ["test/ecommerce/unit"]
+          :ns-pattern ".*-unit$"}
+
+         {:id :integration
+          :source-paths ["src"]
+          :test-paths ["test/ecommerce/integration"]
+          :ns-pattern ".*-integration$"
+          :focus-meta [:integration]}]}
+
+:kaocha/reporters [kaocha.report/progress kaocha.report/documentation]

@@ -15,7 +15,7 @@
        (finally
          (component/stop ~bound-var)))))
 
-(deftest get-customer-by-id
+(deftest ^:integration get-customer-by-id
   (testing "GET /api/v1/customer/:id should return customer"
     (let [database-container (PostgreSQLContainer. "postgres:15.4")]
       (try
@@ -38,7 +38,7 @@
                    customer))))
         (finally (.stop database-container))))))
 
-(deftest get-customers-country-count
+(deftest ^:integration get-customers-country-count
   (testing "GET /api/v1/customer/country-count should return country count aggregation"
     (let [database-container (PostgreSQLContainer. "postgres:15.4")]
       (try
@@ -64,7 +64,7 @@
               (is (= 1 (get country-map "USA"))))))
         (finally (.stop database-container))))))
 
-(deftest get-customers-by-age-group
+(deftest ^:integration get-customers-by-age-group
   (testing "GET /api/v1/customer/age-group should return country count aggregation"
     (let [database-container (PostgreSQLContainer. "postgres:15.4")]
       (try
@@ -90,7 +90,7 @@
         (finally (.stop database-container))))))
 
 ;; month - year - week - day
-(deftest get-customers-by-gender
+(deftest ^:integration get-customers-by-gender
   (testing "GET /api/v1/customer/gender should return customer by gender"
     (let [database-container (PostgreSQLContainer. "postgres:15.4")]
       (try
