@@ -4,7 +4,7 @@
    [clojure.java.io :as io]
    [com.stuartsierra.component :as component]
    [ecommerce.components.datasource :as datasource]
-   [ecommerce.components.web-server :as web-server]))
+   [ecommerce.components.web-server :as web-server]) (:gen-class))
 
 (defn read-config
   []

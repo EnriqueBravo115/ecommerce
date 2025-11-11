@@ -32,10 +32,8 @@
         org.testcontainers/postgresql {:mvn/version "1.21.1"}
         org.testcontainers/kafka {:mvn/version "1.21.1"}}
 
- :aliases {:dev {:main-opts ["-e" "(require,'dev)"
-                             "-e" "(in-ns,'dev)"]}
-           :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
-                    :main-opts ["-m" "kaocha.runner"]}
+ :aliases {:test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
+                  :main-opts ["-m" "kaocha.runner"]}
            :build {:deps {io.github.clojure/tools.build {:mvn/version "0.10.10"}}
                    :ns-default build}}
 

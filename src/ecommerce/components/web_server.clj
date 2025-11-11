@@ -6,7 +6,7 @@
    [ecommerce.routes.core :as routes]
    [ring.adapter.jetty :as jetty]))
 
-(defrecord webserver [config datasource]
+(defrecord Webserver [config datasource]
   component/Lifecycle
 
   (start [this]
@@ -23,4 +23,4 @@
     (assoc this :server nil)))
 
 (defn new-web-server [config]
-  (map->webserver {:config config}))
+  (map->Webserver {:config config}))
