@@ -15,7 +15,7 @@
 (defn system-component
   [config]
   (component/system-map
-   :datasource (datasource/datasource-component config)
+   :datasource (datasource/new-datasource config)
    :web-server (component/using
                 (web-server/new-web-server config)
                 [:datasource])))

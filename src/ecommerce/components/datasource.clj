@@ -26,5 +26,5 @@
       (.close datasource))
     (assoc this :datasource nil)))
 
-(defn datasource-component [config]
+(defn new-datasource [config]
   (map->Datasource {:config config}))

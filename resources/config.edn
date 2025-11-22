@@ -1,4 +1,8 @@
 {:server {:port #long #or [#env ECOMMERCE_API_SERVER_PORT 8080]}
  :db-spec {:jdbcUrl "jdbc:postgresql://localhost:5432/ecommerce"
            :username "ecommerce"
-           :password "ecommerce"}}
+           :password "ecommerce"}
+ :auth {:jwt
+        {:secret-key "123456789"
+         :algorithm :hs512
+         :expires-in 3600}}}

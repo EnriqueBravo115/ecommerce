@@ -1,9 +1,5 @@
 (ns ecommerce.utils.jwt
   (:require [buddy.sign.jwt :as jwt]
-            [buddy.core.keys :as keys]
-            [buddy.auth :refer [authenticated?]]
-            [buddy.auth.backends :as backends]
-            [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [java-time.api :as jt]
             [clojure.tools.logging :as log]))
 
