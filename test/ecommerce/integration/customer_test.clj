@@ -89,7 +89,6 @@
               (is (= 2 (get age-map "60-69"))))))
         (finally (.stop database-container))))))
 
-;; month - year - week - day
 (deftest ^:integration get-customers-by-gender
   (testing "GET /api/v1/customer/gender should return customer by gender"
     (let [database-container (PostgreSQLContainer. "postgres:15.4")]

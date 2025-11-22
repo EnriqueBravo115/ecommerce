@@ -1,15 +1,25 @@
-## Interactive REPL
-Para ejecutar el proyecto usar Clj -A:dev lo que te pondra en el ns dev, luego en un REPL insertar:
-```clojure
-(component-repl/reset)
+## Build jar
+Tener instalado [clj](https://clojure.org/guides/install_clojure):
+```bash
+# Ejectuar el docker-compose
+docker-compose up -d
+# Construir jar
+clj -T:build uber
+# Ejecutar jar
+java -jar target/ecommerce-api-1.0.0.jar
 ```
 
-## Build jar
-Para generar un jar ejecutar en terminal:
+## Test(Kaocha)
+Tener instalado [clj](https://clojure.org/guides/install_clojure):
 ```bash
-clj -T:build uber
+clj -M:test :integration
+clj -M:test :unit
 ```
-Y para correr el jar usar:
-```
-clj -M -m api.core
+
+## Interactive REPL
+1. Iniciar un repl y evaluar el contenido en `dev/dev.clj`
+2. Ejecutar los siguientes comandos en el repl(***OPCIONAL***: crear un atajo):
+```clojure 
+(in-ns 'dev)
+(component-repl/reset)
 ```
