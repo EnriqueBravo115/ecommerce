@@ -4,6 +4,7 @@
    [clojure.java.io :as io]
    [com.stuartsierra.component :as component]
    [ecommerce.components.datasource :as datasource]
+   [ecommerce.components.jwt :as jwt]
    [ecommerce.components.web-server :as web-server]) (:gen-class))
 
 (defn read-config
@@ -16,9 +17,10 @@
   [config]
   (component/system-map
    :datasource (datasource/new-datasource config)
+   :jwt (jwt/new-jwt config)
    :web-server (component/using
                 (web-server/new-web-server config)
-                [:datasource])))
+                [:datasource :jwt])))
 
 (defn -main
   []

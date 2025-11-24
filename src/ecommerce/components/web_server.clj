@@ -2,16 +2,17 @@
   (:require
    [com.stuartsierra.component :as component]
    [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
-   [ecommerce.utils.middleware :refer [wrap-datasource]]
+   [ecommerce.utils.middleware :refer [wrap-inject-jwt wrap-datasource]]
    [ecommerce.routes.core :as routes]
    [ring.adapter.jetty :as jetty]))
 
-(defrecord Webserver [config datasource]
+(defrecord Webserver [config datasource jwt]
   component/Lifecycle
 
   (start [this]
     (println "Starting Webserver on port:" (-> config :server :port))
     (let [app (-> routes/api-routes
+                  (wrap-inject-jwt jwt)
                   (wrap-json-body {:keywords? true})
                   (wrap-datasource datasource)
                   wrap-json-response)]

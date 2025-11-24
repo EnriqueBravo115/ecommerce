@@ -1,12 +1,21 @@
 (ns ecommerce.components.jwt
   (:require [com.stuartsierra.component :as component]
-            [buddy.auth.backends.token :refer [jws-backend]]))
+            [buddy.auth.backends :as backends]))
 
 (defrecord Jwt [config]
   component/Lifecycle
   (start [this]
-    (let [backend (jws-backend {:secret (-> config :auth :jwt :secret-key)
-                                :options {:alg (-> config :auth :jwt :algorithm)}})]
+    (let [secret (-> config :auth :jwt :secret)
+          algorithm (-> config :auth :jwt :algorithm)
+          backend (backends/token {:secret secret
+                                   :options {:alg algorithm}
+                                   :on-error (fn [request err]
+                                               (println "JWT Error:" err)
+                                               nil)
+                                   :token-name "Bearer"
+                                   :authfn (fn [request token]
+                                             (println "Validating token:" token)
+                                             token)})]
       (assoc this :backend backend)))
   (stop [this]
     (dissoc this :backend)))
