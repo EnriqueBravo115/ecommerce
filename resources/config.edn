@@ -4,5 +4,5 @@
            :password "ecommerce"}
  :auth {:jwt
         {:secret "123456789"
-         :algorithm :hs512
+         :alg :hs512
          :expires-in 3600}}}

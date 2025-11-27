@@ -8,18 +8,14 @@
 
 (defrecord Webserver [config datasource jwt]
   component/Lifecycle
-
   (start [this]
-    (println "Starting Webserver on port:" (-> config :server :port))
     (let [app (-> routes/api-routes
-                  (wrap-inject-jwt jwt)
                   (wrap-json-body {:keywords? true})
+                  (wrap-inject-jwt jwt)
                   (wrap-datasource datasource)
                   wrap-json-response)]
       (assoc this :server (jetty/run-jetty app {:port (-> config :server :port) :join? false}))))
-
   (stop [this]
-    (println "Stopping Webserver")
     (some-> (:server this) .stop)
     (assoc this :server nil)))
 

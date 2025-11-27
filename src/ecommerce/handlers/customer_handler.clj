@@ -1,8 +1,9 @@
 (ns ecommerce.handlers.customer-handler
   (:require
+   [buddy.auth :refer [authenticated?]]
+   [ecommerce.queries.customer-queries :as queries]
    [ecommerce.utils.analytics :as analytics]
    [ecommerce.utils.validations :as validations]
-   [ecommerce.queries.customer-queries :as queries]
    [honey.sql :as sql]
    [next.jdbc :as jdbc]
    [next.jdbc.result-set :as rs]))
@@ -23,13 +24,15 @@
       (build-response 404 {:error "Customer not found"}))))
 
 (defn get-customers-country-count [request]
-  (let [ds (:datasource request)
-        query (queries/country-count)
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
+  (if (authenticated? request)
+    (let [ds (:datasource request)
+          query (queries/country-count)
+          result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
-    (if result
-      (build-response 200 {:country-count result})
-      (build-response 404 {:error "No customers found"}))))
+      (if result
+        (build-response 200 {:country-count result})
+        (build-response 404 {:error "No customers found"})))
+    {:status 401 :body {:error "Authentication required"}}))
 
 (defn get-customers-by-age-group [request]
   (let [ds (:datasource request)
@@ -147,4 +150,3 @@
                            :from [:customer]
                            :where []})
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
-
