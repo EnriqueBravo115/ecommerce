@@ -20,12 +20,12 @@
 
 (defn generate-test-token []
   (let [secret "123456789"
-        algorithm :hs512
+        alg :hs512
         claims {:user-id 3
                 :email "ana.hernandez@email.com" 
                 :role "ADMIN"
                 :iat (System/currentTimeMillis)
                 :exp (+ (System/currentTimeMillis) (* 3600 1000))}]
-    (jwt/sign claims secret {:alg algorithm})))
+    (jwt/sign claims secret {:alg alg})))
 
 (generate-test-token)

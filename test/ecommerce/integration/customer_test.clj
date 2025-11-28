@@ -4,7 +4,8 @@
    [clj-http.client :as client]
    [clojure.test :refer [deftest is testing]]
    [com.stuartsierra.component :as component]
-   [ecommerce.core :as system])
+   [ecommerce.core :as system]
+   [ecommerce.utils.jwt :as jwt])
   (:import (org.testcontainers.containers PostgreSQLContainer)))
 
 (defmacro with-system
@@ -24,8 +25,14 @@
           [sut (system/system-component {:server {:port 3001}
                                          :db-spec {:jdbcUrl (.getJdbcUrl database-container)
                                                    :username (.getUsername database-container)
-                                                   :password (.getPassword database-container)}})]
-          (let [response (client/get "http://localhost:3001/api/v1/customer/1" {:accept :json})
+                                                   :password (.getPassword database-container)}
+                                         :auth {:jwt
+                                                {:secret "123456789"
+                                                 :alg :hs512
+                                                 :expires-in 3600}}})]
+          (let [response (client/get "http://localhost:3001/api/v1/customer/1" {:accept :json
+                                                                                :headers {"Authorization"
+                                                                                          (str "Bearer " (jwt/generate-test-token))}})
                 body (-> response :body (cheshire/parse-string true))
                 customer (:customer body)]
 
@@ -47,8 +54,13 @@
           [sut (system/system-component {:server {:port 3001}
                                          :db-spec {:jdbcUrl (.getJdbcUrl database-container)
                                                    :username (.getUsername database-container)
-                                                   :password (.getPassword database-container)}})]
-          (let [response (client/get "http://localhost:3001/api/v1/customer/country-count" {:accept :json})
+                                                   :password (.getPassword database-container)}
+                                         :auth {:jwt
+                                                {:secret "123456789"
+                                                 :alg :hs512
+                                                 :expires-in 3600}}})]
+          (let [response (client/get "http://localhost:3001/api/v1/customer/country-count" {:accept :json
+                                                                                            :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}})
                 body (-> response :body (cheshire/parse-string true))
                 country-count (:country-count body)]
 

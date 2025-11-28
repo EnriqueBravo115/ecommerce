@@ -14,14 +14,16 @@
   {:status status :headers json-headers :body body})
 
 (defn get-customer-by-id [request]
-  (let [ds (:datasource request)
-        id (get-in request [:params :id])
-        query (queries/customer-by-id id)
-        result (jdbc/execute-one! ds query {:builder-fn rs/as-unqualified-maps})]
+  (if (authenticated? request)
+    (let [ds (:datasource request)
+          id (get-in request [:params :id])
+          query (queries/customer-by-id id)
+          result (jdbc/execute-one! ds query {:builder-fn rs/as-unqualified-maps})]
 
-    (if result
-      (build-response 200 {:customer result})
-      (build-response 404 {:error "Customer not found"}))))
+      (if result
+        (build-response 200 {:customer result})
+        (build-response 404 {:error "Customer not found"})))
+    (build-response 401 {:error "Authentication required"})))
 
 (defn get-customers-country-count [request]
   (if (authenticated? request)
@@ -32,46 +34,52 @@
       (if result
         (build-response 200 {:country-count result})
         (build-response 404 {:error "No customers found"})))
-    {:status 401 :body {:error "Authentication required"}}))
+    (build-response 401 {:error "Authentication required"})))
 
 (defn get-customers-by-age-group [request]
-  (let [ds (:datasource request)
-        query (queries/customers-age-groups)
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
-        grouped-result (analytics/grouped-result result)]
+  (if (authenticated? request)
+    (let [ds (:datasource request)
+          query (queries/customers-age-groups)
+          result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
+          grouped-result (analytics/grouped-result result)]
 
-    (if result
-      (build-response 200 {:age-group grouped-result})
-      (build-response 404 {:error "No customers found"}))))
+      (if result
+        (build-response 200 {:age-group grouped-result})
+        (build-response 404 {:error "No customers found"})))
+    (build-response 401 {:error "Authentication required"})))
 
 (defn get-customers-by-gender [request]
-  (let [gender (get-in request [:body :gender])
-        validation-error (validations/validate-gender gender)]
+  (if (authenticated? request)
+    (let [gender (get-in request [:body :gender])
+          validation-error (validations/validate-gender gender)]
 
-    (if validation-error
-      (build-response 400 {:error validation-error})
-      (let [ds (:datasource request)
-            query (queries/customers-by-gender gender)
-            result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
+      (if validation-error
+        (build-response 400 {:error validation-error})
+        (let [ds (:datasource request)
+              query (queries/customers-by-gender gender)
+              result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
-        (if result
-          (build-response 200 {:customer-by-gender result})
-          (build-response 404 {:error "No customers found"}))))))
+          (if result
+            (build-response 200 {:customer-by-gender result})
+            (build-response 404 {:error "No customers found"})))))
+    (build-response 401 {:error "Authentication required"})))
 
 (defn get-registration-trend [request]
-  (let [period (get-in request [:body :period])
-        validation-error (validations/validate-period period)]
+  (if (authenticated? request)
+    (let [period (get-in request [:body :period])
+          validation-error (validations/validate-period period)]
 
-    (if validation-error
-      (build-response 400 {:error validation-error})
-      (let [ds (:datasource request)
-            query (queries/registration-date)
-            result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
-            trends (analytics/calculate-trends result period)]
+      (if validation-error
+        (build-response 400 {:error validation-error})
+        (let [ds (:datasource request)
+              query (queries/registration-date)
+              result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
+              trends (analytics/calculate-trends result period)]
 
-        (if result
-          (build-response 200 {:period period :trends trends})
-          (build-response 404 {:error "No customers found"}))))))
+          (if result
+            (build-response 200 {:period period :trends trends})
+            (build-response 404 {:error "No customers found"})))))
+    (build-response 401 {:error "Authentication required"})))
 
 (defn get-active-rate [request]
   (let [ds (:datasource request)

@@ -1,6 +1,5 @@
 (ns ecommerce.routes.customer-routes
   (:require
-   [buddy.auth :refer [authenticated?]]
    [compojure.core :refer [context defroutes GET]]
    [ecommerce.handlers.customer-handler :as customer-handler]))
 
