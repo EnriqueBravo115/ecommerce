@@ -66,11 +66,9 @@
   (testing "GET /api/v1/customer/gender should return customers by gender"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/customer/gender"
+        (let [response (client/get "http://localhost:3001/api/v1/customer/gender/FEMALE"
                                    {:accept :json
-                                    :content-type :json
-                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}
-                                    :body (cheshire/generate-string {:gender "FEMALE"})})
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}})
               body (-> response :body (cheshire/parse-string true))
               customers (:customer-by-gender body)]
 
@@ -83,11 +81,9 @@
   (testing "GET /api/v1/customer/registration-trend should return registration trends"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/customer/registration-trend"
+        (let [response (client/get "http://localhost:3001/api/v1/customer/registration-trend/MONTH"
                                    {:accept :json
-                                    :content-type :json
-                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}
-                                    :body (cheshire/generate-string {:period "MONTH"})})
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}})
               body (-> response :body (cheshire/parse-string true))
               trends (:trends body)]
 
