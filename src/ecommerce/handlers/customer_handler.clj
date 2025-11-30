@@ -50,7 +50,7 @@
 
 (defn get-customers-by-gender [request]
   (if (authenticated? request)
-    (let [gender (get-in request [:body :gender])
+    (let [gender (get-in request [:params :gender])
           validation-error (validations/validate-gender gender)]
 
       (if validation-error
@@ -66,7 +66,7 @@
 
 (defn get-registration-trend [request]
   (if (authenticated? request)
-    (let [period (get-in request [:body :period])
+    (let [period (get-in request [:params :period])
           validation-error (validations/validate-period period)]
 
       (if validation-error

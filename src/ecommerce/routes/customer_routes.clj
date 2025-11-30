@@ -9,9 +9,9 @@
       (customer-handler/get-customers-country-count request))
     (GET "/age-group" request
       (customer-handler/get-customers-by-age-group request))
-    (GET "/gender" request
+    (GET "/gender/:gender" request
       (customer-handler/get-customers-by-gender request))
-    (GET "/registration-trend" request
+    (GET "/registration-trend/:period" request
       (customer-handler/get-registration-trend request))
     (GET "/:id" request
       (customer-handler/get-customer-by-id request))))

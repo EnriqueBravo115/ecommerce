@@ -78,3 +78,21 @@
           (is (vector? customers))
           (is (= 5 (count customers)))
           (is (every? #(= "FEMALE" (:gender %)) customers)))))))
+
+(deftest ^:integration get-customers-registration-trend
+  (testing "GET /api/v1/customer/registration-trend should return registration trends"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (client/get "http://localhost:3001/api/v1/customer/registration-trend"
+                                   {:accept :json
+                                    :content-type :json
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}
+                                    :body (cheshire/generate-string {:period "MONTH"})})
+              body (-> response :body (cheshire/parse-string true))
+              trends (:trends body)]
+
+          (is (= 200 (:status response)))
+          (is (vector? trends))
+          (is (= 4 (count trends)))
+          ;;(is (every? #(= "FEMALE" (:gender %)) trends))
+          )))))
