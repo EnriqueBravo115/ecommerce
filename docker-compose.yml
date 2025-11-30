@@ -1,5 +1,5 @@
 services:
-  database:
+  db:
     image: postgres:15.4
     ports:
       - "5432:5432"
@@ -8,3 +8,10 @@ services:
       - "POSTGRES_PASSWORD=ecommerce"
       - "POSTGRES_DB=ecommerce"
       - "POSTGRES_INITDB_ARGS='--encoding=UTF-8'"
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
