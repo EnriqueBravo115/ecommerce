@@ -50,7 +50,7 @@ INSERT INTO customer (
     '2025-03-10 17:30:00'
 ),
 ('Carmen Gloria', 'Delgado', 'Rojas', 'carmen.delgado@email.com', 'CHL', '1965-06-25', 'FEMALE', 'DERC650625CHL', 
-    'DERC650625MDFLJR09', '$2a$10$hashedpassword567', 'CUSTOMER', '+562288776655', '+56', 'CL', 'ACT990011', true,
+    'DERC650625MDFLJR09', '$2a$10$hashedpassword567', 'CUSTOMER', '+562288776655', '+56', 'CL', 'ACT990011', false,
     '2025-03-15 12:10:00'
 ),
 ('Jorge Luis', 'Santos', 'Cervantes', 'jorge.santos@email.com', 'MEX', '1963-04-17', 'MALE', 'SACJ630417MEX', 

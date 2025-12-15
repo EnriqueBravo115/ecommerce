@@ -17,7 +17,7 @@
   (if (authenticated? request)
     (let [ds (:datasource request)
           id (get-in request [:params :id])
-          query (queries/customer-by-id id)
+          query (queries/get-by-id id)
           result (jdbc/execute-one! ds query {:builder-fn rs/as-unqualified-maps})]
 
       (if result
@@ -28,7 +28,7 @@
 (defn get-customers-country-count [request]
   (if (authenticated? request)
     (let [ds (:datasource request)
-          query (queries/country-count)
+          query (queries/get-country-count)
           result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
       (if result
@@ -39,7 +39,7 @@
 (defn get-customers-by-age-group [request]
   (if (authenticated? request)
     (let [ds (:datasource request)
-          query (queries/customers-age-groups)
+          query (queries/get-age)
           result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
           grouped-result (analytics/grouped-result result)]
 
@@ -56,7 +56,7 @@
       (if validation-error
         (build-response 400 {:error validation-error})
         (let [ds (:datasource request)
-              query (queries/customers-by-gender gender)
+              query (queries/get-by-gender gender)
               result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
           (if result
@@ -72,7 +72,7 @@
       (if validation-error
         (build-response 400 {:error validation-error})
         (let [ds (:datasource request)
-              query (queries/registration-date)
+              query (queries/get-registration-date)
               result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
               trends (analytics/calculate-trends result period)]
 
@@ -82,43 +82,34 @@
     (build-response 401 {:error "Authentication required"})))
 
 (defn get-active-rate [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from   [:customer]
-                           :where  []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+  (if (authenticated? request)
+    (let [ds (:datasource request)
+          query (queries/get-active-rate)
+          result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
+          total (:total (first result))
+          active (:active (first result))]
 
-(defn get-activation-trend [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select
-                           :from [:customer]
-                           :where})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+      (if result
+        (build-response 200 {:percentage (* 100 (/ active total)) :total total :active active})
+        (build-response 404 {:error "No customers found"})))
+    (build-response 401 {:error "Authentication required"})))
 
-(defn get-inactive-customers [request]
-  (let [ds (:datasource request)
-        date (get-in request [:body :date])
-        query (sql/format {:select []
-                           :from   [:customer]
-                           :where  [:= :date date]})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+(defn get-inactive [request]
+  (if (authenticated? request)
+    (let [ds (:datasource request)
+          query (queries/get-inactive)
+          result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
-(defn segment-by-demographics [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+      (if result
+        (build-response 200 {:inactive result})
+        (build-response 404 {:error "No customers found"})))
+    (build-response 401 {:error "Authentication required"})))
 
-(defn segment-by-registration-period [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
-
-(defn get-high-value-demographics [request]
-  (let [ds (:datasource request)
+(defn get-segment-by-demographics [request]
+  (let [country (get-in request [:route-params :country])
+        gender (get-in request [:route-params :gender])
+        age-group (get-in request [:route-params :age-group])
+        ds (:datasource request)
         query (sql/format {:select []
                            :from [:customer]
                            :where []})
@@ -131,28 +122,7 @@
                            :where []})
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
 
-(defn get-customer-with-password-reset-requests [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
-
-(defn get-growth-metrics [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
-
-(defn predict-demographic-trends [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
-
-(defn identify-at-risk-segments [request]
+(defn get-customers-with-password-reset-code [request]
   (let [ds (:datasource request)
         query (sql/format {:select []
                            :from [:customer]

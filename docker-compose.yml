@@ -9,9 +9,9 @@ services:
       - "POSTGRES_DB=ecommerce"
       - "POSTGRES_INITDB_ARGS='--encoding=UTF-8'"
 
-  api:
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
+#  api:
+#    build: .
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - db
