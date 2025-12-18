@@ -28,9 +28,9 @@
         org.flywaydb/flyway-core {:mvn/version "9.21.2"}
 
         ;; Test
-        org.testcontainers/testcontainers {:mvn/version "1.21.1"}
-        org.testcontainers/postgresql {:mvn/version "1.21.1"}
-        org.testcontainers/kafka {:mvn/version "1.21.1"}}
+        org.testcontainers/testcontainers {:mvn/version "2.0.2"}
+        org.testcontainers/testcontainers-postgresql {:mvn/version "2.0.2"}
+        org.testcontainers/testcontainers-kafka {:mvn/version "2.0.2"}}
 
  :aliases {:test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
                   :main-opts ["-m" "kaocha.runner"]}
