@@ -21,11 +21,12 @@
 (defn generate-test-token []
   (let [secret "123456789"
         alg :hs512
+        current-time-seconds (quot (System/currentTimeMillis) 1000)
         claims {:user-id 3
                 :email "ana.hernandez@email.com" 
                 :role "ADMIN"
-                :iat (System/currentTimeMillis)
-                :exp (+ (System/currentTimeMillis) (* 3600 1000))}]
+                :iat current-time-seconds
+                :exp (+ current-time-seconds 120)}]
     (jwt/sign claims secret {:alg alg})))
 
 (generate-test-token)

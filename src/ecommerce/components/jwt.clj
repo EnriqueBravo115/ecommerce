@@ -12,13 +12,13 @@
           algorithm (-> config :auth :jwt :alg)
           backend (backends/token {:secret secret
                                    :options {:alg algorithm}
-                                   :on-error (fn [request err]
-                                               (println "JWT Error:" err)
-                                               nil)
                                    :token-name "Bearer"
+                                   :on-error (fn [request err]
+                                               (println "JWT Error:" err) nil)
                                    :authfn (fn [request token]
                                              (try
-                                               (let [claims (jwt/unsign token secret {:alg algorithm})]
+                                               (let [claims (jwt/unsign token secret {:alg algorithm
+                                                                                      :now (quot (System/currentTimeMillis) 1000)})]
                                                  claims)
                                                (catch Exception e
                                                  (log/error "Token validation failed:" (.getMessage e))

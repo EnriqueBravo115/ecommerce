@@ -23,7 +23,7 @@
       (if result
         (build-response 200 {:customer result})
         (build-response 404 {:error "Customer not found"})))
-    (build-response 401 {:error "Authentication required"})))
+    (build-response 401 {:error "Authentication failed"})))
 
 (defn get-customers-country-count [request]
   (if (authenticated? request)
@@ -34,7 +34,7 @@
       (if result
         (build-response 200 {:country-count result})
         (build-response 404 {:error "No customers found"})))
-    (build-response 401 {:error "Authentication required"})))
+    (build-response 401 {:error "Authentication failed"})))
 
 (defn get-customers-by-age-group [request]
   (if (authenticated? request)
@@ -46,7 +46,7 @@
       (if result
         (build-response 200 {:age-group grouped-result})
         (build-response 404 {:error "No customers found"})))
-    (build-response 401 {:error "Authentication required"})))
+    (build-response 401 {:error "Authentication failed"})))
 
 (defn get-customers-by-gender [request]
   (if (authenticated? request)
@@ -62,7 +62,7 @@
           (if result
             (build-response 200 {:customer-by-gender result})
             (build-response 404 {:error "No customers found"})))))
-    (build-response 401 {:error "Authentication required"})))
+    (build-response 401 {:error "Authentication failed"})))
 
 (defn get-registration-trend [request]
   (if (authenticated? request)
@@ -79,7 +79,7 @@
           (if result
             (build-response 200 {:period period :trends trends})
             (build-response 404 {:error "No customers found"})))))
-    (build-response 401 {:error "Authentication required"})))
+    (build-response 401 {:error "Authentication failed"})))
 
 (defn get-active-rate [request]
   (if (authenticated? request)
@@ -92,7 +92,7 @@
       (if result
         (build-response 200 {:percentage (* 100 (/ active total)) :total total :active active})
         (build-response 404 {:error "No customers found"})))
-    (build-response 401 {:error "Authentication required"})))
+    (build-response 401 {:error "Authentication failed"})))
 
 (defn get-inactive [request]
   (if (authenticated? request)
@@ -103,7 +103,7 @@
       (if result
         (build-response 200 {:inactive result})
         (build-response 404 {:error "No customers found"})))
-    (build-response 401 {:error "Authentication required"})))
+    (build-response 401 {:error "Authentication failed"})))
 
 (defn get-segment-by-demographics [request]
   (let [country (get-in request [:route-params :country])

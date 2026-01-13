@@ -1,6 +1,6 @@
 ### GET customer by id
 GET http://localhost:3000/api/v1/customer/2
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyLWlkIjozLCJlbWFpbCI6ImFuYS5oZXJuYW5kZXpAZW1haWwuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzY4MzI1NjI3MDk5LCJleHAiOjE3NjgzMjkyMjcwOTl9.VkwJGnXKk60Ywitw578RCfdBlRwN0c0a5Gpz55sFhcJuZjclDdh8T46MuNSWnGfNBncsPs433-GqTHGME6e-qg
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyLWlkIjozLCJlbWFpbCI6ImFuYS5oZXJuYW5kZXpAZW1haWwuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzY4MzMwNzExLCJleHAiOjE3NjgzMzA4MzF9.7xsa0tEo35-MIQGnxpxivpTwWIdG62gAmgrxqsRMSHTG8Bsq0Css9OdvTwWGymkHc0obvrhstwet-CAEDTwzZQ
 
 ### GET customer registration trend
 GET http://localhost:3000/api/v1/customer/registration-trend/YEAR
