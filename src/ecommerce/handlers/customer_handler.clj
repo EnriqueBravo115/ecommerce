@@ -19,9 +19,8 @@
     (not (authenticated? request))
     (build-response 401 {:error "Authentication failed"})
 
-    (not (jwt/has-any-role? request "ADMIN" "USER"))
-    (build-response 403 {:error "Forbidden"
-                         :message "Admin access required"})
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
 
     :else
     (let [ds (:datasource request)
@@ -34,18 +33,31 @@
         (build-response 404 {:error "Customer not found"})))))
 
 (defn get-customers-country-count [request]
-  (if (authenticated? request)
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
+
+    :else
     (let [ds (:datasource request)
           query (queries/get-country-count)
           result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
       (if result
         (build-response 200 {:country-count result})
-        (build-response 404 {:error "No customers found"})))
-    (build-response 401 {:error "Authentication failed"})))
+        (build-response 404 {:error "No customers found"})))))
 
 (defn get-customers-by-age-group [request]
-  (if (authenticated? request)
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
+
+    :else
     (let [ds (:datasource request)
           query (queries/get-age)
           result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
@@ -53,11 +65,17 @@
 
       (if result
         (build-response 200 {:age-group grouped-result})
-        (build-response 404 {:error "No customers found"})))
-    (build-response 401 {:error "Authentication failed"})))
+        (build-response 404 {:error "No customers found"})))))
 
 (defn get-customers-by-gender [request]
-  (if (authenticated? request)
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
+
+    :else
     (let [gender (get-in request [:params :gender])
           validation-error (validations/validate-gender gender)]
 
@@ -69,11 +87,17 @@
 
           (if result
             (build-response 200 {:customer-by-gender result})
-            (build-response 404 {:error "No customers found"})))))
-    (build-response 401 {:error "Authentication failed"})))
+            (build-response 404 {:error "No customers found"})))))))
 
 (defn get-registration-trend [request]
-  (if (authenticated? request)
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
+
+    :else
     (let [period (get-in request [:params :period])
           validation-error (validations/validate-period period)]
 
@@ -86,11 +110,17 @@
 
           (if result
             (build-response 200 {:period period :trends trends})
-            (build-response 404 {:error "No customers found"})))))
-    (build-response 401 {:error "Authentication failed"})))
+            (build-response 404 {:error "No customers found"})))))))
 
 (defn get-active-rate [request]
-  (if (authenticated? request)
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
+
+    :else
     (let [ds (:datasource request)
           query (queries/get-active-rate)
           result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
@@ -99,19 +129,24 @@
 
       (if result
         (build-response 200 {:percentage (* 100 (/ active total)) :total total :active active})
-        (build-response 404 {:error "No customers found"})))
-    (build-response 401 {:error "Authentication failed"})))
+        (build-response 404 {:error "No customers found"})))))
 
 (defn get-inactive [request]
-  (if (authenticated? request)
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
+
+    :else
     (let [ds (:datasource request)
           query (queries/get-inactive)
           result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
       (if result
         (build-response 200 {:inactive result})
-        (build-response 404 {:error "No customers found"})))
-    (build-response 401 {:error "Authentication failed"})))
+        (build-response 404 {:error "No customers found"})))))
 
 (defn get-segment-by-demographics [request]
   (let [country (get-in request [:route-params :country])
