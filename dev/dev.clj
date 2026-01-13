@@ -12,4 +12,4 @@
      :auth {:jwt
             {:secret "123456789"
              :alg :hs512
-             :expires-in 120}}})))
+             :expires-in 3600}}})))

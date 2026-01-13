@@ -4,6 +4,7 @@
    [ecommerce.queries.customer-queries :as queries]
    [ecommerce.utils.analytics :as analytics]
    [ecommerce.utils.validations :as validations]
+   [ecommerce.utils.jwt :as jwt]
    [honey.sql :as sql]
    [next.jdbc :as jdbc]
    [next.jdbc.result-set :as rs]))
@@ -14,7 +15,15 @@
   {:status status :headers json-headers :body body})
 
 (defn get-customer-by-id [request]
-  (if (authenticated? request)
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN" "USER"))
+    (build-response 403 {:error "Forbidden"
+                         :message "Admin access required"})
+
+    :else
     (let [ds (:datasource request)
           id (get-in request [:params :id])
           query (queries/get-by-id id)
@@ -22,8 +31,7 @@
 
       (if result
         (build-response 200 {:customer result})
-        (build-response 404 {:error "Customer not found"})))
-    (build-response 401 {:error "Authentication failed"})))
+        (build-response 404 {:error "Customer not found"})))))
 
 (defn get-customers-country-count [request]
   (if (authenticated? request)

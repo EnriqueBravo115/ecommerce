@@ -17,12 +17,10 @@
                                                (println "JWT Error:" err) nil)
                                    :authfn (fn [request token]
                                              (try
-                                               (let [claims (jwt/unsign token secret {:alg algorithm
-                                                                                      :now (quot (System/currentTimeMillis) 1000)})]
-                                                 claims)
+                                               (jwt/unsign token secret {:alg algorithm
+                                                                         :now (quot (System/currentTimeMillis) 1000)})
                                                (catch Exception e
-                                                 (log/error "Token validation failed:" (.getMessage e))
-                                                 nil)))})]
+                                                 (log/error "Token validation failed:" (.getMessage e)) nil)))})]
       (assoc this :backend backend)))
   (stop [this]
     (assoc this :backend nil)))
