@@ -1,13 +1,13 @@
 (ns ecommerce.handlers.customer-handler
   (:require
-   [buddy.auth :refer [authenticated?]]
-   [ecommerce.queries.customer-queries :as queries]
-   [ecommerce.utils.analytics :as analytics]
-   [ecommerce.utils.validations :as validations]
-   [ecommerce.utils.jwt :as jwt]
-   [honey.sql :as sql]
-   [next.jdbc :as jdbc]
-   [next.jdbc.result-set :as rs]))
+    [buddy.auth :refer [authenticated?]]
+    [ecommerce.queries.customer-queries :as queries]
+    [ecommerce.utils.analytics :as analytics]
+    [ecommerce.utils.validations :as validations]
+    [ecommerce.utils.jwt :as jwt]
+    [honey.sql :as sql]
+    [next.jdbc :as jdbc]
+    [next.jdbc.result-set :as rs]))
 
 (def ^:private json-headers {"Content-Type" "application/json"})
 
@@ -188,7 +188,7 @@
 
       (if (seq result)
         (build-response 200 {:registrations-by-country-code result})
-        (build-response 404 {:error "No customers with country code found"})))))
+        (build-response 404 {:error "No customers found"})))))
 
 (defn get-customers-with-password-reset-code [request]
   (cond
@@ -200,16 +200,9 @@
 
     :else
     (let [ds (:datasource request)
-          query {:select [:id :names :first_surname :second_surname
-                          :email :country_code :phone_number
-                          :password_reset_code :registration_date]
-                 :from [:customer]
-                 :where [:and
-                         [:not= :password_reset_code nil]
-                         [:= :active true]]
-                 :order-by [[:registration_date :desc]]}
-          result (jdbc/execute! ds (sql/format query) {:builder-fn rs/as-unqualified-maps})]
+          query (queries/get-customers-with-password-reset-code)
+          result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
       (if (seq result)
         (build-response 200 {:customers-with-password-reset-code result})
-        (build-response 404 {:error "No active customers with password reset code found"})))))
+        (build-response 404 {:error "No customers found"})))))

@@ -1,11 +1,12 @@
 (ns ecommerce.core
   (:require
-   [aero.core :as aero]
-   [clojure.java.io :as io]
-   [com.stuartsierra.component :as component]
-   [ecommerce.components.datasource :as datasource]
-   [ecommerce.components.jwt :as jwt]
-   [ecommerce.components.web-server :as web-server]) (:gen-class))
+    [aero.core :as aero]
+    [clojure.java.io :as io]
+    [com.stuartsierra.component :as component]
+    [ecommerce.components.datasource :as datasource]
+    [ecommerce.components.jwt :as jwt]
+    [ecommerce.components.web-server :as web-server])
+  (:gen-class))
 
 (defn read-config
   []
@@ -16,11 +17,11 @@
 (defn system-component
   [config]
   (component/system-map
-   :datasource (datasource/new-datasource config)
-   :jwt (jwt/new-jwt config)
-   :web-server (component/using
-                (web-server/new-web-server config)
-                [:datasource :jwt])))
+    :datasource (datasource/new-datasource config)
+    :jwt (jwt/new-jwt config)
+    :web-server (component/using
+                  (web-server/new-web-server config)
+                  [:datasource :jwt])))
 
 (defn -main
   []

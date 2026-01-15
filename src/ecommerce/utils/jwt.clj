@@ -37,7 +37,7 @@
         current-time-seconds (quot (System/currentTimeMillis) 1000)
         claims {:id 3
                 :email "ana.hernandez@email.com"
-                :roles "ADMIN"
+                :roles "CUSTOMER"
                 :iat current-time-seconds
                 :exp (+ current-time-seconds 86400)}]
     (jwt/sign claims secret {:alg alg})))
