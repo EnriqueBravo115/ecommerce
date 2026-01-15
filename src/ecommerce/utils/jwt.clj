@@ -39,7 +39,7 @@
                 :email "ana.hernandez@email.com"
                 :roles "ADMIN"
                 :iat current-time-seconds
-                :exp (+ current-time-seconds 120)}]
+                :exp (+ current-time-seconds 86400)}]
     (jwt/sign claims secret {:alg alg})))
 
 (generate-test-token)

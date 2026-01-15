@@ -34,3 +34,15 @@
               {:period period
                :count (count dates)}))
        (sort-by :period)))
+
+(defn group-registrations-by-country [registrations]
+  (reduce (fn [acc row]
+            (let [country (:country_of_birth row)
+                  year (:year row)
+                  month (:month row)
+                  count (:registrations row)]
+              (update acc country
+                      (fnil conj [])
+                      {:year year :month month :registrations count})))
+          {}
+          registrations))

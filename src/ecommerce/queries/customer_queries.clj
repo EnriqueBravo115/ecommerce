@@ -44,3 +44,33 @@
    {:select [[(sql/call :count :*) :total]]
     :from [:customer]
     :where [:= :active false]}))
+
+(defn get-segment-by-demographics [country gender min-age max-age]
+  (let [base-conditions (remove nil? [(when country [:= :country_of_birth country])
+                                      (when gender [:= :gender gender])])
+
+        age-conditions (remove nil? [(when min-age
+                                       [:>= [:raw "(EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthday::date)))"]
+                                        min-age])
+                                     (when max-age
+                                       [:<= [:raw "(EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthday::date)))"]
+                                        max-age])])
+
+        all-conditions (into [:and] (concat base-conditions age-conditions))]
+
+    (sql/format {:select [:names :first_surname :second_surname :email
+                          :country_of_birth :gender :active
+                          [[:raw "EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthday::date))"] :age]]
+                 :from [:customer]
+                 :where (when (seq all-conditions) all-conditions)}
+                :inline true)))
+
+(defn get-registration-by-country-code []
+  (sql/format
+   {:select [:country_code
+             [(sql/call :count :*) :registrations]]
+    :from [:customer]
+    :where [:not= :country_code nil]
+    :group-by [:country_code]
+    :order-by [[:country_code :asc]]}))
+

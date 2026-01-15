@@ -149,25 +149,67 @@
         (build-response 404 {:error "No customers found"})))))
 
 (defn get-segment-by-demographics [request]
-  (let [country (get-in request [:route-params :country])
-        gender (get-in request [:route-params :gender])
-        age-group (get-in request [:route-params :age-group])
-        ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
+
+    :else
+    (let [country (get-in request [:route-params :country])
+          gender (get-in request [:route-params :gender])
+          min-age-param (get-in request [:route-params :min-age])
+          max-age-param (get-in request [:route-params :max-age])
+          ds (:datasource request)
+
+          min-age (when min-age-param (Integer/parseInt min-age-param))
+          max-age (when max-age-param (Integer/parseInt max-age-param))
+
+          query (queries/get-segment-by-demographics country gender min-age max-age)
+          result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
+
+      (if result
+        (build-response 200 {:segment-demographics result})
+        (build-response 404 {:error "No customers found"})))))
 
 (defn get-registration-by-country-code [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
+
+    :else
+    (let [ds (:datasource request)
+          query (queries/get-registration-by-country-code)
+          result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
+
+      (if (seq result)
+        (build-response 200 {:registrations-by-country-code result})
+        (build-response 404 {:error "No customers with country code found"})))))
 
 (defn get-customers-with-password-reset-code [request]
-  (let [ds (:datasource request)
-        query (sql/format {:select []
-                           :from [:customer]
-                           :where []})
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]))
+  (cond
+    (not (authenticated? request))
+    (build-response 401 {:error "Authentication failed"})
+
+    (not (jwt/has-any-role? request "ADMIN"))
+    (build-response 403 {:error "Admin access required"})
+
+    :else
+    (let [ds (:datasource request)
+          query {:select [:id :names :first_surname :second_surname
+                          :email :country_code :phone_number
+                          :password_reset_code :registration_date]
+                 :from [:customer]
+                 :where [:and
+                         [:not= :password_reset_code nil]
+                         [:= :active true]]
+                 :order-by [[:registration_date :desc]]}
+          result (jdbc/execute! ds (sql/format query) {:builder-fn rs/as-unqualified-maps})]
+
+      (if (seq result)
+        (build-response 200 {:customers-with-password-reset-code result})
+        (build-response 404 {:error "No active customers with password reset code found"})))))
