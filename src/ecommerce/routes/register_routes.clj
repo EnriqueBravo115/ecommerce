@@ -5,5 +5,5 @@
 
 (defroutes register-routes
   (context "/register" []
-    (POST "/add" request
-      (register-handler/register-customer request))))
+    (POST "/create-customer" request
+      (register-handler/create-customer request))))

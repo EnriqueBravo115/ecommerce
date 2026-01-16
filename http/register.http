@@ -1,12 +1,12 @@
 # POST register customer
-POST http://localhost:3000/api/v1/register/add
+POST http://localhost:3000/api/v1/register/create-customer
 
 {
   "names": "Juan Carlos",
   "first_surname": "Fernández",
   "second_surname": "Núñez",
   "email": "juan.fernandez@email.com",
-  "country_of_birth": "Mexico",
+  "country_of_birth": "USA",
   "birthday": "1993-09-28",
   "gender": "MALE",
   "rfc": "FENJ930928ABC",
