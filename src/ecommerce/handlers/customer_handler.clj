@@ -5,7 +5,6 @@
     [ecommerce.utils.analytics :as analytics]
     [ecommerce.utils.validations :as validations]
     [ecommerce.utils.jwt :as jwt]
-    [honey.sql :as sql]
     [next.jdbc :as jdbc]
     [next.jdbc.result-set :as rs]))
 

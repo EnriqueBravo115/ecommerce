@@ -1,0 +1,18 @@
+# POST register customer
+POST http://localhost:3000/api/v1/register/add
+
+{
+  "names": "Juan Carlos",
+  "first_surname": "Fernández",
+  "second_surname": "Núñez",
+  "email": "juan.fernandez@email.com",
+  "country_of_birth": "Mexico",
+  "birthday": "1993-09-28",
+  "gender": "MALE",
+  "rfc": "FENJ930928ABC",
+  "curp": "FENJ930928HDFRRN11",
+  "password": "mypassword2024",
+  "phone_number": "5544332211",
+  "phone_code": "+52",
+  "country_code": "MX"
+}

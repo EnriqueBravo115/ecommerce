@@ -1,15 +1,16 @@
 (ns ecommerce.routes.core
   (:require
-   [compojure.core :refer [context defroutes GET]]
+   [compojure.core :refer [routes context defroutes GET]]
    [ecommerce.utils.middleware :refer [wrap-jwt]]
-   [ecommerce.routes.customer-routes :refer [customer-routes]]))
+   [ecommerce.routes.customer-routes :refer [customer-routes]]
+   [ecommerce.routes.register-routes :refer [register-routes]]))
 
 (defroutes api-routes
   (GET "/health" []
     {:status 200 :body {:status "healthy"}})
 
   (context "/api/v1" []
-    (-> customer-routes
+    (-> (routes customer-routes register-routes)
         wrap-jwt))
 
   (GET "*" [request]
