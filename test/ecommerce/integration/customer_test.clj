@@ -36,12 +36,12 @@
 
           (is (= 200 (:status response)))
           (is (vector? country-count))
-          (is (= 1 (get country-map "COL")))
-          (is (= 1 (get country-map "CHL")))
-          (is (= 1 (get country-map "ARG")))
-          (is (= 1 (get country-map "ESP")))
-          (is (= 5 (get country-map "MEX")))
-          (is (= 1 (get country-map "USA"))))))))
+          (is (= 1 (get country-map "Colombia")))
+          (is (= 1 (get country-map "Chile")))
+          (is (= 1 (get country-map "Argentina")))
+          (is (= 1 (get country-map "Spain")))
+          (is (= 5 (get country-map "Mexico")))
+          (is (= 1 (get country-map "United States of America"))))))))
 
 (deftest ^:integration get-customers-by-age-group
   (testing "GET /api/v1/customer/age-group should return age group aggregation"

@@ -51,6 +51,7 @@
                              :first_surname (:first_surname registration-data)
                              :second_surname (:second_surname registration-data)
                              :country_of_birth (:country_of_birth registration-data)
+                             :email (:email registration-data)
                              :birthday (:birthday registration-data)
                              :gender (:gender registration-data)
                              :rfc (:rfc registration-data)

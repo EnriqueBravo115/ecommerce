@@ -6,7 +6,7 @@ POST http://localhost:3000/api/v1/register/create-customer
   "first_surname": "Fernández",
   "second_surname": "Núñez",
   "email": "juan.fernandez@email.com",
-  "country_of_birth": "USA",
+  "country_of_birth": "Alaska",
   "birthday": "1993-09-28",
   "gender": "MALE",
   "rfc": "FENJ930928ABC",
