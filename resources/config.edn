@@ -5,4 +5,10 @@
  :auth {:jwt
         {:secret "123456789"
          :alg :hs512
-         :expires-in 3600}}}
+         :expires-in 3600}}
+ :smtp {:host "email-smtp.us-east-1.amazonaws.com"
+        :user "AKIARVSK33G3SWJ7LHHZ"
+        :pass "BIaTdKox3H9Bo/PTC/77sNqTuWvP7QL7SZTz6wOoq2FG"
+        :from "enriquebravo115@gmail.com"
+        :ssl true
+        :port 465}}
