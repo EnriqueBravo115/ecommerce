@@ -4,12 +4,6 @@ Make sure Docker Compose is installed.
 docker-compose up -d
 ```
 
-## Build jar
-Make sure [clj](https://clojure.org/guides/install_clojure) is installed.
-```bash
-clj -T:build uber
-```
-
 ## Test (Kaocha)
 Make sure [clj](https://clojure.org/guides/install_clojure) is installed:
 ```bash

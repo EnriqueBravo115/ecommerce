@@ -9,7 +9,7 @@
   (let [config (read-config (io/resource "config.edn"))]
     (get config :smtp)))
 
-(defn send-email!
+(defn send-email
   [{:keys [to subject body html attachments]}]
   (try
     (when (:enabled email-settings true)
@@ -31,16 +31,15 @@
       (log/error "Failed to send email to" to ":" (.getMessage e))
       {:success false :error (.getMessage e)})))
 
-(defn send-welcome-email [email name activation-code]
-  (send-email!
+(defn send-activation-code-email [email activation-code]
+  (send-email
    {:to email
     :subject "Activation code"
-    :html (str "<h1>Welcome " name "</h1>")
+    :html "<h1>Welcome </h1>"
     :body (str "Your activation code is: " activation-code)}))
 
 ;; TEST
 (comment
-  (send-welcome-email
+  (send-activation-code-email
    "enriquebravo115@gmail.com"
-   "Enrique Bravo"
    123))

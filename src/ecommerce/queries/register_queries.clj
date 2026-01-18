@@ -2,7 +2,7 @@
   (:require
    [honey.sql :as sql]))
 
-(defn get-user-by-email [email]
+(defn get-customer-by-email [email]
   (sql/format
    {:select [:customer.id :customer.names :customer.first_surname :customer.second_surname
              :customer.email :customer.active]
@@ -39,5 +39,12 @@
           :phone_number phone_number
           :phone_code phone_code
           :country_code country_code}
+    :where [:= :id id]}
+   :inline true))
+
+(defn update-activation-code [{:keys [id activation_code]}]
+  (sql/format
+   {:update :customer
+    :set {:activation_code activation_code}
     :where [:= :id id]}
    :inline true))
