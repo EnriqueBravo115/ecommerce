@@ -65,11 +65,11 @@
 (defn has-all-roles? [request & required-roles]
   (every? #(has-role? request %) required-roles))
 
-(defn- get-user-identity [request]
+(defn- get-customer-identity [request]
   (when (authenticated? request)
     (:identity request)))
 
-(defn get-user-id
+(defn get-customer-id
   [request]
-  (when-let [identity (get-user-identity request)]
+  (when-let [identity (get-customer-identity request)]
     (:id identity)))
