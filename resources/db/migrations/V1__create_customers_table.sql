@@ -1,6 +1,6 @@
 CREATE TABLE customer
 (
-    id                  BIGSERIAL    PRIMARY KEY,
+    id                  BIGSERIAL PRIMARY KEY,
     names               VARCHAR(255) NOT NULL,
     first_surname       VARCHAR(255) NOT NULL,
     second_surname      VARCHAR(255) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE customer
     password_reset_code VARCHAR(255),
     country_code        VARCHAR(255),
     activation_code     VARCHAR(255),
-    active              BOOLEAN   NOT NULL DEFAULT FALSE,
+    active              BOOLEAN NOT NULL DEFAULT FALSE,
     registration_date   TIMESTAMP DEFAULT current_timestamp,
     updated_at          TIMESTAMP
 );

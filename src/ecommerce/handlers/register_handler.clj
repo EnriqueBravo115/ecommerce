@@ -18,8 +18,8 @@
 (defn create-customer [request]
   (let [registration-data (:body request)
         ds (:datasource request)
-        password_encoded (password/encode (:password registration-data))
         email (:email registration-data)
+        password_encoded (password/encode (:password registration-data))
         existing-customer (jdbc/execute-one! ds
                                              (queries/get-customer-by-email email)
                                              {:builder-fn rs/as-unqualified-maps})]
