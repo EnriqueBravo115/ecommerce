@@ -1,8 +1,10 @@
 (ns ecommerce.utils.jwt
-  (:require [buddy.sign.jwt :as jwt]
-            [java-time.api :as jt]
-            [clojure.string :as str]
-            [clojure.tools.logging :as log]))
+  (:require
+   [buddy.auth :refer [authenticated?]]
+   [buddy.sign.jwt :as jwt]
+   [clojure.string :as str]
+   [clojure.tools.logging :as log]
+   [java-time.api :as jt]))
 
 (def ^:private secret "123456789")
 (def ^:private alg :hs512)
@@ -62,3 +64,12 @@
 
 (defn has-all-roles? [request & required-roles]
   (every? #(has-role? request %) required-roles))
+
+(defn- get-user-identity [request]
+  (when (authenticated? request)
+    (:identity request)))
+
+(defn get-user-id
+  [request]
+  (when-let [identity (get-user-identity request)]
+    (:id identity)))
