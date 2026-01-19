@@ -21,7 +21,7 @@ POST http://localhost:3000/api/v1/register/create-customer
 POST http://localhost:3000/api/v1/register/registration-code/enriquebravo115@gmail.com
 
 ### POST check registration code
-POST http://localhost:3000/api/v1/register/check-registration-code/4a6d7c4
+POST http://localhost:3000/api/v1/register/check-registration-code/d6b3141
 
 ### POST end registration
 POST http://localhost:3000/api/v1/register/end-registration

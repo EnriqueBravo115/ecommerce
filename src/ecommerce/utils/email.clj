@@ -37,9 +37,3 @@
     :subject "Activation code"
     :html "<h1>Welcome </h1>"
     :body (str "Your activation code is: " activation-code)}))
-
-;; TEST
-(comment
-  (send-activation-code-email
-   "enriquebravo115@gmail.com"
-   123))

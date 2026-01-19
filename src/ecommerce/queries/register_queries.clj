@@ -4,20 +4,20 @@
 
 (defn get-customer-by-email [email]
   (sql/format
-   {:select [:customer.id :customer.active :customer.password]
+   {:select [:id :active :password]
     :from [:customer]
-    :where [:= :customer.email email]}
+    :where [:= :email email]}
    :inline true))
 
 (defn create-customer [{:keys [names first_surname second_surname email country_of_birth birthday gender
-                               rfc curp password phone_number phone_code country_code role]}]
+                               rfc curp password phone_number phone_code country_code]}]
   (sql/format
    {:insert-into :customer
     :columns [:names :first_surname :second_surname :email :country_of_birth :birthday
               :gender :rfc :curp :password :phone_number :phone_code :country_code
               :role :active]
     :values [[names first_surname second_surname email country_of_birth birthday gender
-              rfc curp password phone_number phone_code country_code role false]]}
+              rfc curp password phone_number phone_code country_code "CUSTOMER" false]]}
    :inline true))
 
 (defn update-customer [id {:keys [names first_surname second_surname email country_of_birth

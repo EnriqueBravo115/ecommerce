@@ -28,7 +28,7 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZ
 
 ### GET customer country count
 GET http://localhost:3000/api/v1/customer/country-count
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg0OTg1NjIsImV4cCI6MTc2ODU4NDk2Mn0.gbkD3HGsvQfPt93UyLrdKVp5r9MGxnSoeMQkoNBu4iQlfAEhk2M4jn3OSAfaKgQayuJYMOsti5iEExREY9Yu3g
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NDMzNTEsImV4cCI6MTc2ODkyOTc1MX0.HxJmxEXWgla18C6sdWtZQUaQ-uBDbhk8MSPQPN31Duo7LWg9fqFT6HrSuL6aJIk-l_XWrU7UMPcZVBSf0mhq0Q
 
 ### GET customer registrations by country code
 GET http://localhost:3000/api/v1/customer/registration-by-country-code
