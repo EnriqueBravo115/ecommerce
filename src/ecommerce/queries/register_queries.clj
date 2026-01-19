@@ -4,8 +4,7 @@
 
 (defn get-customer-by-email [email]
   (sql/format
-   {:select [:customer.id :customer.names :customer.first_surname :customer.second_surname
-             :customer.email :customer.active]
+   {:select [:customer.id :customer.active :customer.password]
     :from [:customer]
     :where [:= :customer.email email]}
    :inline true))
@@ -26,19 +25,9 @@
                                   country_code]}]
   (sql/format
    {:update :customer
-    :set {:names names
-          :first_surname first_surname
-          :second_surname second_surname
-          :email email
-          :country_of_birth country_of_birth
-          :birthday birthday
-          :gender gender
-          :rfc rfc
-          :curp curp
-          :password password
-          :phone_number phone_number
-          :phone_code phone_code
-          :country_code country_code}
+    :set {:names names :first_surname first_surname :second_surname second_surname :email email
+          :country_of_birth country_of_birth :birthday birthday :gender gender :rfc rfc :curp curp
+          :password password :phone_number phone_number :phone_code phone_code :country_code country_code}
     :where [:= :id id]}
    :inline true))
 
@@ -46,5 +35,26 @@
   (sql/format
    {:update :customer
     :set {:activation_code activation_code}
+    :where [:= :id id]}
+   :inline true))
+
+(defn get-user-by-activation-code [code]
+  (sql/format
+   {:select [:id :email]
+    :from [:customer]
+    :where [:= :activation_code code]}
+   :inline true))
+
+(defn clear-activation-code [{:keys [id]}]
+  (sql/format
+   {:update :customer
+    :set {:activation_code nil}
+    :where [:= :id id]}
+   :inline true))
+
+(defn activate-user [{:keys [id]}]
+  (sql/format
+   {:update :customer
+    :set {:active true}
     :where [:= :id id]}
    :inline true))

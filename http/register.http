@@ -17,5 +17,16 @@ POST http://localhost:3000/api/v1/register/create-customer
   "country_code": "MX"
 }
 
-### GET registration code
+### POST registration code
 POST http://localhost:3000/api/v1/register/registration-code/enriquebravo115@gmail.com
+
+### POST check registration code
+POST http://localhost:3000/api/v1/register/check-registration-code/4a6d7c4
+
+### POST end registration
+POST http://localhost:3000/api/v1/register/end-registration
+
+{
+  "email": "enriquebravo115@gmail.com",
+  "password": "mypassword2024"
+}
