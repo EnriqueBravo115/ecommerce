@@ -7,6 +7,6 @@ CREATE TABLE address
     city        VARCHAR(100) NOT NULL,
     street      VARCHAR(255) NOT NULL,
     postal_code VARCHAR(20),
-    is_primary  BOOLEAN   DEFAULT FALSE,
+    is_primary  BOOLEAN,
     created_at  TIMESTAMP DEFAULT current_timestamp
 );

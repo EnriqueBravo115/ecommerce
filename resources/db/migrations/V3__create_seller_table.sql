@@ -1,0 +1,32 @@
+CREATE TABLE seller
+(
+    id                 BIGSERIAL PRIMARY KEY,
+    business_name      VARCHAR(255) NOT NULL,
+    legal_name         VARCHAR(255) NOT NULL,
+    tax_id             VARCHAR(50) NOT NULL UNIQUE,
+    email              VARCHAR(255) NOT NULL UNIQUE,
+    phone              VARCHAR(50) NOT NULL,
+    country            VARCHAR(100) NOT NULL,
+    state              VARCHAR(100),
+    city               VARCHAR(100),
+    address            VARCHAR(255),
+    postal_code        VARCHAR(20),
+    website            VARCHAR(500),
+    description        TEXT,
+    status             VARCHAR(50) DEFAULT 'pending',
+    verified           BOOLEAN DEFAULT FALSE,
+    commission_rate    DECIMAL(5, 2) DEFAULT 0,
+    rating             DECIMAL(3, 2) DEFAULT 0,
+    total_sales        DECIMAL(12, 2) DEFAULT 0,
+    account_balance    DECIMAL(12, 2) DEFAULT 0,
+    bank_account       VARCHAR(100),
+    bank_name          VARCHAR(255),
+    password           VARCHAR(255) NOT NULL,
+    password_reset_code VARCHAR(255),
+    activation_code    VARCHAR(255),
+    created_at         TIMESTAMP DEFAULT current_timestamp,
+    updated_at         TIMESTAMP
+);
+
+CREATE INDEX idx_sellers_status ON seller(status);
+CREATE INDEX idx_sellers_verified ON seller(verified);
