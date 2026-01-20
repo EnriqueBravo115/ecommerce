@@ -1,4 +1,4 @@
-CREATE TABLE products
+CREATE TABLE product
 (
     id               BIGSERIAL PRIMARY KEY,
     seller_id        BIGINT REFERENCES seller (id) ON DELETE CASCADE,
@@ -23,8 +23,3 @@ CREATE TABLE products
     updated_at       TIMESTAMP,
     published_at     TIMESTAMP
 );
-
-CREATE INDEX idx_products_seller_id ON products(seller_id);
-CREATE INDEX idx_products_category_id ON products(category_id);
-CREATE INDEX idx_products_status ON products(status);
-CREATE INDEX idx_products_sku ON products(sku);

@@ -12,6 +12,3 @@ CREATE TABLE inventory
     created_at     TIMESTAMP DEFAULT current_timestamp,
     updated_at     TIMESTAMP
 );
-
-CREATE INDEX idx_inventory_product_id ON inventory(product_id);
-CREATE INDEX idx_inventory_sku ON inventory(sku);

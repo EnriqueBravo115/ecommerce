@@ -1,4 +1,4 @@
-CREATE TABLE categories
+CREATE TABLE category
 (
     id               BIGSERIAL PRIMARY KEY,
     name             VARCHAR(255) NOT NULL UNIQUE,
@@ -7,5 +7,3 @@ CREATE TABLE categories
     created_at       TIMESTAMP DEFAULT current_timestamp,
     updated_at       TIMESTAMP
 );
-
-CREATE INDEX idx_categories_parent_id ON categories(parent_id);

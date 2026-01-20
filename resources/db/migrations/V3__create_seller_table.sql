@@ -12,8 +12,7 @@ CREATE TABLE seller
     address            VARCHAR(255),
     postal_code        VARCHAR(20),
     website            VARCHAR(500),
-    description        TEXT,
-    status             VARCHAR(50) DEFAULT 'pending',
+    status             VARCHAR(50),
     verified           BOOLEAN DEFAULT FALSE,
     commission_rate    DECIMAL(5, 2) DEFAULT 0,
     rating             DECIMAL(3, 2) DEFAULT 0,
@@ -27,6 +26,3 @@ CREATE TABLE seller
     created_at         TIMESTAMP DEFAULT current_timestamp,
     updated_at         TIMESTAMP
 );
-
-CREATE INDEX idx_sellers_status ON seller(status);
-CREATE INDEX idx_sellers_verified ON seller(verified);

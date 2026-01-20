@@ -9,6 +9,3 @@ CREATE TABLE shopping_cart
     
     UNIQUE(customer_id, product_id)
 );
-
-CREATE INDEX idx_shopping_cart_customer_id ON shopping_cart(customer_id);
-CREATE INDEX idx_shopping_cart_product_id ON shopping_cart(product_id);
