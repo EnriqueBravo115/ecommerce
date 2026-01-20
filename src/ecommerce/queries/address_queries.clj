@@ -27,3 +27,70 @@
     :set {:country country :state state :city city :street street :postal_code postal_code :is_primary is_primary}
     :where [:= :id address_id]}
    :inline true))
+
+(defn delete-address [address_id]
+  (sql/format
+   {:delete-from :address
+    :where [:= :id address_id]}
+   :inline true))
+
+(defn unset-all-primary [customer_id]
+  (sql/format
+   {:update :address
+    :set {:is_primary false}
+    :where [:= :customer_id customer_id]}))
+
+(defn set-primary [address_id]
+  (sql/format
+   {:update :address
+    :set {:is_primary true}
+    :where [:= :id address_id]}))
+
+(defn get-primary-address [customer_id]
+  (sql/format
+   {:select [:country :state :city :street :postal_code :is_primary]
+    :from [:address]
+    :where [:and
+            [:= :customer_id customer_id]
+            [:= :is_primary true]]}))
+
+(defn get-customers-by-location [country state city]
+  (sql/format
+   {:select [:c.names :c.first_surname :c.second_surname :c.email :c.active]
+    :from [[:customer :c]]
+    :join [[:address :a] [:= :c.id :a.customer_id]]
+    :where [:and
+            [:or [:= country nil] [:= :a.country country]]
+            [:or [:= state nil] [:= :a.state state]]
+            [:or [:= city nil] [:= :a.city city]]]}))
+
+(defn get-customers-by-postal-code [postal_code]
+  (sql/format
+   {:select [:c.names :c.first_surname :c.second_surname :c.email :c.active]
+    :from [[:customer :c]]
+    :join [[:address :a] [:= :c.id :a.customer_id]]
+    :where [:= :a.postal_code postal_code]}))
+
+(defn get-top-countries []
+  (sql/format
+   {:select [:a.country [:%count.* :customer_count]]
+    :from [[:address :a]]
+    :group-by [:a.country]
+    :order-by [[:customer_count :desc]]
+    :limit 10}))
+
+(defn get-top-states []
+  (sql/format
+   {:select [:a.state :a.country [:%count.* :customer_count]]
+    :from [[:address :a]]
+    :group-by [:a.state :a.country]
+    :order-by [[:customer_count :desc]]
+    :limit 10}))
+
+(defn get-top-cities []
+  (sql/format
+   {:select [:a.city :a.state :a.country [:%count.* :customer_count]]
+    :from [[:address :a]]
+    :group-by [:a.city :a.state :a.country]
+    :order-by [[:customer_count :desc]]
+    :limit 10}))
