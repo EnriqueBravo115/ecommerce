@@ -38,7 +38,7 @@ INSERT INTO customer (
     'CUSTOMER', '3001234567', '+57', 'CO', 'ACT567890', true, '2025-02-18 11:00:00'
 ),
 ('Diego Alejandro', 'Silva', 'Reyes', 'diego.silva@email.com', 'Mexico', '2003-02-14', 'MALE', 'SIRD030214MEX', 
-    'SIRD030214HDFLJG06', 'bcrypt+sha512$fff106ac7bbefa32df4ce11af97d64d7$12$4e494d87700d892f51cfae013d4d4fc53bf22600d467abfd'
+    'SIRD030214HDFLJG06', 'bcrypt+sha512$fff106ac7bbefa32df4ce11af97d64d7$12$4e494d87700d892f51cfae013d4d4fc53bf22600d467abfd',
     'CUSTOMER', '5511223344', '+52', 'MX', 'ACT112233', true, '2025-03-01 13:25:00'
 ),
 ('Valeria Michelle', 'Ortega', 'Vargas', 'valeria.ortega@email.com', 'Argentina', '2002-09-08', 'FEMALE', 'ORGV020908ARG', 

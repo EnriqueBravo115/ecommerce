@@ -33,7 +33,7 @@
                 :exp (+ current-time-seconds 86400)}]
     (jwt/sign claims secret {:alg alg})))
 
-(defn generate-test-token []
+(defn generate-customer-test-token []
   (let [secret "123456789"
         alg :hs512
         current-time-seconds (quot (System/currentTimeMillis) 1000)
@@ -44,7 +44,18 @@
                 :exp (+ current-time-seconds 86400)}]
     (jwt/sign claims secret {:alg alg})))
 
-(generate-test-token)
+(defn generate-seller-test-token []
+  (let [secret "123456789"
+        alg :hs512
+        current-time-seconds (quot (System/currentTimeMillis) 1000)
+        claims {:id 1
+                :email "contact@techinnovators.com"
+                :roles "SELLER"
+                :iat current-time-seconds
+                :exp (+ current-time-seconds 2592000)}]
+    (jwt/sign claims secret {:alg alg})))
+
+(generate-seller-test-token)
 
 (defn has-role? [request required-role]
   (if-let [user-identity (:identity request)]
