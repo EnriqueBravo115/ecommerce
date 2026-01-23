@@ -33,7 +33,7 @@
                 :exp (+ current-time-seconds 86400)}]
     (jwt/sign claims secret {:alg alg})))
 
-(defn generate-customer-test-token []
+(defn generate-admin-test-token []
   (let [secret "123456789"
         alg :hs512
         current-time-seconds (quot (System/currentTimeMillis) 1000)
@@ -43,6 +43,8 @@
                 :iat current-time-seconds
                 :exp (+ current-time-seconds 86400)}]
     (jwt/sign claims secret {:alg alg})))
+
+(generate-admin-test-token)
 
 (defn generate-seller-test-token []
   (let [secret "123456789"

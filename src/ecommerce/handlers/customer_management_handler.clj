@@ -1,4 +1,4 @@
-(ns ecommerce.handlers.customer-handler
+(ns ecommerce.handlers.customer-management-handler
   (:require
     [buddy.auth :refer [authenticated?]]
     [ecommerce.queries.customer-queries :as queries]
