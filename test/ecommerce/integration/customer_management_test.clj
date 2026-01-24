@@ -7,12 +7,12 @@
    [ecommerce.integration.integration-test-helpers :as test-helper]))
 
 (deftest ^:integration get-customer-by-id
-  (testing "GET /api/v1/customer/:id should return customer"
+  (testing "GET /api/v1/customer-management/:id should return customer"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/customer/1"
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/1"
                                    {:accept :json
-                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}})
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
               body (-> response :body (cheshire/parse-string true))]
 
           (is (= 200 (:status response)))
@@ -24,12 +24,12 @@
                  (:customer body))))))))
 
 (deftest ^:integration get-customers-country-count
-  (testing "GET /api/v1/customer/country-count should return country count aggregation"
+  (testing "GET /api/v1/customer-management/country-count should return country count aggregation"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/customer/country-count"
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/country-count"
                                    {:accept :json
-                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}})
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
               body (-> response :body (cheshire/parse-string true))
               country-count (:country-count body)
               country-map (into {} (map (fn [item] [(:country_of_birth item) (:count item)]) country-count))]
@@ -44,12 +44,12 @@
           (is (= 1 (get country-map "United States of America"))))))))
 
 (deftest ^:integration get-customers-by-age-group
-  (testing "GET /api/v1/customer/age-group should return age group aggregation"
+  (testing "GET /api/v1/customer-management/age-group should return age group aggregation"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/customer/age-group"
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/age-group"
                                    {:accept :json
-                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}})
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
               body (-> response :body (cheshire/parse-string true))
               age-group (:age-group body)
               age-map (into {} (map (juxt :age-range :count) age-group))]
@@ -63,12 +63,12 @@
           (is (= 2 (get age-map "60-69"))))))))
 
 (deftest ^:integration get-customers-by-gender
-  (testing "GET /api/v1/customer/gender should return customers by gender"
+  (testing "GET /api/v1/customer-management/gender should return customers by gender"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/customer/gender/FEMALE"
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/gender/FEMALE"
                                    {:accept :json
-                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}})
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
               body (-> response :body (cheshire/parse-string true))
               customers (:customer-by-gender body)]
 
@@ -78,12 +78,12 @@
           (is (every? #(= "FEMALE" (:gender %)) customers)))))))
 
 (deftest ^:integration get-customers-registration-trend
-  (testing "GET /api/v1/customer/registration-trend should return registration trends"
+  (testing "GET /api/v1/customer-management/registration-trend should return registration trends"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/customer/registration-trend/MONTH"
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/registration-trend/MONTH"
                                    {:accept :json
-                                    :headers {"Authorization" (str "Bearer " (jwt/generate-test-token))}})
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
               body (-> response :body (cheshire/parse-string true))
               trends (:trends body)]
 
