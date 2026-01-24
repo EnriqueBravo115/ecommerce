@@ -2,7 +2,7 @@
   (:require
    [com.stuartsierra.component :as component]
    [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
-   [ecommerce.utils.middleware :refer [wrap-inject-jwt wrap-datasource]]
+   [ecommerce.utils.middleware :refer [wrap-jwt wrap-datasource]]
    [ecommerce.routes.core :as routes]
    [ring.adapter.jetty :as jetty]))
 
@@ -11,7 +11,7 @@
   (start [this]
     (let [app (-> routes/api-routes
                   (wrap-json-body {:keywords? true})
-                  (wrap-inject-jwt jwt)
+                  (wrap-jwt jwt)
                   (wrap-datasource datasource)
                   wrap-json-response)]
       (assoc this :server (jetty/run-jetty app {:port (-> config :server :port) :join? false}))))

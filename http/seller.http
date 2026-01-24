@@ -1,6 +1,6 @@
 ### POST create seller (Admin)
 POST http://localhost:3000/api/v1/seller/create-seller
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwiZW1haWwiOiJjb250YWN0QHRlY2hpbm5vdmF0b3JzLmNvbSIsInJvbGVzIjoiU0VMTEVSIiwiaWF0IjoxNzY5MTAxMzM2LCJleHAiOjE3NzE2OTMzMzZ9.oAkmikBd_ncg6bGKEPEnUXIwlc5KEUjbK-4i8AHvTyDmgDLvutxftMFGEmncF65HAU87PR7pOSCpPbq7AQT7fg
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkyMTEzMDgsImV4cCI6MTc2OTI5NzcwOH0._HHexPURWshf-E4B_gl1aWcNmxcmrRWx25CKbIhX8nn-7ipkiaB-EiY5dezRsBr636Hbn4NNDQa8HcvtHQDUfQ
 Content-Type: application/json
 
 {
@@ -25,7 +25,7 @@ Content-Type: application/json
 
 ### GET seller by ID
 GET http://localhost:3000/api/v1/seller/get-seller-by-id/1
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg5Mzg3OTUsImV4cCI6MTc2OTAyNTE5NX0.kNNJyYiuY_1kCtrmPRmy2ghSvJ1M5gA0xlGVBl7TkgT3wHwZRBxIouQGGW3rruLFIaF3Eq3wH33QaCnsQXrkPg
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkyMTEzMDgsImV4cCI6MTc2OTI5NzcwOH0._HHexPURWshf-E4B_gl1aWcNmxcmrRWx25CKbIhX8nn-7ipkiaB-EiY5dezRsBr636Hbn4NNDQa8HcvtHQDUfQ
 
 ### PUT update seller location
 PUT http://localhost:3000/api/v1/seller/update-seller-location/1

@@ -1,7 +1,7 @@
 (ns ecommerce.routes.core
   (:require
    [compojure.core :refer [routes context defroutes GET]]
-   [ecommerce.utils.middleware :refer [wrap-jwt]]
+   [ecommerce.utils.middleware :refer [wrap-jwt-decode]]
    [ecommerce.routes.customer-management-routes :refer [customer-management-routes]]
    [ecommerce.routes.register-routes :refer [register-routes]]
    [ecommerce.routes.address-routes :refer [address-routes]]
@@ -13,7 +13,7 @@
 
   (context "/api/v1" []
     (-> (routes customer-management-routes register-routes address-routes seller-routes)
-        wrap-jwt))
+        wrap-jwt-decode))
 
   (GET "*" [request]
     {:status 404

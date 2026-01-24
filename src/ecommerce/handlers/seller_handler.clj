@@ -46,7 +46,7 @@
     (build-response 401 {:error "Authentication failed"})
 
     :else
-    (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
+    (let [seller-id (get-in request [:params :seller_id])
           ds (:datasource request)
           seller (jdbc/execute-one! ds
                                     (queries/get-seller-by-id seller-id)

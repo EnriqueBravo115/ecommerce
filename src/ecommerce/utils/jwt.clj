@@ -2,62 +2,7 @@
   (:require
    [buddy.auth :refer [authenticated?]]
    [buddy.sign.jwt :as jwt]
-   [clojure.string :as str]
-   [clojure.tools.logging :as log]
-   [java-time.api :as jt]))
-
-(def ^:private secret "123456789")
-(def ^:private alg :hs512)
-(def ^:private token-expiration 3600)
-
-(defn generate-token
-  [id roles exp]
-  (let [claims {:user/id id
-                :user/roles roles
-                :exp (-> (jt/plus (jt/instant) (jt/seconds token-expiration)))}]
-    (try
-      (jwt/sign claims secret {:alg alg})
-      (catch Exception e
-        (log/error e "Error generating token")
-        (throw e)))))
-
-(defn generate-token
-  [id email roles config]
-  (let [secret "123456789"
-        alg :hs512
-        current-time-seconds (quot (System/currentTimeMillis) 1000)
-        claims {:id id
-                :email email
-                :roles roles
-                :iat current-time-seconds
-                :exp (+ current-time-seconds 86400)}]
-    (jwt/sign claims secret {:alg alg})))
-
-(defn generate-admin-test-token []
-  (let [secret "123456789"
-        alg :hs512
-        current-time-seconds (quot (System/currentTimeMillis) 1000)
-        claims {:id 3
-                :email "ana.hernandez@email.com"
-                :roles "ADMIN"
-                :iat current-time-seconds
-                :exp (+ current-time-seconds 86400)}]
-    (jwt/sign claims secret {:alg alg})))
-
-(generate-admin-test-token)
-
-(defn generate-seller-test-token []
-  (let [secret "123456789"
-        alg :hs512
-        current-time-seconds (quot (System/currentTimeMillis) 1000)
-        claims {:id 1
-                :email "contact@techinnovators.com"
-                :roles "SELLER"
-                :iat current-time-seconds
-                :exp (+ current-time-seconds 2592000)}]
-    (jwt/sign claims secret {:alg alg})))
-
-(generate-seller-test-token)
+   [clojure.string :as str]))
 
 (defn has-role? [request required-role]
   (if-let [user-identity (:identity request)]
@@ -86,3 +31,29 @@
   [request]
   (when-let [identity (get-customer-identity request)]
     (:id identity)))
+
+(defn generate-admin-test-token []
+  (let [secret "123456789"
+        alg :hs512
+        current-time-seconds (quot (System/currentTimeMillis) 1000)
+        claims {:id 3
+                :email "ana.hernandez@email.com"
+                :roles "ADMIN"
+                :iat current-time-seconds
+                :exp (+ current-time-seconds 86400)}]
+    (jwt/sign claims secret {:alg alg})))
+
+(generate-admin-test-token)
+
+(defn generate-seller-test-token []
+  (let [secret "123456789"
+        alg :hs512
+        current-time-seconds (quot (System/currentTimeMillis) 1000)
+        claims {:id 1
+                :email "contact@techinnovators.com"
+                :roles "SELLER"
+                :iat current-time-seconds
+                :exp (+ current-time-seconds 2592000)}]
+    (jwt/sign claims secret {:alg alg})))
+
+(generate-seller-test-token)

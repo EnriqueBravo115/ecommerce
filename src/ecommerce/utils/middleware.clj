@@ -1,4 +1,4 @@
-(ns ecommerce.utils.middleware
+(ns ecommerce.utils.middleware 
   (:require
    [buddy.auth.middleware :refer [wrap-authentication]]))
 
@@ -6,11 +6,11 @@
   (fn [request]
     (handler (assoc request :datasource datasource))))
 
-(defn wrap-inject-jwt [handler jwt-component]
+(defn wrap-jwt [handler jwt-component]
   (fn [request]
     (handler (assoc request :jwt-component jwt-component))))
 
-(defn wrap-jwt [handler]
+(defn wrap-jwt-decode [handler]
   (fn [request]
     (if-let [backend (-> request :jwt-component :backend)]
       (let [auth-handler (wrap-authentication handler backend)]

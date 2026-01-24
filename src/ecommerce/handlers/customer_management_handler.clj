@@ -1,12 +1,12 @@
 (ns ecommerce.handlers.customer-management-handler
   (:require
-    [buddy.auth :refer [authenticated?]]
-    [ecommerce.queries.customer-queries :as queries]
-    [ecommerce.utils.analytics :as analytics]
-    [ecommerce.utils.validations :as validations]
-    [ecommerce.utils.jwt :as jwt]
-    [next.jdbc :as jdbc]
-    [next.jdbc.result-set :as rs]))
+   [buddy.auth :refer [authenticated?]]
+   [ecommerce.queries.customer-queries :as queries]
+   [ecommerce.utils.analytics :as analytics]
+   [ecommerce.utils.validations :as validations]
+   [ecommerce.utils.jwt :as jwt]
+   [next.jdbc :as jdbc]
+   [next.jdbc.result-set :as rs]))
 
 (def ^:private json-headers {"Content-Type" "application/json"})
 
@@ -14,6 +14,7 @@
   {:status status :headers json-headers :body body})
 
 (defn get-customer-by-id [request]
+  (println request)
   (cond
     (not (authenticated? request))
     (build-response 401 {:error "Authentication failed"})
