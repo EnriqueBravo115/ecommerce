@@ -1,4 +1,4 @@
-(ns ecommerce.integration.customer-test
+(ns ecommerce.integration.customer-management-test
   (:require
    [cheshire.core :as cheshire]
    [clj-http.client :as client]

@@ -25,6 +25,6 @@
         (wrap-roles ["ADMIN"])
         (wrap-authenticated))
 
-    (-> (GET "/get-seller-by-id/:seller_id" request
+    (-> (GET "/get-seller-by-id/:id" request
           (seller-handler/get-seller-by-id request))
         (wrap-authenticated))))

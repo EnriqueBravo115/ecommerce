@@ -12,7 +12,6 @@
   {:status status :headers json-headers :body body})
 
 (defn get-customer-by-id [request]
-  (println request)
   (let [ds (:datasource request)
         id (get-in request [:params :id])
         query (queries/get-by-id id)

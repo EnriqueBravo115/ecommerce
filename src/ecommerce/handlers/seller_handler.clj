@@ -13,54 +13,41 @@
   {:status status :headers json-headers :body body})
 
 (defn create-seller [request]
-  (cond
-    (not (authenticated? request))
-    (build-response 401 {:error "Authentication failed"})
+  (let [seller-data (:body request)
+        ds (:datasource request)
+        email (:email seller-data)
+        existing-seller (jdbc/execute-one! ds
+                                           (queries/get-seller-by-email email)
+                                           {:builder-fn rs/as-unqualified-maps})]
 
-    (not (jwt/has-any-role? request "ADMIN"))
-    (build-response 403 {:error "Admin access required"})
+    (cond
+      existing-seller
+      (build-response 409 {:error "Seller with this email already exists"})
 
-    :else
-    (let [seller-data (:body request)
-          ds (:datasource request)
-          email (:email seller-data)
-          existing-seller (jdbc/execute-one! ds
-                                             (queries/get-seller-by-email email)
-                                             {:builder-fn rs/as-unqualified-maps})]
-
-      (cond
-        existing-seller
-        (build-response 409 {:error "Seller with this email already exists"})
-
-        :else
-        (let [password-encoded (password/encode (:password seller-data))]
-          (jdbc/execute! ds
-                         (queries/create-seller
-                          (assoc seller-data :password password-encoded)))
-          (build-response 201 {:message "Seller created successfully"}))))))
+      :else
+      (let [password-encoded (password/encode (:password seller-data))]
+        (jdbc/execute! ds
+                       (queries/create-seller
+                        (assoc seller-data :password password-encoded)))
+        (build-response 201 {:message "Seller created successfully"})))))
 
 ;; TODO: needs role variables
 (defn get-seller-by-id [request]
-  (cond
-    (not (authenticated? request))
-    (build-response 401 {:error "Authentication failed"})
+  (let [seller-id (get-in request [:params :id])
+        ds (:datasource request)
+        seller (jdbc/execute-one! ds
+                                  (queries/get-seller-by-id seller-id)
+                                  {:builder-fn rs/as-unqualified-maps})]
 
-    :else
-    (let [seller-id (get-in request [:params :seller_id])
-          ds (:datasource request)
-          seller (jdbc/execute-one! ds
-                                    (queries/get-seller-by-id seller-id)
-                                    {:builder-fn rs/as-unqualified-maps})]
+    (cond
+      (nil? seller)
+      (build-response 404 {:error "Seller not found"})
 
-      (cond
-        (nil? seller)
-        (build-response 404 {:error "Seller not found"})
+      (not (jwt/has-any-role? request "ADMIN"))
+      (build-response 403 {:error "Not authorized to view this seller"})
 
-        (not (jwt/has-any-role? request "ADMIN"))
-        (build-response 403 {:error "Not authorized to view this seller"})
-
-        :else
-        (build-response 200 {:seller seller})))))
+      :else
+      (build-response 200 {:seller seller}))))
 
 (defn update-seller-location [request]
   (cond

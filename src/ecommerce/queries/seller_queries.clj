@@ -23,7 +23,8 @@
   (sql/format
    {:select [:*]
     :from [:seller]
-    :where [:= :id seller_id]}))
+    :where [:= :id seller_id]}
+   :inline true))
 
 (defn get-seller-by-email [email]
   (sql/format
