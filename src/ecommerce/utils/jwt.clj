@@ -20,9 +20,6 @@
 (defn has-any-role? [request & required-roles]
   (some #(has-role? request %) required-roles))
 
-(defn has-all-roles? [request & required-roles]
-  (every? #(has-role? request %) required-roles))
-
 (defn- get-customer-identity [request]
   (when (authenticated? request)
     (:identity request)))

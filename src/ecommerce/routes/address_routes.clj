@@ -1,25 +1,46 @@
 (ns ecommerce.routes.address-routes
   (:require
    [compojure.core :refer [context defroutes POST GET DELETE]]
-   [ecommerce.handlers.address-handler :as address-handler]))
+   [ecommerce.handlers.address-handler :as address-handler]
+   [ecommerce.utils.middleware :refer [wrap-authenticated wrap-roles]]))
 
 (defroutes address-routes
   (context "/address" []
-    (POST "/create-address" request
-      (address-handler/create-address request))
-    (DELETE "/delete-address/:address_id" request
-      (address-handler/delete-address request))
-    (POST "/set-primary-address/:address_id" request
-      (address-handler/set-primary-address request))
-    (POST "/update-address/:address_id" request
-      (address-handler/update-address request))
-    (GET "/get-primary-address" request
-      (address-handler/get-primary-address request))
-    (GET "/get-customer-addresses" request
-      (address-handler/get-user-addresses request))
-    (GET "/get-location-statistics" request
-      (address-handler/get-location-statistics request))
-    (GET "/get-customers-by-postal-code/:postal_code" request
-      (address-handler/get-customers-by-postal-code request))
-    (GET "/get-customers-by-location/:country/:state/:city" request
-      (address-handler/get-customers-by-location request))))
+    (-> (POST "/create-address" request
+          (address-handler/create-address request))
+        (wrap-authenticated))
+    
+    (-> (DELETE "/delete-address/:address_id" request
+          (address-handler/delete-address request))
+        (wrap-authenticated))
+    
+    (-> (POST "/set-primary-address/:address_id" request
+          (address-handler/set-primary-address request))
+        (wrap-authenticated))
+    
+    (-> (POST "/update-address/:address_id" request
+          (address-handler/update-address request))
+        (wrap-authenticated))
+    
+    (-> (GET "/get-primary-address" request
+          (address-handler/get-primary-address request))
+        (wrap-authenticated))
+    
+    (-> (GET "/get-customer-addresses" request
+          (address-handler/get-user-addresses request))
+        (wrap-authenticated))
+    
+    (-> (GET "/get-location-statistics" request
+          (address-handler/get-location-statistics request))
+        (wrap-roles ["ADMIN"])
+        (wrap-authenticated))
+    
+    (-> (GET "/get-customers-by-postal-code/:postal_code" request
+          (address-handler/get-customers-by-postal-code request))
+        (wrap-roles ["ADMIN"])
+        (wrap-authenticated))
+    
+    (-> (GET "/get-customers-by-location/:country/:state/:city" request
+          (address-handler/get-customers-by-location request))
+        (wrap-roles ["ADMIN"])
+        (wrap-authenticated))))
