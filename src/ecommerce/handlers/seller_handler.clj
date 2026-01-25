@@ -1,6 +1,5 @@
 (ns ecommerce.handlers.seller-handler
   (:require
-   [buddy.auth :refer [authenticated?]]
    [ecommerce.queries.seller-queries :as queries]
    [ecommerce.utils.jwt :as jwt]
    [ecommerce.utils.password :as password]
@@ -31,9 +30,8 @@
                         (assoc seller-data :password password-encoded)))
         (build-response 201 {:message "Seller created successfully"})))))
 
-;; TODO: needs role variables
 (defn get-seller-by-id [request]
-  (let [seller-id (get-in request [:params :id])
+  (let [seller-id (Long/parseLong (get-in request [:params :id]))
         ds (:datasource request)
         seller (jdbc/execute-one! ds
                                   (queries/get-seller-by-id seller-id)
@@ -50,324 +48,123 @@
       (build-response 200 {:seller seller}))))
 
 (defn update-seller-location [request]
-  (cond
-    (not (authenticated? request))
-    (build-response 401 {:error "Authentication failed"})
+  (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
+        seller-data (:body request)
+        ds (:datasource request)
+        existing-seller (jdbc/execute-one! ds
+                                           (queries/get-seller-by-id seller-id)
+                                           {:builder-fn rs/as-unqualified-maps})]
 
-    :else
-    (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
-          seller-data (:body request)
-          ds (:datasource request)
-          existing-seller (jdbc/execute-one! ds
-                                             (queries/get-seller-by-id seller-id)
-                                             {:builder-fn rs/as-unqualified-maps})]
+    (cond
+      (nil? existing-seller)
+      (build-response 404 {:error "Seller not found"})
 
-      (cond
-        (nil? existing-seller)
-        (build-response 404 {:error "Seller not found"})
+      (and (not (jwt/has-any-role? request "ADMIN" "SELLER"))
+           (not= seller-id (jwt/get-customer-id request)))
+      (build-response 403 {:error "Not authorized to update this seller"})
 
-        (and (not (jwt/has-any-role? request "ADMIN" "SELLER"))
-             (not= seller-id (jwt/get-customer-id request)))
-        (build-response 403 {:error "Not authorized to update this seller"})
+      :else
+      (do
+        (jdbc/execute-one! ds
+                           (queries/update-seller-location seller-id seller-data))
+        (build-response 200 {:message "Seller updated successfully"})))))
 
-        :else
-        (do
-          (jdbc/execute-one! ds
-                             (queries/update-seller-location seller-id seller-data))
-          (build-response 200 {:message "Seller updated successfully"}))))))
-
+;; needs nullpointer validation
 (defn delete-seller [request]
-  (cond
-    (not (authenticated? request))
-    (build-response 401 {:error "Authentication failed"})
+  (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
+        ds (:datasource request)
+        existing-seller (jdbc/execute-one! ds
+                                           (queries/get-seller-by-id seller-id)
+                                           {:builder-fn rs/as-unqualified-maps})]
+    (cond
+      (nil? existing-seller)
+      (build-response 404 {:error "Seller not found"})
 
-    (not (jwt/has-any-role? request "ADMIN"))
-    (build-response 403 {:error "Admin access required"})
+      (> (:total_sales existing-seller 0) 0)
+      (build-response 400 {:error "Cannot delete seller with sales history"})
 
-    :else
-    (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
-          ds (:datasource request)
-          existing-seller (jdbc/execute-one! ds
-                                             (queries/get-seller-by-id seller-id)
-                                             {:builder-fn rs/as-unqualified-maps})]
-
-      (cond
-        (nil? existing-seller)
-        (build-response 404 {:error "Seller not found"})
-
-        (> (:total_sales existing-seller 0) 0)
-        (build-response 400 {:error "Cannot delete seller with sales history"})
-
-        :else
-        (do
-          (jdbc/execute! ds
-                         (queries/delete-seller seller-id))
-          (build-response 200 {:message "Seller deleted successfully"}))))))
+      :else
+      (do
+        (jdbc/execute! ds
+                       (queries/delete-seller seller-id))
+        (build-response 200 {:message "Seller deleted successfully"})))))
 
 (defn update-seller-status [request]
-  (cond
-    (not (authenticated? request))
-    (build-response 401 {:error "Authentication failed"})
+  (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
+        status (get-in request [:body :status])
+        ds (:datasource request)
+        existing-seller (jdbc/execute-one! ds
+                                           (queries/get-seller-by-id seller-id)
+                                           {:builder-fn rs/as-unqualified-maps})]
 
-    (not (jwt/has-any-role? request "ADMIN"))
-    (build-response 403 {:error "Admin access required"})
+    (cond
+      (nil? existing-seller)
+      (build-response 404 {:error "Seller not found"})
 
-    :else
-    (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
-          status (get-in request [:body :status])
-          ds (:datasource request)
-          existing-seller (jdbc/execute-one! ds
-                                             (queries/get-seller-by-id seller-id)
-                                             {:builder-fn rs/as-unqualified-maps})]
+      :else
+      (do
+        (jdbc/execute! ds
+                       (queries/update-seller-status seller-id status))
+        (build-response 200 {:message "Seller status updated successfully"})))))
 
-      (cond
-        (nil? existing-seller)
-        (build-response 404 {:error "Seller not found"})
+(defn verify-seller [request]
+  (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
+        ds (:datasource request)
+        existing-seller (jdbc/execute-one! ds
+                                           (queries/get-seller-by-id seller-id)
+                                           {:builder-fn rs/as-unqualified-maps})]
 
-        :else
-        (do
-          (jdbc/execute! ds
-                         (queries/update-seller-status seller-id status))
-          (build-response 200 {:message "Seller status updated successfully"}))))))
+    (cond
+      (nil? existing-seller)
+      (build-response 404 {:error "Seller not found"})
 
-;;(defn verify-seller-handler [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
-;;          ds (:datasource request)
-;;          existing-seller (jdbc/execute-one! ds
-;;                                             (queries/get-seller-by-id seller-id)
-;;                                             {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (cond
-;;        (nil? existing-seller)
-;;        (build-response 404 {:error "Seller not found"})
-;;
-;;        (:verified existing-seller)
-;;        (build-response 400 {:error "Seller is already verified"})
-;;
-;;        :else
-;;        (do
-;;          (jdbc/execute! ds
-;;                         (queries/verify-seller seller-id))
-;;          (build-response 200 {:message "Seller verified successfully"}))))))
-;;
-;;;; ============ Data Analysis Operations ============
-;;
-;;(defn get-sellers-by-country-stats [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [ds (:datasource request)
-;;          result (jdbc/execute! ds
-;;                                (queries/get-sellers-by-country)
-;;                                {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (if (seq result)
-;;        (build-response 200 {:sellers_by_country result})
-;;        (build-response 404 {:error "No sellers found"})))))
-;;
-;;(defn get-sellers-by-status-handler [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [status (get-in request [:params :status])
-;;          ds (:datasource request)
-;;          result (jdbc/execute! ds
-;;                                (queries/get-sellers-by-status status)
-;;                                {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (if (seq result)
-;;        (build-response 200 {:sellers result :status status})
-;;        (build-response 404 {:error "No sellers found with this status"})))))
-;;
-;;;;(defn get-verification-stats [request]
-;;;;  (cond
-;;;;    (not (authenticated? request))
-;;;;    (build-response 401 {:error "Authentication failed"})
-;;;;
-;;;;    (not (jwt/has-any-role? request "ADMIN"))
-;;;;    (build-response 403 {:error "Admin access required"})
-;;;;
-;;;;    :else
-;;;;    (let [ds (:datasource request)
-;;;;          result (jdbc/execute! ds
-;;;;                                (queries/get-sellers-by-verification-status)
-;;;;                                {:builder-fn rs/as-unqualified-maps})]
-;;;;
-;;;;      (build-response 200 {:verification_statistics result}))))
-;;
-;;(defn get-top-sellers [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    :else
-;;    (let [limit (Long/parseLong (get-in request [:params :limit] "10"))
-;;          ds (:datasource request)
-;;          result (jdbc/execute! ds
-;;                                (queries/get-top-sellers-by-sales limit)
-;;                                {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (if (seq result)
-;;        (build-response 200 {:top_sellers result})
-;;        (build-response 404 {:error "No sellers with sales found"})))))
-;;
-;;(defn get-sales-statistics-handler [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [ds (:datasource request)
-;;          result (jdbc/execute-one! ds
-;;                                    (queries/get-sales-statistics)
-;;                                    {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (build-response 200 {:sales_statistics result}))))
-;;
-;;(defn get-commission-statistics-handler [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [ds (:datasource request)
-;;          result (jdbc/execute-one! ds
-;;                                    (queries/get-commission-statistics)
-;;                                    {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (build-response 200 {:commission_statistics result}))))
-;;
-;;(defn get-sellers-growth-trend [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [period (get-in request [:params :period] "month")
-;;          ds (:datasource request)
-;;          result (jdbc/execute! ds
-;;                                (queries/get-sellers-created-by-period period)
-;;                                {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (if (seq result)
-;;        (build-response 200 {:period period :growth_trend result})
-;;        (build-response 404 {:error "No sellers found in the specified period"})))))
-;;
-;;(defn get-sellers-by-location-handler [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [country (get-in request [:params :country])
-;;          state (get-in request [:params :state])
-;;          city (get-in request [:params :city])
-;;          ds (:datasource request)
-;;          result (jdbc/execute! ds
-;;                                (queries/get-sellers-by-location country state city)
-;;                                {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (if (seq result)
-;;        (build-response 200 {:sellers result :filters {:country country :state state :city city}})
-;;        (build-response 404 {:error "No sellers found in specified location"})))))
-;;
-;;(defn get-sellers-with-high-balance [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [threshold (BigDecimal. (get-in request [:params :threshold] "1000"))
-;;          ds (:datasource request)
-;;          result (jdbc/execute! ds
-;;                                (queries/get-sellers-with-balance-threshold threshold)
-;;                                {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (if (seq result)
-;;        (build-response 200 {:sellers result :threshold threshold})
-;;        (build-response 404 {:error "No sellers found with balance above threshold"})))))
-;;
-;;(defn get-rating-distribution-handler [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [ds (:datasource request)
-;;          result (jdbc/execute! ds
-;;                                (queries/get-rating-distribution)
-;;                                {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (build-response 200 {:rating_distribution result}))))
-;;
-;;(defn get-unverified-sellers-handler [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [ds (:datasource request)
-;;          result (jdbc/execute! ds
-;;                                (queries/get-unverified-sellers)
-;;                                {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (if (seq result)
-;;        (build-response 200 {:unverified_sellers result})
-;;        (build-response 200 {:message "All sellers are verified"})))))
-;;
-;;(defn get-sellers-needing-payment-handler [request]
-;;  (cond
-;;    (not (authenticated? request))
-;;    (build-response 401 {:error "Authentication failed"})
-;;
-;;    (not (jwt/has-any-role? request "ADMIN"))
-;;    (build-response 403 {:error "Admin access required"})
-;;
-;;    :else
-;;    (let [ds (:datasource request)
-;;          result (jdbc/execute! ds
-;;                                (queries/get-sellers-needing-payment)
-;;                                {:builder-fn rs/as-unqualified-maps})]
-;;
-;;      (if (seq result)
-;;        (build-response 200 {:sellers_needing_payment result :total_amount (reduce + (map :account_balance result))})
-;;        (build-response 200 {:message "No sellers need payment at this time"})))))
+      (:verified existing-seller)
+      (build-response 400 {:error "Seller is already verified"})
+
+      :else
+      (do
+        (jdbc/execute! ds
+                       (queries/verify-seller seller-id))
+        (build-response 200 {:message "Seller verified successfully"})))))
+
+(defn get-seller-by-country-stats [request]
+  (let [ds (:datasource request)
+        result (jdbc/execute! ds
+                              (queries/get-sellers-by-country)
+                              {:builder-fn rs/as-unqualified-maps})]
+
+    (if (seq result)
+      (build-response 200 {:sellers_by_country result})
+      (build-response 404 {:error "No sellers found"}))))
+
+(defn get-sellers-by-status [request]
+  (let [status (get-in request [:params :status])
+        ds (:datasource request)
+        result (jdbc/execute! ds
+                              (queries/get-sellers-by-status status)
+                              {:builder-fn rs/as-unqualified-maps})]
+
+    (if (seq result)
+      (build-response 200 {:sellers result :status status})
+      (build-response 404 {:error "No sellers found with this status"}))))
+
+(defn get-top-sellers [request]
+  (let [limit (Long/parseLong (get-in request [:params :limit] "10"))
+        ds (:datasource request)
+        result (jdbc/execute! ds
+                              (queries/get-top-sellers-by-sales limit)
+                              {:builder-fn rs/as-unqualified-maps})]
+
+    (if (seq result)
+      (build-response 200 {:top_sellers result})
+      (build-response 404 {:error "No sellers with sales found"}))))
+
+(defn get-unverified-sellers [request]
+  (let [ds (:datasource request)
+        result (jdbc/execute! ds
+                              (queries/get-unverified-sellers)
+                              {:builder-fn rs/as-unqualified-maps})]
+
+    (if (seq result)
+      (build-response 200 {:unverified_sellers result})
+      (build-response 200 {:message "All sellers are verified"}))))

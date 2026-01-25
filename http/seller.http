@@ -1,6 +1,6 @@
-### POST create seller (Admin)
+### POST create seller
 POST http://localhost:3000/api/v1/seller/create-seller
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkyNzk3NTgsImV4cCI6MTc2OTM2NjE1OH0.ZFjlxp5jLdxPwI-z-mQFoNUfmtQ_1qlsskzSJUTkmu-KH56LQ_cdMmFFiSC1hBlPW_Wu1vSdNOW5sYRCuEMdlw
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 Content-Type: application/json
 
 {
@@ -25,11 +25,11 @@ Content-Type: application/json
 
 ### GET seller by ID
 GET http://localhost:3000/api/v1/seller/get-seller-by-id/1
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkyNzk3NTgsImV4cCI6MTc2OTM2NjE1OH0.ZFjlxp5jLdxPwI-z-mQFoNUfmtQ_1qlsskzSJUTkmu-KH56LQ_cdMmFFiSC1hBlPW_Wu1vSdNOW5sYRCuEMdlw
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
 ### PUT update seller location
 PUT http://localhost:3000/api/v1/seller/update-seller-location/1
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkyNzk3NTgsImV4cCI6MTc2OTM2NjE1OH0.ZFjlxp5jLdxPwI-z-mQFoNUfmtQ_1qlsskzSJUTkmu-KH56LQ_cdMmFFiSC1hBlPW_Wu1vSdNOW5sYRCuEMdlw
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 Content-Type: application/json
 
 {
@@ -39,149 +39,35 @@ Content-Type: application/json
   "postal_code": "string"
 }
 
-### DELETE seller (Admin)
-DELETE http://localhost:3000/api/seller/2
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkyNzk3NTgsImV4cCI6MTc2OTM2NjE1OH0.ZFjlxp5jLdxPwI-z-mQFoNUfmtQ_1qlsskzSJUTkmu-KH56LQ_cdMmFFiSC1hBlPW_Wu1vSdNOW5sYRCuEMdlw
+### DELETE seller
+DELETE http://localhost:3000/api/v1/seller/delete-seller/5
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
-### PUT update seller status (Admin)
-PUT http://localhost:3000/api/v1/sellers
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkyNzk3NTgsImV4cCI6MTc2OTM2NjE1OH0.ZFjlxp5jLdxPwI-z-mQFoNUfmtQ_1qlsskzSJUTkmu-KH56LQ_cdMmFFiSC1hBlPW_Wu1vSdNOW5sYRCuEMdlw
+### PUT update seller status
+PUT http://localhost:3000/api/v1/seller/update-seller-status/2
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 Content-Type: application/json
 
 {
-  "status": "ACTIVE"
+  "status": "active"
 }
 
-### PUT verify seller (Admin only)
-PUT http://localhost:3000/api/sellers/1/verify
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
+### PUT verify seller
+PUT http://localhost:3000/api/v1/seller/verify-seller/7
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
-### ============================================
-### SELLER ANALYTICS ENDPOINTS (Admin only)
-### ============================================
-
-### GET sellers by country statistics
-GET http://localhost:3000/api/analytics/sellers/by-country
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
+### GET sellers by country stats
+GET http://localhost:3000/api/v1/seller/get-sellers-by-country-stats
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
 ### GET sellers by status
-GET http://localhost:3000/api/analytics/sellers/by-status/ACTIVE
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
+GET http://localhost:3000/api/v1/seller/get-sellers-by-status/active
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
-### GET verification statistics
-GET http://localhost:3000/api/analytics/sellers/verification-stats
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
-
-### GET top sellers by sales (limit optional)
-GET http://localhost:3000/api/analytics/sellers/top?limit=5
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJzZWxsZXJAZXhhbXBsZS5jb20iLCJzZWxsZXJfaWQiOjEsInJvbGVzIjoiU0VMTEVSIiwiaWF0IjoxNzY4ODUxODQxLCJleHAiOjE3Njg5MzgyNDF9.abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
-
-### GET sales statistics
-GET http://localhost:3000/api/analytics/sellers/sales-stats
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
-
-### GET commission statistics
-GET http://localhost:3000/api/analytics/sellers/commission-stats
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
-
-### GET sellers growth trend (period: day, week, month, year)
-GET http://localhost:3000/api/analytics/sellers/growth?period=month
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
-
-### GET sellers by location (all parameters optional)
-GET http://localhost:3000/api/analytics/sellers/by-location?country=Mexico&state=Ciudad+de+M%C3%A9xico&city=CDMX
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
-
-### GET sellers with high balance (threshold optional)
-GET http://localhost:3000/api/analytics/sellers/high-balance?threshold=5000
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
-
-### GET rating distribution
-GET http://localhost:3000/api/analytics/sellers/rating-distribution
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
+### GET top sellers by sales
+GET http://localhost:3000/api/v1/seller/get-top-sellers
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
 ### GET unverified sellers
-GET http://localhost:3000/api/analytics/sellers/unverified
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
-
-### GET sellers needing payment
-GET http://localhost:3000/api/analytics/sellers/needing-payment
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3Njg4NTE4NDEsImV4cCI6MTc2ODkzODI0MX0.V8RbNdxIYbsRvObhnrngjEJwTG7qM16u8_rakR8LuMoGE7AZ7CvcaMNWW9lPVcV1h9ykCA_gKIFnTZfA4Ytegg
-
-### ============================================
-### SELLER REGISTRATION & ACTIVATION ENDPOINTS
-### ============================================
-
-### POST send registration/activation code
-POST http://localhost:3000/api/sellers/activation/send-code?email=ventas@techsolutions.mx
-Content-Type: application/json
-
-### POST check activation code
-POST http://localhost:3000/api/sellers/activation/check-code?code=ABC1234
-Content-Type: application/json
-
-### POST complete seller registration
-POST http://localhost:3000/api/sellers/registration/complete
-Content-Type: application/json
-
-{
-  "email": "ventas@techsolutions.mx",
-  "password": "SecurePass123!"
-}
-
-### ============================================
-### SELLER PASSWORD MANAGEMENT
-### ============================================
-
-### POST request password reset
-POST http://localhost:3000/api/sellers/password/reset-request?email=ventas@techsolutions.mx
-Content-Type: application/json
-
-### POST reset password with code
-POST http://localhost:3000/api/sellers/password/reset
-Content-Type: application/json
-
-{
-  "email": "ventas@techsolutions.mx",
-  "code": "RESET123",
-  "new_password": "NewSecurePass456!"
-}
-
-### PUT change password (authenticated seller)
-PUT http://localhost:3000/api/sellers/1/password
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJzZWxsZXJAZXhhbXBsZS5jb20iLCJzZWxsZXJfaWQiOjEsInJvbGVzIjoiU0VMTEVSIiwiaWF0IjoxNzY4ODUxODQxLCJleHAiOjE3Njg5MzgyNDF9.abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
-Content-Type: application/json
-
-{
-  "current_password": "SecurePass123!",
-  "new_password": "UpdatedPass789!"
-}
-
-### ============================================
-### SELLER DASHBOARD & PERSONAL ENDPOINTS
-### ============================================
-
-### GET seller dashboard stats
-GET http://localhost:3000/api/sellers/1/dashboard
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJzZWxsZXJAZXhhbXBsZS5jb20iLCJzZWxsZXJfaWQiOjEsInJvbGVzIjoiU0VMTEVSIiwiaWF0IjoxNzY4ODUxODQxLCJleHAiOjE3Njg5MzgyNDF9.abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
-
-### GET seller sales history
-GET http://localhost:3000/api/sellers/1/sales-history?start_date=2024-01-01&end_date=2024-12-31
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJzZWxsZXJAZXhhbXBsZS5jb20iLCJzZWxsZXJfaWQiOjEsInJvbGVzIjoiU0VMTEVSIiwiaWF0IjoxNzY4ODUxODQxLCJleHAiOjE3Njg5MzgyNDF9.abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
-
-### GET seller commission report
-GET http://localhost:3000/api/sellers/1/commission-report?month=11&year=2024
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJzZWxsZXJAZXhhbXBsZS5jb20iLCJzZWxsZXJfaWQiOjEsInJvbGVzIjoiU0VMTEVSIiwiaWF0IjoxNzY4ODUxODQxLCJleHAiOjE3Njg5MzgyNDF9.abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
-
-### GET seller payment history
-GET http://localhost:3000/api/sellers/1/payment-history
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJzZWxsZXJAZXhhbXBsZS5jb20iLCJzZWxsZXJfaWQiOjEsInJvbGVzIjoiU0VMTEVSIiwiaWF0IjoxNzY4ODUxODQxLCJleHAiOjE3Njg5MzgyNDF9.abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
-
-### POST request payment withdrawal
-POST http://localhost:3000/api/sellers/1/withdraw
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJzZWxsZXJAZXhhbXBsZS5jb20iLCJzZWxsZXJfaWQiOjEsInJvbGVzIjoiU0VMTEVSIiwiaWF0IjoxNzY4ODUxODQxLCJleHAiOjE3Njg5MzgyNDF9.abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
-Content-Type: application/json
-
-{
-  "amount": 1500.00
-}
+GET http://localhost:3000/api/v1/seller/get-unverified-sellers
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
