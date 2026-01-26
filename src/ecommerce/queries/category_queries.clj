@@ -44,7 +44,7 @@
 
 (defn get-active-categories []
   (sql/format
-   {:select [:id :name :parent_id :active :created_at]
+   {:select [:name :parent_id]
     :from [:category]
     :where [:= :active true]
     :order-by [[:name :asc]]}))
