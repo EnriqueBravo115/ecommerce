@@ -7,6 +7,7 @@
    [ecommerce.routes.seller-routes :refer [seller-routes]]
    [ecommerce.routes.category-routes :refer [category-routes]]
    [ecommerce.routes.product-routes :refer [product-routes]]
+   [ecommerce.routes.inventory-routes :refer [inventory-routes]]
    [ecommerce.utils.middleware :refer [wrap-jwt-decode]]))
 
 (defroutes api-routes
@@ -20,7 +21,8 @@
          address-routes
          seller-routes
          category-routes
-         product-routes)
+         product-routes
+         inventory-routes)
         wrap-jwt-decode))
 
   (GET "*" []
