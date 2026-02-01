@@ -13,8 +13,8 @@
 
 (defn get-customer-by-id [request]
   (let [ds (:datasource request)
-        id (get-in request [:params :id])
-        query (queries/get-by-id id)
+        id (Long/parseLong (get-in request [:params :id]))
+        query (queries/get-customer-by-id id)
         result (jdbc/execute-one! ds query {:builder-fn rs/as-unqualified-maps})]
 
     (if result
