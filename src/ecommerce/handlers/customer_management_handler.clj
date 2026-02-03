@@ -106,7 +106,7 @@
         query (queries/get-registration-by-country-code)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
-    (if (seq result)
+    (if result
       (build-response 200 {:registrations-by-country-code result})
       (build-response 404 {:error "No customers found"}))))
 
@@ -115,6 +115,6 @@
         query (queries/get-customers-with-password-reset-code)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
-    (if (seq result)
+    (if result
       (build-response 200 {:customers-with-password-reset-code result})
       (build-response 404 {:error "No customers found"}))))

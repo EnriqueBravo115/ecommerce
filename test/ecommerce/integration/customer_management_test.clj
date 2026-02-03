@@ -32,10 +32,11 @@
                                     :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
               body (-> response :body (cheshire/parse-string true))
               country-count (:country-count body)
-              country-map (into {} (map (fn [item] [(:country_of_birth item) (:count item)]) country-count))]
+              country-map (into {} (map (juxt :country_of_birth :count) country-count))]
 
           (is (= 200 (:status response)))
           (is (vector? country-count))
+          (is (= 6 (count country-map)))
           (is (= 1 (get country-map "Colombia")))
           (is (= 1 (get country-map "Chile")))
           (is (= 1 (get country-map "Argentina")))
@@ -63,32 +64,66 @@
           (is (= 2 (get age-map "60-69"))))))))
 
 (deftest ^:integration get-customers-by-gender
-  (testing "GET /api/v1/customer-management/gender should return customers by gender"
+  (testing "GET /api/v1/customer-management/gender should handle different genders"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/customer-management/gender/FEMALE"
-                                   {:accept :json
-                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
-              body (-> response :body (cheshire/parse-string true))
-              customers (:customer-by-gender body)]
+        (testing "MALE gender should return male customers"
+          (let [response (client/get "http://localhost:3001/api/v1/customer-management/gender/MALE"
+                                     {:accept :json
+                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                body (-> response :body (cheshire/parse-string true))
+                customers (:customer-by-gender body)]
 
-          (is (= 200 (:status response)))
-          (is (vector? customers))
-          (is (= 5 (count customers)))
-          (is (every? #(= "FEMALE" (:gender %)) customers)))))))
+            (is (= 200 (:status response)))
+            (is (vector? customers))
+            (is (= 5 (count customers)))
+            (is (every? #(= "MALE" (:gender %)) customers))))
+
+        (testing "FEMALE gender should retur female customers"
+          (let [response (client/get "http://localhost:3001/api/v1/customer-management/gender/FEMALE"
+                                     {:accept :json
+                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                body (-> response :body (cheshire/parse-string true))
+                customers (:customer-by-gender body)]
+
+            (is (= 200 (:status response)))
+            (is (vector? customers))
+            (is (= 5 (count customers)))
+            (is (every? #(= "FEMALE" (:gender %)) customers))))))))
 
 (deftest ^:integration get-customers-registration-trend
-  (testing "GET /api/v1/customer-management/registration-trend should return registration trends"
+  (testing "GET /api/v1/customer-management/registration-trend should handle different periods"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/customer-management/registration-trend/MONTH"
-                                   {:accept :json
-                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
-              body (-> response :body (cheshire/parse-string true))
-              trends (:trends body)]
+        (testing "YEAR period should return yearly trends"
+          (let [response (client/get "http://localhost:3001/api/v1/customer-management/registration-trend/YEAR"
+                                     {:accept :json
+                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                body (-> response :body (cheshire/parse-string true))
+                trends (:trends body)]
 
-          (is (= 200 (:status response)))
-          (is (vector? trends))
-          (is (= 4 (count trends)))
-          ;;(is (every? #(= "FEMALE" (:gender %)) trends))
-          )))))
+            (is (= 200 (:status response)))
+            (is (vector? trends))
+            (is (= 2 (count trends)))))
+
+        (testing "MONTH period should return monthly trends"
+          (let [response (client/get "http://localhost:3001/api/v1/customer-management/registration-trend/MONTH"
+                                     {:accept :json
+                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                body (-> response :body (cheshire/parse-string true))
+                trends (:trends body)]
+
+            (is (= 200 (:status response)))
+            (is (vector? trends))
+            (is (= 4 (count trends)))))
+
+        (testing "DAY period should return daily trends"
+          (let [response (client/get "http://localhost:3001/api/v1/customer-management/registration-trend/DAY"
+                                     {:accept :json
+                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                body (-> response :body (cheshire/parse-string true))
+                trends (:trends body)]
+
+            (is (= 200 (:status response)))
+            (is (vector? trends))
+            (is (= 10 (count trends)))))))))
