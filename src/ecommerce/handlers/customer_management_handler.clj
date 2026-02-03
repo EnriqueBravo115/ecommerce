@@ -69,15 +69,13 @@
           (build-response 200 {:period period :trends trends})
           (build-response 404 {:error "No customers found"}))))))
 
-(defn get-active-rate [request]
+(defn get-active [request]
   (let [ds (:datasource request)
-        query (queries/get-active-rate)
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})
-        total (:total (first result))
-        active (:active (first result))]
+        query (queries/get-active)
+        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
     (if result
-      (build-response 200 {:percentage (* 100 (/ active total)) :total total :active active})
+      (build-response 200 {:active result})
       (build-response 404 {:error "No customers found"}))))
 
 (defn get-inactive [request]
@@ -92,12 +90,9 @@
 (defn get-segment-by-demographics [request]
   (let [country (get-in request [:route-params :country])
         gender (get-in request [:route-params :gender])
-        min-age-param (get-in request [:route-params :min-age])
-        max-age-param (get-in request [:route-params :max-age])
+        min-age (Long/parseLong (get-in request [:route-params :min-age]))
+        max-age (Long/parseLong (get-in request [:route-params :max-age]))
         ds (:datasource request)
-
-        min-age (when min-age-param (Integer/parseInt min-age-param))
-        max-age (when max-age-param (Integer/parseInt max-age-param))
 
         query (queries/get-segment-by-demographics country gender min-age max-age)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]

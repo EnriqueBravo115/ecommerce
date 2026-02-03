@@ -28,13 +28,11 @@
   (sql/format {:select [:registration_date]
                :from   [:customer]}))
 
-;; COUNT(*) AS total
-;; COUNT(CASE WHEN active = true THEN 1 END) AS active
-(defn get-active-rate []
+(defn get-active []
   (sql/format
-   {:select [[(sql/call :count :*) :total]
-             [(sql/call :count (sql/call :case [(sql/call := :active true)] 1)) :active]]
-    :from   [:customer]}))
+   {:select [[(sql/call :count :*) :total]]
+    :from   [:customer]
+    :where  [:= :active true]}))
 
 (defn get-inactive []
   (sql/format

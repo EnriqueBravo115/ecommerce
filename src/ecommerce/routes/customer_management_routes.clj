@@ -26,8 +26,8 @@
         (wrap-roles ["ADMIN"])
         (wrap-authenticated))
 
-    (-> (GET "/active-rate" request
-          (handler/get-active-rate request))
+    (-> (GET "/active" request
+          (handler/get-active request))
         (wrap-roles ["ADMIN"])
         (wrap-authenticated))
 
