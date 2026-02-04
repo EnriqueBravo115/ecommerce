@@ -8,9 +8,8 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZ
   "city": "Guanajuato",
   "street": "Principal",
   "postal_code": "2321",
-  "is_primary": false
+  "is_primary": true
 }
-
 
 ### POST update address
 POST http://localhost:3000/api/v1/address/update-address/1

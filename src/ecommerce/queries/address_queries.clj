@@ -8,6 +8,28 @@
     :columns [:customer_id :country :state :city :street :postal_code :is_primary]
     :values [[customer_id country state city street postal_code is_primary]]} :inline true))
 
+(defn count-addresses [customer-id]
+  (sql/format
+   {:select [:%count.*]
+    :from [:address]
+    :where [:= :customer_id customer-id]} :inline true))
+
+(defn has-primary-address [customer-id]
+  (sql/format
+   {:select [:%count.*]
+    :from [:address]
+    :where [:and
+            [:= :customer_id customer-id]
+            [:= :is_primary true]]} :inline true))
+
+(defn unset-existing-primary [customer-id]
+  (sql/format
+   {:update :address
+    :set {:is_primary false}
+    :where [:and
+            [:= :customer_id customer-id]
+            [:= :is_primary true]]} :inline true))
+
 (defn get-addresses-by-customer-id [customer_id]
   (sql/format
    {:select [:country :state :city :street :postal_code :is_primary]

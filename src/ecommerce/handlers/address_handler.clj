@@ -1,6 +1,7 @@
 (ns ecommerce.handlers.address-handler
   (:require
    [ecommerce.queries.address-queries :as queries]
+   [ecommerce.utils.validations :as validations]
    [ecommerce.utils.jwt :as jwt]
    [next.jdbc :as jdbc]
    [next.jdbc.result-set :as rs]))
@@ -13,19 +14,63 @@
 (defn create-address [request]
   (let [customer-id (jwt/get-customer-id request)
         address-data (:body request)
+        validation-error (validations/validate-address address-data)
         ds (:datasource request)]
 
-    (jdbc/execute! ds
-                   (queries/create-address
-                    {:customer_id customer-id
-                     :country (:country address-data)
-                     :state (:state address-data)
-                     :city (:city address-data)
-                     :street (:street address-data)
-                     :postal_code (:postal_code address-data)
-                     :is_primary (:is_primary address-data)}))
+    (cond
+      validation-error
+      (build-response 400 {:error validation-error})
 
-    (build-response 201 {:message "Address created successfully"})))
+      :else
+      (let [address-count-result (jdbc/execute! ds (queries/count-addresses customer-id))
+            address-count (-> address-count-result first :count)
+            is-primary (:is_primary address-data false)
+            primary-exists-result (jdbc/execute! ds (queries/has-primary-address customer-id))
+            primary-exists (-> primary-exists-result first :count pos?)]
+
+        (cond
+          (>= address-count 5)
+          (build-response 400 {:error "Customer cannot have more than 5 addresses"})
+
+          (and is-primary primary-exists)
+          (do
+            (jdbc/execute! ds (queries/unset-existing-primary customer-id))
+            (jdbc/execute! ds
+                           (queries/create-address
+                            {:customer_id customer-id
+                             :country (:country address-data)
+                             :state (:state address-data)
+                             :city (:city address-data)
+                             :street (:street address-data)
+                             :postal_code (:postal_code address-data)
+                             :is_primary true}))
+            (build-response 201 {:message "Primary address updated successfully"}))
+
+          is-primary
+          (do
+            (jdbc/execute! ds
+                           (queries/create-address
+                            {:customer_id customer-id
+                             :country (:country address-data)
+                             :state (:state address-data)
+                             :city (:city address-data)
+                             :street (:street address-data)
+                             :postal_code (:postal_code address-data)
+                             :is_primary true}))
+            (build-response 201 {:message "Primary address created successfully"}))
+
+          :else
+          (do
+            (jdbc/execute! ds
+                           (queries/create-address
+                            {:customer_id customer-id
+                             :country (:country address-data)
+                             :state (:state address-data)
+                             :city (:city address-data)
+                             :street (:street address-data)
+                             :postal_code (:postal_code address-data)
+                             :is_primary false}))
+            (build-response 201 {:message "Address created successfully"})))))))
 
 (defn get-user-addresses [request]
   (let [customer-id (jwt/get-customer-id request)
