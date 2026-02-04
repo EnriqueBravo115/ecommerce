@@ -127,3 +127,79 @@
             (is (= 200 (:status response)))
             (is (vector? trends))
             (is (= 10 (count trends)))))))))
+
+(deftest ^:integration get-active-customers
+  (testing "GET /api/v1/customer-management/active should return active customers"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/active"
+                                   {:accept :json
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+              body (-> response :body (cheshire/parse-string true))
+              active (:active body)]
+
+          (is (= 200 (:status response)))
+          (is (vector? active))
+          (is (= 1 (count active)))
+          (is (= {:total 8} (first active))))))))
+
+(deftest ^:integration get-inactive-customers
+  (testing "GET /api/v1/customer-management/inactive should return inactive customers"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/inactive"
+                                   {:accept :json
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+              body (-> response :body (cheshire/parse-string true))
+              inactive (:inactive body)]
+
+          (is (= 200 (:status response)))
+          (is (vector? inactive))
+          (is (= 1 (count inactive)))
+          (is (= {:total 2} (first inactive))))))))
+
+(deftest ^:integration get-segment-by-demographics
+  (testing "GET /api/v1/customer-management/segment-demographics/:country/:gender/:min-age/:max-age should return 
+    segment-demographics customers"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/segment-demographics/Mexico/MALE/10/40"
+                                   {:accept :json
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+              body (-> response :body (cheshire/parse-string true))
+              segment-demographics (:segment-demographics body)]
+
+          (is (= 200 (:status response)))
+          (doseq [customer segment-demographics]
+            (is (= "Mexico" (:country_of_birth customer)))
+            (is (= "MALE" (:gender customer)))
+            (is (<= 10 (:age customer) 40))))))))
+
+(deftest ^:integration get-registration-by-country-code
+  (testing "GET /api/v1/customer-management/registration-by-country-code should return customers by country code"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/registration-by-country-code"
+                                   {:accept :json
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+              body (-> response :body (cheshire/parse-string true))
+              registrations (:registration-by-country-code body)]
+
+          (is (= 200 (:status response)))
+          (doseq [item registrations]
+            (is (= 2 (count (:country_code item))))
+            (is (re-matches #"[A-Z]{2}" (:country_code item)))
+            (is (pos? (:registrations item)))))))))
+
+(deftest ^:integration get-customers-with-password-reset-code
+  (testing "GET /api/v1/customer-management/customers-with-password-reset-code should return empty response"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (client/get "http://localhost:3001/api/v1/customer-management/customers-with-password-reset-code"
+                                   {:accept :json
+                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+              body (-> response :body (cheshire/parse-string true))
+              password_reset (:customers-with-password-reset-code body)]
+
+          (is (= 200 (:status response)))
+          (is (empty? password_reset)))))))
