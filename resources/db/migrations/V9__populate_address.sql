@@ -3,8 +3,6 @@ INSERT INTO address (customer_id, country, state, city, street, postal_code, is_
 (1, 'Mexico', 'Jalisco', 'Guadalajara', 'Av Chapultepec 456', '44100', false, '2024-06-10 14:30:00'),
 (2, 'Mexico', 'Nuevo León', 'Monterrey', 'Av Constitución 789', '64000', true, '2024-01-21 10:15:00'),
 (2, 'Mexico', 'Baja California', 'Tijuana', 'Blvd Agua Caliente 101', '22000', false, '2024-08-05 16:45:00'),
-(3, 'United States of America', 'Illinois', 'Chicago', 'Michigan Avenue 202', '60601', true, '2024-02-06 11:20:00'),
-(3, 'United States of America', 'Florida', 'Miami', 'Ocean Drive 303', '33139', false, '2024-09-12 13:10:00'),
 (4, 'Spain', 'Madrid', 'Madrid', 'Gran Vía 404', '28013', true, '2025-02-13 09:30:00'),
 (4, 'Spain', 'Cataluña', 'Barcelona', 'Paseo de Gracia 505', '08007', false, '2025-07-22 18:20:00'),
 (5, 'Colombia', 'Bogotá D.C.', 'Bogotá', 'Carrera 7 #606-07', '110321', true, '2025-02-19 08:45:00'),

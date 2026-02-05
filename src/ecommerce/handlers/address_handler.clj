@@ -29,8 +29,8 @@
             primary-exists (-> primary-exists-result first :count pos?)]
 
         (cond
-          (>= address-count 5)
-          (build-response 400 {:error "Customer cannot have more than 5 addresses"})
+          (>= address-count 3)
+          (build-response 400 {:error "Customer cannot have more than 3 addresses, delete at least 1"})
 
           (and is-primary primary-exists)
           (do
