@@ -43,10 +43,10 @@
     :from [:address]
     :where [:= :id address_id]}))
 
-(defn update-address [address_id {:keys [country state city street postal_code is_primary]}]
+(defn update-address [address_id {:keys [country state city street postal_code]}]
   (sql/format
    {:update :address
-    :set {:country country :state state :city city :street street :postal_code postal_code :is_primary is_primary}
+    :set {:country country :state state :city city :street street :postal_code postal_code}
     :where [:= :id address_id]}
    :inline true))
 

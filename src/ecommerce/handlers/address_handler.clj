@@ -72,25 +72,20 @@
                              :is_primary false}))
             (build-response 201 {:message "Address created successfully"})))))))
 
-(defn get-user-addresses [request]
-  (let [customer-id (jwt/get-customer-id request)
-        ds (:datasource request)
-        addresses (jdbc/execute! ds
-                                 (queries/get-addresses-by-customer-id customer-id)
-                                 {:builder-fn rs/as-unqualified-maps})]
-
-    (build-response 200 {:addresses addresses})))
-
 (defn update-address [request]
   (let [customer-id (jwt/get-customer-id request)
         address-id (Long/parseLong (get-in request [:params :address_id]))
         address-data (:body request)
+        validation-error (validations/validate-address-update address-data)
         ds (:datasource request)
         existing-address (jdbc/execute-one! ds
                                             (queries/get-address-by-id address-id)
                                             {:builder-fn rs/as-unqualified-maps})]
 
     (cond
+      validation-error
+      (build-response 400 {:error validation-error})
+
       (nil? existing-address)
       (build-response 404 {:error "Address not found"})
 
@@ -106,8 +101,7 @@
                          :state (:state address-data)
                          :city (:city address-data)
                          :street (:street address-data)
-                         :postal_code (:postal_code address-data)
-                         :is_primary (:is_primary address-data)}))
+                         :postal_code (:postal_code address-data)}))
 
         (build-response 200 {:message "Address updated successfully"})))))
 
@@ -152,14 +146,19 @@
       (build-response 403 {:error "Not authorized to modify this address"})
 
       :else
-      (jdbc/with-transaction [tx ds]
-        (jdbc/execute! tx
-                       (queries/unset-all-primary customer-id))
-
-        (jdbc/execute! tx
-                       (queries/set-primary address-id))
-
+      (do
+        (jdbc/execute! ds (queries/unset-all-primary customer-id))
+        (jdbc/execute! ds (queries/set-primary address-id))
         (build-response 200 {:message "Primary address updated successfully"})))))
+
+(defn get-customer-addresses [request]
+  (let [customer-id (jwt/get-customer-id request)
+        ds (:datasource request)
+        addresses (jdbc/execute! ds
+                                 (queries/get-addresses-by-customer-id customer-id)
+                                 {:builder-fn rs/as-unqualified-maps})]
+
+    (build-response 200 {:addresses addresses})))
 
 (defn get-primary-address [request]
   (let [customer-id (jwt/get-customer-id request)
@@ -182,7 +181,7 @@
                               (queries/get-customers-by-location country state city)
                               {:builder-fn rs/as-unqualified-maps})]
 
-    (if (seq result)
+    (if result
       (build-response 200 {:customers result :filters {:country country :state state :city city}})
       (build-response 404 {:error "No customers found in specified location"}))))
 
@@ -194,7 +193,7 @@
                               (queries/get-customers-by-postal-code postal-code)
                               {:builder-fn rs/as-unqualified-maps})]
 
-    (if (seq result)
+    (if result
       (build-response 200 {:customers result :postal_code postal-code})
       (build-response 404 {:error "No customers found with this postal code"}))))
 

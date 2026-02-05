@@ -13,3 +13,7 @@
 (defn validate-address [address]
   (when-not (m/validate types/address-schema address)
     "Invalid address format"))
+
+(defn validate-address-update [address]
+  (when-not (m/validate types/address-schema-update address)
+    "Invalid address format"))
