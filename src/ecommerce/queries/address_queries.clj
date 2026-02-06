@@ -116,3 +116,10 @@
     :group-by [:a.city :a.state :a.country]
     :order-by [[:customer_count :desc]]
     :limit 10}))
+
+(defn get-recent-id-address []
+  (sql/format
+   {:select [:id]
+    :from [:address]
+    :order-by [[:created_at :desc]]
+    :limit 1}))

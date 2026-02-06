@@ -4,9 +4,7 @@
    [clj-http.client :as client]
    [ecommerce.utils.jwt :as jwt]
    [clojure.test :refer [deftest is testing]]
-   [ecommerce.integration.integration-test-helpers :as test-helper]
-   [next.jdbc :as jdbc]
-   [next.jdbc.result-set :as rs]))
+   [ecommerce.integration.integration-test-helpers :as test-helper]))
 
 (deftest ^:integration create-address-test
   (testing "POST /api/v1/address/create-address - should create address"
@@ -76,36 +74,44 @@
             (is (= "Customer cannot have more than 3 addresses, delete at least 1" (:error body)))))))))
 
 (deftest ^:integration update-address-test
-  (testing "PUT /api/v1/address/update-address/:address_id - should update address"
+  (testing "POST /api/v1/address/update-address/:address_id - should update address"
     (test-helper/with-test-database
       (fn []
         (testing "Create initial address with is_primary=true"
-          (let [response (client/post "http://localhost:3001/api/v1/address/create-address"
-                                      {:accept :json
-                                       :content-type :json
-                                       :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                       :form-params {:country "Mexico"
-                                                     :state "Guanajuato"
-                                                     :city "Guanajuato"
-                                                     :street "Main Street"
-                                                     :postal_code "12345"
-                                                     :is_primary true}})
-                body (-> response :body (cheshire/parse-string true))]
+          (let [create-response (client/post "http://localhost:3001/api/v1/address/create-address"
+                                             {:accept :json
+                                              :content-type :json
+                                              :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
+                                              :form-params {:country "Mexico"
+                                                            :state "Guanajuato"
+                                                            :city "Guanajuato"
+                                                            :street "Main Street"
+                                                            :postal_code "12345"
+                                                            :is_primary true}})
+                create-body (-> create-response :body (cheshire/parse-string true))]
 
-            (is (= 201 (:status response)))
-            (is (= "Primary address created successfully" (:message body)))))
+            (is (= 201 (:status create-response)))
+            (is (= "Primary address created successfully" (:message create-body)))
 
-        (testing "Update address with valid data"
-          (let [response (client/post "http://localhost:3001/api/v1/address/update-address/17"
-                                      {:accept :json
-                                       :content-type :json
-                                       :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                       :form-params {:country "USA"
-                                                     :state "Texas"
-                                                     :city "Austin"
-                                                     :street "Congress Ave"
-                                                     :postal_code "73301"}})
-                body (-> response :body (cheshire/parse-string true))]
+            (let [recent-id-response (client/get "http://localhost:3001/api/v1/address/get-recent-id-address"
+                                                 {:accept :json
+                                                  :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                  recent-id-body (-> recent-id-response :body (cheshire/parse-string true))
+                  address-id (-> recent-id-body :recent first :id)]
 
-            (is (= 200 (:status response)))
-            (is (= "Address updated successfully" (:message body)))))))))
+              (is (= 200 (:status recent-id-response)))
+
+              (testing "Update address with valid data"
+                (let [update-response (client/post (str "http://localhost:3001/api/v1/address/update-address/" address-id)
+                                                   {:accept :json
+                                                    :content-type :json
+                                                    :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
+                                                    :form-params {:country "USA"
+                                                                  :state "Texas"
+                                                                  :city "Austin"
+                                                                  :street "Congress Ave"
+                                                                  :postal_code "73301"}})
+                      update-body (-> update-response :body (cheshire/parse-string true))]
+
+                  (is (= 200 (:status update-response)))
+                  (is (= "Address updated successfully" (:message update-body))))))))))))

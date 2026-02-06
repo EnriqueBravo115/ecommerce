@@ -23,6 +23,10 @@
           (address-handler/get-customer-addresses request))
         (wrap-authenticated))
 
+    (-> (GET "/get-recent-id-address" request
+          (address-handler/get-recent-id-address request))
+        (wrap-authenticated))
+
     (-> (GET "/get-customers-by-postal-code/:postal_code" request
           (address-handler/get-customers-by-postal-code request))
         (wrap-roles ["ADMIN"])

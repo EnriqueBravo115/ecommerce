@@ -214,3 +214,10 @@
                      {:top_countries top-countries
                       :top_states top-states
                       :top_cities top-cities}})))
+
+(defn get-recent-id-address [request]
+  (let [ds (:datasource request)
+        result (jdbc/execute! ds
+                              (queries/get-recent-id-address)
+                              {:builder-fn rs/as-unqualified-maps})]
+    (build-response 200 {:recent result})))
