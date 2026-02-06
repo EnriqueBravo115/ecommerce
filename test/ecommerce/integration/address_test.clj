@@ -57,6 +57,7 @@
                 body (-> response :body (cheshire/parse-string true))]
             (is (= 201 (:status response)))
             (is (= "Primary address updated successfully" (:message body)))))
+
         (testing "Create new address should throw error because exceed 3 address"
           (let [response (client/post "http://localhost:3001/api/v1/address/create-address"
                                       {:accept :json
@@ -73,6 +74,7 @@
             (is (= 400 (:status response)))
             (is (= "Customer cannot have more than 3 addresses, delete at least 1" (:error body)))))))))
 
+;; TODO: check error cases
 (deftest ^:integration update-address-test
   (testing "POST /api/v1/address/update-address/:address_id - should update address"
     (test-helper/with-test-database
@@ -178,7 +180,7 @@
               (is (= 400 (:status delete-response)))
               (is (= "Cannot delete primary address" (:error delete-body)))))
 
-          (testing "Delete address with not existing id should throw error"
+          (testing "Delete address with nonexistent id should throw error"
             (let [delete-response (client/delete (str "http://localhost:3001/api/v1/address/delete-address/" 999999999)
                                                  {:accept :json
                                                   :throw-exceptions false
@@ -197,3 +199,60 @@
 
               (is (= 403 (:status delete-response)))
               (is (= "Not authorized to delete this address" (:error delete-body))))))))))
+
+(deftest ^:integration set-primary-address-test
+  (testing "POST /api/v1/address/set-primary-address/:address_id - should set primary address"
+    (test-helper/with-test-database
+      (fn []
+        (testing "Create initial address with is_primary=false"
+          (let [create-response (client/post "http://localhost:3001/api/v1/address/create-address"
+                                             {:accept :json
+                                              :content-type :json
+                                              :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
+                                              :form-params {:country "Mexico"
+                                                            :state "Guanajuato"
+                                                            :city "Guanajuato"
+                                                            :street "Main Street"
+                                                            :postal_code "12345"
+                                                            :is_primary false}})
+                create-body (-> create-response :body (cheshire/parse-string true))]
+
+            (is (= 201 (:status create-response)))
+            (is (= "Address created successfully" (:message create-body)))
+
+            (let [recent-id-response (client/get "http://localhost:3001/api/v1/address/get-recent-id-address"
+                                                 {:accept :json
+                                                  :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                  recent-id-body (-> recent-id-response :body (cheshire/parse-string true))
+                  address-id (-> recent-id-body :recent first :id)]
+
+              (is (= 200 (:status recent-id-response)))
+
+              (testing "Set primary address to recent address-id"
+                (let [set-response (client/post (str "http://localhost:3001/api/v1/address/set-primary-address/" address-id)
+                                                {:accept :json
+                                                 :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                      set-body (-> set-response :body (cheshire/parse-string true))]
+
+                  (is (= 200 (:status set-response)))
+                  (is (= "Primary address updated successfully" (:message set-body)))))
+
+              (testing "Set primary address with not authorization should throw error"
+                (let [set-response (client/post (str "http://localhost:3001/api/v1/address/set-primary-address/" 1)
+                                                {:accept :json
+                                                 :throw-exceptions false
+                                                 :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                      set-body (-> set-response :body (cheshire/parse-string true))]
+
+                  (is (= 403 (:status set-response)))
+                  (is (= "Not authorized to modify this address" (:error set-body)))))
+
+              (testing "Set primary address to nonexistent id should throw error"
+                (let [set-response (client/post (str "http://localhost:3001/api/v1/address/set-primary-address/" 999999999)
+                                                {:accept :json
+                                                 :throw-exceptions false
+                                                 :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                      set-body (-> set-response :body (cheshire/parse-string true))]
+
+                  (is (= 404 (:status set-response)))
+                  (is (= "Address not found" (:error set-body))))))))))))
