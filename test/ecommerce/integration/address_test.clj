@@ -256,3 +256,107 @@
 
                   (is (= 404 (:status set-response)))
                   (is (= "Address not found" (:error set-body))))))))))))
+
+(deftest ^:integration get-customer-addresses-test
+  (testing "GET /api/v1/address/get-customer-addresses should return customer addresses"
+    (test-helper/with-test-database
+      (fn []
+        (testing "Create initial address with is_primary=true"
+          (let [create-response (client/post "http://localhost:3001/api/v1/address/create-address"
+                                             {:accept :json
+                                              :content-type :json
+                                              :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
+                                              :form-params {:country "Mexico"
+                                                            :state "Guanajuato"
+                                                            :city "Guanajuato"
+                                                            :street "Main Street"
+                                                            :postal_code "12345"
+                                                            :is_primary true}})
+                create-body (-> create-response :body (cheshire/parse-string true))]
+
+            (is (= 201 (:status create-response)))
+            (is (= "Primary address created successfully" (:message create-body)))
+
+            (testing "Get customer addresses"
+              (let [get-response (client/get "http://localhost:3001/api/v1/address/get-customer-addresses"
+                                             {:accept :json
+                                              :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                    get-body (-> get-response :body (cheshire/parse-string true))]
+
+                (is (= 200 (:status get-response)))
+                (is (= [{:country "Mexico"
+                         :state "Guanajuato"
+                         :city "Guanajuato"
+                         :street "Main Street"
+                         :postal_code "12345"
+                         :is_primary true}]
+                       (:addresses get-body)))))))))))
+
+(deftest ^:integration get-primary-address
+  (testing "GET /api/v1/address/get-primary-address should return primary address"
+    (test-helper/with-test-database
+      (fn []
+        (testing "Create initial address with is_primary=true"
+          (let [create-response (client/post "http://localhost:3001/api/v1/address/create-address"
+                                             {:accept :json
+                                              :content-type :json
+                                              :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
+                                              :form-params {:country "Mexico"
+                                                            :state "Guanajuato"
+                                                            :city "Guanajuato"
+                                                            :street "Main Street"
+                                                            :postal_code "12345"
+                                                            :is_primary true}})
+                create-body (-> create-response :body (cheshire/parse-string true))]
+
+            (is (= 201 (:status create-response)))
+            (is (= "Primary address created successfully" (:message create-body)))
+
+            (testing "Get customer primary address"
+              (let [get-response (client/get "http://localhost:3001/api/v1/address/get-primary-address"
+                                             {:accept :json
+                                              :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                    get-body (-> get-response :body (cheshire/parse-string true))]
+
+                (is (= 200 (:status get-response)))
+                (is (= {:country "Mexico"
+                        :state "Guanajuato"
+                        :city "Guanajuato"
+                        :street "Main Street"
+                        :postal_code "12345"
+                        :is_primary true}
+                       (:address get-body)))))))))))
+
+(deftest ^:integration get-customers-by-location
+  (testing "GET /api/v1/address/get-customers-by-location/:country/:state/:city should return customers by location"
+    (test-helper/with-test-database
+      (fn []
+        (let [get-response (client/get "http://localhost:3001/api/v1/address/get-customers-by-location/Mexico/Jalisco/Guadalajara"
+                                       {:accept :json
+                                        :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+              get-body (-> get-response :body (cheshire/parse-string true))]
+
+          (is (= 200 (:status get-response)))
+          (is (= [{:names "María Elena"
+                   :first_surname "García"
+                   :second_surname "López"
+                   :email "maria.garcia@email.com"
+                   :active true}]
+                 (:customers get-body))))))))
+
+(deftest ^:integration get-customers-by-postal-code
+  (testing "GET /api/v1/address/get-customers-by-postal-code/:postal_code should return customers by postal code"
+    (test-helper/with-test-database
+      (fn []
+        (let [get-response (client/get "http://localhost:3001/api/v1/address/get-customers-by-postal-code/76000"
+                                       {:accept :json
+                                        :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+              get-body (-> get-response :body (cheshire/parse-string true))]
+
+          (is (= 200 (:status get-response)))
+          (is (= [{:names "Jorge Luis"
+                   :first_surname "Santos"
+                   :second_surname "Cervantes"
+                   :email "jorge.santos@email.com"
+                   :active true}]
+                 (:customers get-body))))))))
