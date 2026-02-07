@@ -360,3 +360,45 @@
                    :email "jorge.santos@email.com"
                    :active true}]
                  (:customers get-body))))))))
+
+(deftest ^:integration get-location-statistics-test
+  (testing "GET /api/v1/address/get-location-statistics - should return location statistics based on populated data"
+    (test-helper/with-test-database
+      (fn []
+        (testing "Get location statistics with admin authorization"
+          (let [response (client/get "http://localhost:3001/api/v1/address/get-location-statistics"
+                                     {:accept :json
+                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
+                body (-> response :body (cheshire/parse-string true))
+                statistics (:statistics body)]
+
+            (is (= 200 (:status response)))
+            (is (map? statistics))
+
+            (let [top-countries (:top_countries statistics)]
+              (is (vector? top-countries))
+              (is (= 3 (count top-countries)) "Should return top 3 countries")
+
+              (is (= "Mexico" (:country (first top-countries))))
+              (is (= 8 (:customer_count (first top-countries))) "Mexico should have 8 addresses"))
+
+            (let [top-states (:top_states statistics)]
+              (is (vector? top-states))
+              (is (= 3 (count top-states)) "Should return top 3 states"))
+
+            (let [top-cities (:top_cities statistics)]
+              (is (vector? top-cities))
+              (is (= 3 (count top-cities)) "Should return top 3 cities"))
+
+            (let [total-customers (apply + (map :customer_count (:top_countries statistics)))]
+              (is (>= total-customers 12)
+                  (str "Sum of top countries should be at least 12, got: " total-customers)))))
+
+        (testing "Get location statistics without authorization should fail"
+          (let [response (client/get "http://localhost:3001/api/v1/address/get-location-statistics"
+                                     {:accept :json
+                                      :throw-exceptions false})
+                body (-> response :body (cheshire/parse-string true))]
+
+            (is (= 401 (:status response)))
+            (is (contains? body :error))))))))

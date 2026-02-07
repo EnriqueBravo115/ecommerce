@@ -99,7 +99,7 @@
     :from [[:address :a]]
     :group-by [:a.country]
     :order-by [[:customer_count :desc]]
-    :limit 10}))
+    :limit 3}))
 
 (defn get-top-states []
   (sql/format
@@ -107,7 +107,7 @@
     :from [[:address :a]]
     :group-by [:a.state :a.country]
     :order-by [[:customer_count :desc]]
-    :limit 10}))
+    :limit 3}))
 
 (defn get-top-cities []
   (sql/format
@@ -115,7 +115,7 @@
     :from [[:address :a]]
     :group-by [:a.city :a.state :a.country]
     :order-by [[:customer_count :desc]]
-    :limit 10}))
+    :limit 3}))
 
 (defn get-recent-id-address []
   (sql/format
