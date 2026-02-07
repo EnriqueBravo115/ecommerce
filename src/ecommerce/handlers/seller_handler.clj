@@ -11,6 +11,7 @@
 (defn- build-response [status body]
   {:status status :headers json-headers :body body})
 
+;; need validation in required fields
 (defn create-seller [request]
   (let [seller-data (:body request)
         ds (:datasource request)
@@ -29,23 +30,6 @@
                        (queries/create-seller
                         (assoc seller-data :password password-encoded)))
         (build-response 201 {:message "Seller created successfully"})))))
-
-(defn get-seller-by-id [request]
-  (let [seller-id (Long/parseLong (get-in request [:params :id]))
-        ds (:datasource request)
-        seller (jdbc/execute-one! ds
-                                  (queries/get-seller-by-id seller-id)
-                                  {:builder-fn rs/as-unqualified-maps})]
-
-    (cond
-      (nil? seller)
-      (build-response 404 {:error "Seller not found"})
-
-      (not (jwt/has-any-role? request "ADMIN"))
-      (build-response 403 {:error "Not authorized to view this seller"})
-
-      :else
-      (build-response 200 {:seller seller}))))
 
 (defn update-seller-location [request]
   (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
@@ -126,6 +110,23 @@
         (jdbc/execute! ds
                        (queries/verify-seller seller-id))
         (build-response 200 {:message "Seller verified successfully"})))))
+
+(defn get-seller-by-id [request]
+  (let [seller-id (Long/parseLong (get-in request [:params :id]))
+        ds (:datasource request)
+        seller (jdbc/execute-one! ds
+                                  (queries/get-seller-by-id seller-id)
+                                  {:builder-fn rs/as-unqualified-maps})]
+
+    (cond
+      (nil? seller)
+      (build-response 404 {:error "Seller not found"})
+
+      (not (jwt/has-any-role? request "ADMIN"))
+      (build-response 403 {:error "Not authorized to view this seller"})
+
+      :else
+      (build-response 200 {:seller seller}))))
 
 (defn get-seller-by-country-stats [request]
   (let [ds (:datasource request)
