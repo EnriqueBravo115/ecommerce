@@ -54,3 +54,16 @@
     (jwt/sign claims secret {:alg alg})))
 
 (generate-seller-test-token)
+
+(defn generate-customer-test-token []
+  (let [secret "123456789"
+        alg :hs512
+        current-time-seconds (quot (System/currentTimeMillis) 1000)
+        claims {:id 1
+                :email "contact@techinnovators.com"
+                :roles "CUSTOMER"
+                :iat current-time-seconds
+                :exp (+ current-time-seconds 2592000)}]
+    (jwt/sign claims secret {:alg alg})))
+
+(generate-customer-test-token)

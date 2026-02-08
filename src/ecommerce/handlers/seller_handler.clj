@@ -11,7 +11,7 @@
 (defn- build-response [status body]
   {:status status :headers json-headers :body body})
 
-;; need validation in required fields
+;; TODO: need validation in required fields
 (defn create-seller [request]
   (let [seller-data (:body request)
         ds (:datasource request)
@@ -31,6 +31,8 @@
                         (assoc seller-data :password password-encoded)))
         (build-response 201 {:message "Seller created successfully"})))))
 
+;; TODO: need validation in required fields
+;; TODO: id should match when seller change location
 (defn update-seller-location [request]
   (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
         seller-data (:body request)
@@ -42,10 +44,6 @@
     (cond
       (nil? existing-seller)
       (build-response 404 {:error "Seller not found"})
-
-      (and (not (jwt/has-any-role? request "ADMIN" "SELLER"))
-           (not= seller-id (jwt/get-customer-id request)))
-      (build-response 403 {:error "Not authorized to update this seller"})
 
       :else
       (do

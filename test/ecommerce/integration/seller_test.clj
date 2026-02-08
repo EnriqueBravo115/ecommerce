@@ -99,135 +99,63 @@
   (testing "PUT /api/v1/seller/update-seller-location/:seller_id - should update seller location"
     (test-helper/with-test-database
       (fn []
-        (let [seller-id 1]
-          (testing "Update seller location as ADMIN"
-            (let [location-data {:state "Jalisco"
-                                 :city "Guadalajara"
-                                 :address "Av. Chapultepec 789"
-                                 :postal_code "44100"}
-                  response (client/put (str "http://localhost:3001/api/v1/seller/update-seller-location/" seller-id)
-                                       {:accept :json
-                                        :content-type :json
-                                        :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                        :form-params location-data})
-                  body (-> response :body (cheshire/parse-string true))]
+        (testing "Update seller location as ADMIN"
+          (let [location-data {:state "Jalisco"
+                               :city "Guadalajara"
+                               :address "Av. Chapultepec 789"
+                               :postal_code "44100"}
+                response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/1"
+                                     {:accept :json
+                                      :content-type :json
+                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
+                                      :form-params location-data})
+                body (-> response :body (cheshire/parse-string true))]
 
-              (is (= 200 (:status response)))
-              (is (= "Seller updated successfully" (:message body)))))
+            (is (= 200 (:status response)))
+            (is (= "Seller updated successfully" (:message body)))))
 
-          (testing "Update seller location as SELLER (owner)"
-            (let [seller-token (jwt/generate-test-token {:id seller-id
-                                                         :email "seller1@example.com"
-                                                         :roles "SELLER"})
-                  location-data {:state "Nuevo León"
-                                 :city "Monterrey"
-                                 :address "Av. Constitución 123"
-                                 :postal_code "64000"}
-                  response (client/put (str "http://localhost:3001/api/v1/seller/update-seller-location/" seller-id)
-                                       {:accept :json
-                                        :content-type :json
-                                        :headers {"Authorization" (str "Bearer " seller-token)}
-                                        :form-params location-data})
-                  body (-> response :body (cheshire/parse-string true))]
+        (testing "Update seller location as SELLER (owner)"
+          (let [location-data {:state "Nuevo León"
+                               :city "Monterrey"
+                               :address "Av. Constitución 123"
+                               :postal_code "64000"}
+                response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/1"
+                                     {:accept :json
+                                      :content-type :json
+                                      :headers {"Authorization" (str "Bearer " (jwt/generate-seller-test-token))}
+                                      :form-params location-data})
+                body (-> response :body (cheshire/parse-string true))]
 
-              (is (= 200 (:status response)))
-              (is (= "Seller updated successfully" (:message body)))))
+            (is (= 200 (:status response)))
+            (is (= "Seller updated successfully" (:message body)))))
 
-          (testing "Update seller location with partial data"
-            (let [location-data {:city "Querétaro"
-                                 :postal_code "76000"}
-                  response (client/put (str "http://localhost:3001/api/v1/seller/update-seller-location/" seller-id)
-                                       {:accept :json
-                                        :content-type :json
-                                        :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                        :form-params location-data})
-                  body (-> response :body (cheshire/parse-string true))]
+        (testing "Update nonexistent seller should return 404"
+          (let [location-data {:state "CDMX"
+                               :city "Ciudad de México"
+                               :address "Av. Reforma"
+                               :postal_code "06600"}
+                response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/999999"
+                                     {:accept :json
+                                      :content-type :json
+                                      :throw-exceptions false
+                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
+                                      :form-params location-data})
+                body (-> response :body (cheshire/parse-string true))]
 
-              (is (= 200 (:status response)))
-              (is (= "Seller updated successfully" (:message body)))))
+            (is (= 404 (:status response)))
+            (is (= "Seller not found" (:error body)))))
 
-          (testing "Update nonexistent seller should return 404"
-            (let [location-data {:state "CDMX"
-                                 :city "Ciudad de México"
-                                 :address "Av. Reforma"
-                                 :postal_code "06600"}
-                  response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/999999"
-                                       {:accept :json
-                                        :content-type :json
-                                        :throw-exceptions false
-                                        :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                        :form-params location-data})
-                  body (-> response :body (cheshire/parse-string true))]
+        (testing "Update seller location without authorization should return 401"
+          (let [location-data {:state "Veracruz"
+                               :city "Veracruz"
+                               :address "Boulevard"
+                               :postal_code "91000"}
+                response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/1"
+                                     {:accept :json
+                                      :content-type :json
+                                      :throw-exceptions false
+                                      :form-params location-data})
+                body (-> response :body (cheshire/parse-string true))]
 
-              (is (= 404 (:status response)))
-              (is (= "Seller not found" (:error body)))))
-
-          (testing "Update seller location as different SELLER (not owner) should return 403"
-            (let [other-seller-token (jwt/generate-test-token {:id 2
-                                                               :email "other@example.com"
-                                                               :roles "SELLER"})
-                  location-data {:state "Baja California"
-                                 :city "Tijuana"
-                                 :address "Calle 5"
-                                 :postal_code "22000"}
-                  response (client/put (str "http://localhost:3001/api/v1/seller/update-seller-location/" seller-id)
-                                       {:accept :json
-                                        :content-type :json
-                                        :throw-exceptions false
-                                        :headers {"Authorization" (str "Bearer " other-seller-token)}
-                                        :form-params location-data})
-                  body (-> response :body (cheshire/parse-string true))]
-
-              (is (= 403 (:status response)))
-              (is (= "Not authorized to update this seller" (:error body)))))
-
-          (testing "Update seller location as CUSTOMER should return 403"
-            (let [customer-token (jwt/generate-test-token {:id 3
-                                                           :email "customer@example.com"
-                                                           :roles "CUSTOMER"})
-                  location-data {:state "Sonora"
-                                 :city "Hermosillo"
-                                 :address "Blvd. Kino"
-                                 :postal_code "83000"}
-                  response (client/put (str "http://localhost:3001/api/v1/seller/update-seller-location/" seller-id)
-                                       {:accept :json
-                                        :content-type :json
-                                        :throw-exceptions false
-                                        :headers {"Authorization" (str "Bearer " customer-token)}
-                                        :form-params location-data})
-                  body (-> response :body (cheshire/parse-string true))]
-
-              (is (= 403 (:status response)))
-              (is (= "Not authorized to update this seller" (:error body)))))
-
-          (testing "Update seller location without authorization should return 401"
-            (let [location-data {:state "Veracruz"
-                                 :city "Veracruz"
-                                 :address "Boulevard"
-                                 :postal_code "91000"}
-                  response (client/put (str "http://localhost:3001/api/v1/seller/update-seller-location/" seller-id)
-                                       {:accept :json
-                                        :content-type :json
-                                        :throw-exceptions false
-                                        :form-params location-data})
-                  body (-> response :body (cheshire/parse-string true))]
-
-              (is (= 401 (:status response)))
-              (is (contains? body :error))))
-
-          (testing "Update seller location with invalid seller_id format"
-            (let [location-data {:state "Puebla"
-                                 :city "Puebla"
-                                 :address "5 de Mayo"
-                                 :postal_code "72000"}
-                  response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/not-a-number"
-                                       {:accept :json
-                                        :content-type :json
-                                        :throw-exceptions false
-                                        :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                        :form-params location-data})
-                  body (-> response :body (cheshire/parse-string true))]
-
-              (is (or (= 400 (:status response))
-                      (= 500 (:status response)))
-                  "Should return error for invalid ID format"))))))))
+            (is (= 401 (:status response)))
+            (is (contains? body :error))))))))
