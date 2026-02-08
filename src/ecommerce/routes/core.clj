@@ -1,13 +1,13 @@
 (ns ecommerce.routes.core
   (:require
    [compojure.core :refer [context defroutes GET routes]]
-   [ecommerce.routes.address-routes :refer [address-routes]]
+   [ecommerce.routes.address-routes :refer [address-routes-customer address-routes-admin]]
    [ecommerce.routes.customer-management-routes :refer [customer-management-routes]]
    [ecommerce.routes.register-routes :refer [register-routes]]
    [ecommerce.routes.seller-routes :refer [seller-routes]]
    [ecommerce.routes.category-routes :refer [category-routes]]
    [ecommerce.routes.product-routes :refer [product-routes]]
-   [ecommerce.routes.inventory-routes :refer [inventory-routes]]
+   [ecommerce.routes.inventory-routes :refer [inventory-routes-seller inventory-routes-admin]]
    [ecommerce.routes.shopping-cart-routes :refer [shopping-cart-routes]]
    [ecommerce.utils.middleware :refer [wrap-jwt-decode]]))
 
@@ -17,13 +17,15 @@
 
   (context "/api/v1" []
     (-> (routes
-         customer-management-routes
          register-routes
-         address-routes
+         customer-management-routes
+         address-routes-admin
+         address-routes-customer
          seller-routes
          category-routes
          product-routes
-         inventory-routes
+         inventory-routes-seller
+         inventory-routes-admin
          shopping-cart-routes)
         wrap-jwt-decode))
 
