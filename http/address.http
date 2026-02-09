@@ -33,22 +33,22 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZ
 
 ### GET customer addresses
 GET http://localhost:3000/api/v1/address/get-customer-addresses
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwiZW1haWwiOiJjb250YWN0QHRlY2hpbm5vdmF0b3JzLmNvbSIsInJvbGVzIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NzA2Njk0NDgsImV4cCI6MTc3MzI2MTQ0OH0.w29_8ttgJfh6tRJ2TFhfwA8T8sklXzJNtvHCkBnOYwxhmJ4Ztgcn06QD5CS4hi2YXfw_DskbLKOyILk3hhqh8w
 
 ### GET primary address
 GET http://localhost:3000/api/v1/address/get-primary-address
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
 ### GET customers by location
-GET http://localhost:3000/api/v1/address/get-customers-by-location/Mexico/Jalisco/Guadalajara
+GET http://localhost:3000/api/v1/address/admin/get-customers-by-location/Mexico/Jalisco/Guadalajara
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
 ### GET customers by postal code
-GET http://localhost:3000/api/v1/address/get-customers-by-postal-code/76000
+GET http://localhost:3000/api/v1/address/admin/get-customers-by-postal-code/76000
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
 ### GET location statistics
-GET http://localhost:3000/api/v1/address/get-location-statistics
+GET http://localhost:3000/api/v1/address/admin/get-location-statistics
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
 ### GET recent id address
