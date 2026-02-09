@@ -328,10 +328,10 @@
                        (:address get-body)))))))))))
 
 (deftest ^:integration get-customers-by-location
-  (testing "GET /api/v1/address/get-customers-by-location/:country/:state/:city should return customers by location"
+  (testing "GET /api/v1/address/admin/get-customers-by-location/:country/:state/:city should return customers by location"
     (test-helper/with-test-database
       (fn []
-        (let [get-response (client/get "http://localhost:3001/api/v1/address/get-customers-by-location/Mexico/Jalisco/Guadalajara"
+        (let [get-response (client/get "http://localhost:3001/api/v1/address/admin/get-customers-by-location/Mexico/Jalisco/Guadalajara"
                                        {:accept :json
                                         :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
               get-body (-> get-response :body (cheshire/parse-string true))]
@@ -345,10 +345,10 @@
                  (:customers get-body))))))))
 
 (deftest ^:integration get-customers-by-postal-code
-  (testing "GET /api/v1/address/get-customers-by-postal-code/:postal_code should return customers by postal code"
+  (testing "GET /api/v1/address/admin/get-customers-by-postal-code/:postal_code should return customers by postal code"
     (test-helper/with-test-database
       (fn []
-        (let [get-response (client/get "http://localhost:3001/api/v1/address/get-customers-by-postal-code/76000"
+        (let [get-response (client/get "http://localhost:3001/api/v1/address/admin/get-customers-by-postal-code/76000"
                                        {:accept :json
                                         :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
               get-body (-> get-response :body (cheshire/parse-string true))]
@@ -362,11 +362,11 @@
                  (:customers get-body))))))))
 
 (deftest ^:integration get-location-statistics-test
-  (testing "GET /api/v1/address/get-location-statistics - should return location statistics based on populated data"
+  (testing "GET /api/v1/address/admin/get-location-statistics - should return location statistics based on populated data"
     (test-helper/with-test-database
       (fn []
         (testing "Get location statistics with admin authorization"
-          (let [response (client/get "http://localhost:3001/api/v1/address/get-location-statistics"
+          (let [response (client/get "http://localhost:3001/api/v1/address/admin/get-location-statistics"
                                      {:accept :json
                                       :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
                 body (-> response :body (cheshire/parse-string true))
