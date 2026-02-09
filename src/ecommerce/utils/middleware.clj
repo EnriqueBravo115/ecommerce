@@ -19,14 +19,16 @@
         (auth-handler request))
       (handler request))))
 
-(defn wrap-authenticated [handler]
+(defn wrap-auth [handler allowed-roles]
   (fn [request]
-    (if (authenticated? request)
-      (handler request)
-      {:status 401 :body {:error "Authentication failed"}})))
+    (cond
+      (not (authenticated? request))
+      {:status 401
+       :body {:error "Authentication required"}}
 
-(defn wrap-roles [handler allowed-roles]
-  (fn [request]
-    (if (apply jwt/has-any-role? request allowed-roles)
+      (apply jwt/has-any-role? request allowed-roles)
       (handler request)
-      {:status 403 :body {:error (str "Access denied. Required roles: " allowed-roles)}})))
+
+      :else
+      {:status 403
+       :body {:error (str "Access denied. Required roles: " allowed-roles)}})))

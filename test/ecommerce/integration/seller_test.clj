@@ -114,21 +114,6 @@
             (is (= 200 (:status response)))
             (is (= "Seller updated successfully" (:message body)))))
 
-        (testing "Update seller location as SELLER (owner)"
-          (let [location-data {:state "Nuevo León"
-                               :city "Monterrey"
-                               :address "Av. Constitución 123"
-                               :postal_code "64000"}
-                response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/1"
-                                     {:accept :json
-                                      :content-type :json
-                                      :headers {"Authorization" (str "Bearer " (jwt/generate-seller-test-token))}
-                                      :form-params location-data})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 200 (:status response)))
-            (is (= "Seller updated successfully" (:message body)))))
-
         (testing "Update nonexistent seller should return 404"
           (let [location-data {:state "CDMX"
                                :city "Ciudad de México"

@@ -2,7 +2,7 @@
   (:require
    [compojure.core :refer [context defroutes POST GET DELETE]]
    [ecommerce.handlers.address-handler :as address-handler]
-   [ecommerce.utils.middleware :refer [wrap-authenticated wrap-roles]]))
+   [ecommerce.utils.middleware :refer [wrap-auth]]))
 
 (defroutes raw-address-routes-customer
   (context "/address" []
@@ -32,10 +32,8 @@
 
 (def address-routes-customer
   (-> raw-address-routes-customer
-      (wrap-authenticated)
-      (wrap-roles ["CUSTOMER" "ADMIN"])))
+      (wrap-auth ["CUSTOMER" "ADMIN"])))
 
 (def address-routes-admin
   (-> raw-address-routes-admin
-      (wrap-authenticated)
-      (wrap-roles ["ADMIN"])))
+      (wrap-auth ["ADMIN"])))

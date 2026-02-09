@@ -2,7 +2,7 @@
   (:require
    [compojure.core :refer [context defroutes GET POST PUT]]
    [ecommerce.handlers.inventory-handler :as handler]
-   [ecommerce.utils.middleware :refer [wrap-authenticated wrap-roles]]))
+   [ecommerce.utils.middleware :refer [wrap-auth]]))
 
 (defroutes raw-inventory-routes-seller
   (context "/inventory" []
@@ -42,10 +42,8 @@
 
 (def inventory-routes-seller
   (-> raw-inventory-routes-seller
-      (wrap-authenticated)
-      (wrap-roles ["SELLER" "ADMIN"])))
+      (wrap-auth ["SELLER" "ADMIN"])))
 
 (def inventory-routes-admin
   (-> raw-inventory-routes-admin
-      (wrap-authenticated)
-      (wrap-roles ["ADMIN"])))
+      (wrap-auth ["ADMIN"])))
