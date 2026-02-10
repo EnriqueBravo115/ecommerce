@@ -120,9 +120,6 @@
       (nil? seller)
       (build-response 404 {:error "Seller not found"})
 
-      (not (jwt/has-any-role? request "ADMIN"))
-      (build-response 403 {:error "Not authorized to view this seller"})
-
       :else
       (build-response 200 {:seller seller}))))
 

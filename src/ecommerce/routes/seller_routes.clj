@@ -9,7 +9,7 @@
     (-> (routes
          (POST "/create-seller" request
            (seller-handler/create-seller request))
-         (GET "/get-top-sellers" request
+         (GET "/get-top-sellers/:limit" request
            (seller-handler/get-top-sellers request))
          (GET "/get-unverified-sellers" request
            (seller-handler/get-unverified-sellers request))
