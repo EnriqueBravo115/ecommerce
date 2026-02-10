@@ -115,3 +115,8 @@ INSERT INTO category (id, name, parent_id, active) VALUES
 (88, 'Obsolete Technology', 1, false),
 (89, 'Out of Season Fashion', 3, false),
 (90, 'Discontinued Products', NULL, false);
+
+SELECT setval(
+  pg_get_serial_sequence('category', 'id'),
+  (SELECT MAX(id) FROM category)
+);
