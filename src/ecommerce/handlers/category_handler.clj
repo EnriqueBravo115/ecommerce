@@ -9,6 +9,9 @@
 (defn- build-response [status body]
   {:status status :headers json-headers :body body})
 
+;; TODO: 
+;; - validation on duplicates categories
+;; - validate request
 (defn create-category [request]
   (let [category-data (:body request)
         ds (:datasource request)]
