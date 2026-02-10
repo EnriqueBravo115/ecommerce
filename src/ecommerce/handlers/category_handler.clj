@@ -108,13 +108,9 @@
                                             {:builder-fn rs/as-unqualified-maps})
         active-categories (jdbc/execute-one! ds
                                              (queries/get-active-categories-count)
-                                             {:builder-fn rs/as-unqualified-maps})
-        categories-by-level (jdbc/execute! ds
-                                           (queries/get-categories-count-by-level)
-                                           {:builder-fn rs/as-unqualified-maps})]
+                                             {:builder-fn rs/as-unqualified-maps})]
 
     (build-response 200
                     {:statistics
                      {:total_categories (:total total-categories)
-                      :active_categories (:active_count active-categories)
-                      :categories_by_level categories-by-level}})))
+                      :active_categories (:active_count active-categories)}})))

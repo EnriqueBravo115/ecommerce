@@ -51,56 +51,23 @@
 
 (defn get-category-tree []
   (sql/format
-   {:with-recursive [:category_tree [:id :name :parent_id :active :level]
-                     {:union-all
-                      [{:select [:id :name :parent_id :active
-                                 [1 :level]]
-                        :from [:category]
-                        :where [:= :parent_id nil]}
-                       {:select [:c.id :c.name :c.parent_id :c.active
-                                 [(sql/call :+ :ct.level 1) :level]]
-                        :from [[:category :c]]
-                        :join [[:category_tree :ct] [:= :c.parent_id :ct.id]]}]}]
-    :select [:*]
-    :from [:category_tree]
+   {:with-recursive
+    [[:category_tree
+      {:union-all
+       [{:select [:id :name :parent_id :active
+                  [1 :level]]
+         :from   [:category]
+         :where  [:is :parent_id nil]}
+
+        {:select [:c.id :c.name :c.parent_id :c.active
+                  [(sql/call :+ :ct.level 1) :level]]
+         :from   [[:category :c]]
+         :join   [[:category_tree :ct]
+                  [:= :c.parent_id :ct.id]]}]}]]
+
+    :select   [:*]
+    :from     [:category_tree]
     :order-by [[:level :asc] [:name :asc]]}))
-
-(defn get-categories-by-level [level]
-  (sql/format
-   {:with-recursive [:category_tree [:id :name :parent_id :level]
-                     {:union-all
-                      [{:select [:id :name :parent_id
-                                 [1 :level]]
-                        :from [:category]
-                        :where [:= :parent_id nil]}
-                       {:select [:c.id :c.name :c.parent_id
-                                 [(sql/call :+ :ct.level 1) :level]]
-                        :from [[:category :c]]
-                        :join [[:category_tree :ct] [:= :c.parent_id :ct.id]]}]}]
-    :select [:id :name :parent_id :level]
-    :from [:category_tree]
-    :where [:= :level level]
-    :order-by [[:name :asc]]}))
-
-(defn get-categories-with-children []
-  (sql/format
-   {:select [:p.id :p.name [:array_agg [:json_build_object
-                                         [:id :c.id]
-                                         [:name :c.name]
-                                         [:active :c.active]] :children]]
-    :from [[:category :p]]
-    :left-join [[:category :c] [:= :p.id :c.parent_id]]
-    :where [:= :p.parent_id nil]
-    :group-by [:p.id :p.name]
-    :order-by [[:p.name :asc]]}))
-
-(defn update-category-status [category_id active]
-  (sql/format
-   {:update :category
-    :set {:active active
-          :updated_at [:raw "current_timestamp"]}
-    :where [:= :id category_id]}
-   :inline true))
 
 (defn get-total-categories []
   (sql/format
@@ -112,20 +79,3 @@
    {:select [[(sql/call :count :*) :active_count]]
     :from [:category]
     :where [:= :active true]}))
-
-(defn get-categories-count-by-level []
-  (sql/format
-   {:with-recursive [:category_tree [:id :level]
-                     {:union-all
-                      [{:select [:id
-                                 [1 :level]]
-                        :from [:category]
-                        :where [:= :parent_id nil]}
-                       {:select [:c.id
-                                 [(sql/call :+ :ct.level 1) :level]]
-                        :from [[:category :c]]
-                        :join [[:category_tree :ct] [:= :c.parent_id :ct.id]]}]}]
-    :select [:level [(sql/call :count :*) :count]]
-    :from [:category_tree]
-    :group-by [:level]
-    :order-by [[:level :asc]]}))
