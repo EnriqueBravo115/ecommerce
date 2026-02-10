@@ -55,6 +55,11 @@
       (nil? existing-category)
       (build-response 404 {:error "Category not found"})
 
+      (not (:active existing-category))
+      (build-response 409 {:error "Cannot delete an inactive (already deactivated) category"
+                           :category-id category-id
+                           :status :inactive})
+
       :else
       (do
         (jdbc/execute! ds

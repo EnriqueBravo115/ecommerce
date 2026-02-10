@@ -3,11 +3,25 @@ POST http://localhost:3000/api/v1/category/create
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
 {
-  "active": true,
-  "name": "oeu",
-  "parent_id": 2
+  "name": "Refurbished Laptops",
+  "parent_id": 11,
+  "active": true
 }
 
+### PUT update category
+PUT http://localhost:3000/api/v1/category/update/11
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+Content-Type: application/json
+
+{
+  "name": "Computers & Laptops Updated",
+  "parent_id": 1,
+  "active": true
+}
+
+### DELETE deactivate category by id
+DELETE http://localhost:3000/api/v1/category/delete/90
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
 
 ### GET categories active
 GET http://localhost:3000/api/v1/category/active

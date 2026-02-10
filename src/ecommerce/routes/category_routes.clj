@@ -17,9 +17,9 @@
            (category-handler/create-category request))
          (GET "/:id" request
            (category-handler/get-category-by-id request))
-         (PUT "/:id/update" request
+         (PUT "/update/:id" request
            (category-handler/update-category request))
-         (DELETE "/:id/delete" request
+         (DELETE "/delete/:id" request
            (category-handler/delete-category request))
          (POST "/:id/toggle-status" request
            (category-handler/toggle-category-status request)))
