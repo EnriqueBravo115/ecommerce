@@ -20,7 +20,5 @@
          (PUT "/update/:id" request
            (category-handler/update-category request))
          (DELETE "/delete/:id" request
-           (category-handler/delete-category request))
-         (POST "/:id/toggle-status" request
-           (category-handler/toggle-category-status request)))
+           (category-handler/delete-category request)))
         (wrap-auth ["ADMIN"]))))

@@ -101,24 +101,6 @@
       (build-response 200 {:category-tree categories})
       (build-response 404 {:error "No categories found"}))))
 
-(defn toggle-category-status [request]
-  (let [category-id (Long/parseLong (get-in request [:params :id]))
-        ds (:datasource request)
-        existing-category (jdbc/execute-one! ds
-                                             (queries/get-category-by-id category-id)
-                                             {:builder-fn rs/as-unqualified-maps})]
-
-    (cond
-      (nil? existing-category)
-      (build-response 404 {:error "Category not found"})
-
-      :else
-      (let [new-status (not (:active existing-category))]
-        (jdbc/execute! ds
-                       (queries/update-category-status category-id new-status))
-        (build-response 200 {:message (str "Category status updated to " new-status)
-                             :active new-status})))))
-
 (defn get-category-statistics [request]
   (let [ds (:datasource request)
         total-categories (jdbc/execute-one! ds
