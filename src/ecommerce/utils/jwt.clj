@@ -20,13 +20,13 @@
 (defn has-any-role? [request & required-roles]
   (some #(has-role? request %) required-roles))
 
-(defn- get-customer-identity [request]
+(defn- get-identity [request]
   (when (authenticated? request)
     (:identity request)))
 
-(defn get-customer-id
+(defn get-current-identity-id
   [request]
-  (when-let [identity (get-customer-identity request)]
+  (when-let [identity (get-identity request)]
     (:id identity)))
 
 (defn generate-admin-test-token []

@@ -12,7 +12,7 @@
   {:status status :headers json-headers :body body})
 
 (defn create-product [request]
-  (let [seller-id (jwt/get-customer-id request)
+  (let [seller-id (jwt/get-current-identity-id request)
         product-data (:body request)
         ds (:datasource request)
         sku (:sku product-data)
@@ -38,7 +38,7 @@
 
 ;; TODO: check query(needs standard fields)
 (defn update-product [request]
-  (let [seller-id (jwt/get-customer-id request)
+  (let [seller-id (jwt/get-current-identity-id request)
         product-id (Long/parseLong (get-in request [:params :product_id]))
         product-data (:body request)
         ds (:datasource request)
@@ -61,7 +61,7 @@
         (build-response 200 {:message "Product updated successfully"})))))
 
 (defn delete-product [request]
-  (let [seller-id (jwt/get-customer-id request)
+  (let [seller-id (jwt/get-current-identity-id request)
         product-id (Long/parseLong (get-in request [:params :product_id]))
         ds (:datasource request)
 
@@ -104,7 +104,7 @@
 
 (defn get-products-by-seller [request]
   (let [ds (:datasource request)
-        seller-id (jwt/get-customer-id request)
+        seller-id (jwt/get-current-identity-id request)
         query (queries/get-by-seller seller-id)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 

@@ -12,7 +12,7 @@
   {:status status :headers json-headers :body body})
 
 (defn create-address [request]
-  (let [customer-id (jwt/get-customer-id request)
+  (let [customer-id (jwt/get-current-identity-id request)
         address-data (:body request)
         validation-error (validations/validate-address address-data)
         ds (:datasource request)]
@@ -73,7 +73,7 @@
             (build-response 201 {:message "Address created successfully"})))))))
 
 (defn update-address [request]
-  (let [customer-id (jwt/get-customer-id request)
+  (let [customer-id (jwt/get-current-identity-id request)
         address-id (Long/parseLong (get-in request [:params :address_id]))
         address-data (:body request)
         validation-error (validations/validate-address-update address-data)
@@ -106,7 +106,7 @@
         (build-response 200 {:message "Address updated successfully"})))))
 
 (defn delete-address [request]
-  (let [customer-id (jwt/get-customer-id request)
+  (let [customer-id (jwt/get-current-identity-id request)
         address-id (Long/parseLong (get-in request [:params :address_id]))
         ds (:datasource request)
         existing-address (jdbc/execute-one! ds
@@ -131,7 +131,7 @@
         (build-response 200 {:message "Address deleted successfully"})))))
 
 (defn set-primary-address [request]
-  (let [customer-id (jwt/get-customer-id request)
+  (let [customer-id (jwt/get-current-identity-id request)
         address-id (Long/parseLong (get-in request [:params :address_id]))
         ds (:datasource request)
         existing-address (jdbc/execute-one! ds
@@ -152,7 +152,7 @@
         (build-response 200 {:message "Primary address updated successfully"})))))
 
 (defn get-customer-addresses [request]
-  (let [customer-id (jwt/get-customer-id request)
+  (let [customer-id (jwt/get-current-identity-id request)
         ds (:datasource request)
         addresses (jdbc/execute! ds
                                  (queries/get-addresses-by-customer-id customer-id)
@@ -161,7 +161,7 @@
     (build-response 200 {:addresses addresses})))
 
 (defn get-primary-address [request]
-  (let [customer-id (jwt/get-customer-id request)
+  (let [customer-id (jwt/get-current-identity-id request)
         ds (:datasource request)
         primary-address (jdbc/execute-one! ds
                                            (queries/get-primary-address customer-id)
