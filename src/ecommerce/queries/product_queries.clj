@@ -1,6 +1,41 @@
 (ns ecommerce.queries.product-queries
   (:require [honey.sql :as sql]))
 
+(ns ecommerce.queries.product-queries
+  (:require [honey.sql :as sql]))
+
+(defn create-product [data]
+  (sql/format
+   {:insert-into :product
+    :values [data]}
+   :inline true))
+
+(defn get-product-by-id [id]
+  (sql/format
+   {:select [:*]
+    :from [:product]
+    :where [:= :id id]}))
+
+(defn get-product-by-sku [sku]
+  (sql/format
+   {:select [:id :sku]
+    :from [:product]
+    :where [:= :sku sku]}))
+
+(defn update-product [product-id fields]
+  (sql/format
+   {:update :product
+    :set (assoc fields
+                :updated_at [:raw "current_timestamp"])
+    :where [:= :id product-id]}
+   :inline true))
+
+(defn delete-product [product-id]
+  (sql/format
+   {:delete-from :product
+    :where [:= :id product-id]}
+   :inline true))
+
 (defn get-by-id [id]
   (sql/format
    {:select [:p.*
@@ -25,10 +60,12 @@
 
 (defn get-by-seller [seller-id]
   (sql/format
-   {:select [:p.* :c.name :category_name]
-    :from [[:product :p]]
-    :left-join [[:category :c] [:= :p.category_id :c.id]]
-    :where [:= :p.seller_id seller-id]
+   {:select [:p.name :p.price :p.status
+             [:c.name :category]]
+    :from   [[:product :p]]
+    :left-join [[:category :c]
+                [:= :p.category_id :c.id]]
+    :where  [:= :p.seller_id seller-id]
     :order-by [[:p.created_at :desc]]}
    :inline true))
 

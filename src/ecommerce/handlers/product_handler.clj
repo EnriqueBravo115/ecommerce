@@ -3,12 +3,84 @@
    [ecommerce.queries.product-queries :as queries]
    [next.jdbc :as jdbc]
    [next.jdbc.result-set :as rs]
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [ecommerce.utils.jwt :as jwt]))
 
 (def ^:private json-headers {"Content-Type" "application/json"})
 
 (defn- build-response [status body]
   {:status status :headers json-headers :body body})
+
+(defn create-product [request]
+  (let [seller-id (jwt/get-customer-id request)
+        product-data (:body request)
+        ds (:datasource request)
+        sku (:sku product-data)
+
+        existing-product (jdbc/execute-one! ds
+                                            (queries/get-product-by-sku sku)
+                                            {:builder-fn rs/as-unqualified-maps})]
+
+    (cond
+      (nil? seller-id)
+      (build-response 403 {:error "Unauthorized"})
+
+      existing-product
+      (build-response 409 {:error "Product with this SKU already exists"})
+
+      :else
+      (do
+        (jdbc/execute! ds
+                       (queries/create-product
+                        (assoc product-data
+                               :seller_id seller-id)))
+        (build-response 201 {:message "Product created successfully"})))))
+
+;; TODO: check query(needs standard fields)
+(defn update-product [request]
+  (let [seller-id (jwt/get-customer-id request)
+        product-id (Long/parseLong (get-in request [:params :product_id]))
+        product-data (:body request)
+        ds (:datasource request)
+
+        existing-product (jdbc/execute-one! ds
+                                            (queries/get-product-by-id product-id)
+                                            {:builder-fn rs/as-unqualified-maps})]
+
+    (cond
+      (nil? existing-product)
+      (build-response 404 {:error "Product not found"})
+
+      (not= seller-id (:seller_id existing-product))
+      (build-response 403 {:error "Not authorized to update this product"})
+
+      :else
+      (do
+        (jdbc/execute! ds
+                       (queries/update-product product-id product-data))
+        (build-response 200 {:message "Product updated successfully"})))))
+
+(defn delete-product [request]
+  (let [seller-id (jwt/get-customer-id request)
+        product-id (Long/parseLong (get-in request [:params :product_id]))
+        ds (:datasource request)
+
+        existing-product (jdbc/execute-one! ds
+                                            (queries/get-product-by-id product-id)
+                                            {:builder-fn rs/as-unqualified-maps})]
+
+    (cond
+      (nil? existing-product)
+      (build-response 404 {:error "Product not found"})
+
+      (not= seller-id (:seller_id existing-product))
+      (build-response 403 {:error "Not authorized to delete this product"})
+
+      :else
+      (do
+        (jdbc/execute! ds
+                       (queries/delete-product product-id))
+        (build-response 200 {:message "Product deleted successfully"})))))
 
 (defn get-product-by-id [request]
   (let [ds (:datasource request)
@@ -32,7 +104,7 @@
 
 (defn get-products-by-seller [request]
   (let [ds (:datasource request)
-        seller-id (get-in request [:params :seller-id])
+        seller-id (jwt/get-customer-id request)
         query (queries/get-by-seller seller-id)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
@@ -72,16 +144,6 @@
     (if (seq result)
       (build-response 200 {:products result})
       (build-response 404 {:error "No products found in this price range"}))))
-
-(defn get-products-by-brand [request]
-  (let [ds (:datasource request)
-        brand (get-in request [:params :brand])
-        query (queries/get-by-brand brand)
-        result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
-
-    (if (seq result)
-      (build-response 200 {:products result})
-      (build-response 404 {:error "No products found for this brand"}))))
 
 (defn get-top-viewed-products [request]
   (let [ds (:datasource request)
