@@ -6,7 +6,8 @@
   (sql/format
    {:insert-into :category
     :columns [:name :parent_id :active]
-    :values [[name parent_id active]]}
+    :values [[name parent_id active]]
+    :returning [:id]}
    :inline true))
 
 (defn get-category-by-id [category_id]

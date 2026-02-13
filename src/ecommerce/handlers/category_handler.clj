@@ -14,15 +14,17 @@
 ;; - validate request
 (defn create-category [request]
   (let [category-data (:body request)
-        ds (:datasource request)]
+        ds (:datasource request)
 
-    (jdbc/execute! ds
-                   (queries/create-category
-                    {:name (:name category-data)
-                     :parent_id (:parent_id category-data)
-                     :active (:active category-data true)}))
+        result (jdbc/execute-one!
+                ds
+                (queries/create-category
+                 {:name (:name category-data)
+                  :parent_id (:parent_id category-data)
+                  :active (:active category-data true)})
+                {:builder-fn rs/as-unqualified-maps})]
 
-    (build-response 201 {:message "Category created successfully"})))
+    (build-response 201 {:id (:id result) :message "Category created successfully"})))
 
 (defn update-category [request]
   (let [category-id (Long/parseLong (get-in request [:params :id]))
