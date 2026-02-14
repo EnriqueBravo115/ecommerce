@@ -21,9 +21,6 @@
                                             {:builder-fn rs/as-unqualified-maps})]
 
     (cond
-      (nil? seller-id)
-      (build-response 403 {:error "Unauthorized"})
-
       existing-product
       (build-response 409 {:error "Product with this SKU already exists"})
 
