@@ -7,7 +7,8 @@
 (defn create-product [data]
   (sql/format
    {:insert-into :product
-    :values [data]}
+    :values [data]
+    :returning [:id]}
    :inline true))
 
 (defn get-product-by-id [id]

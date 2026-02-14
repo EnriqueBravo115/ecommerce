@@ -28,12 +28,12 @@
       (build-response 409 {:error "Product with this SKU already exists"})
 
       :else
-      (do
-        (jdbc/execute! ds
-                       (queries/create-product
-                        (assoc product-data
-                               :seller_id seller-id)))
-        (build-response 201 {:message "Product created successfully"})))))
+      (let [result (jdbc/execute-one! ds
+                                      (queries/create-product
+                                       (assoc product-data
+                                              :seller_id seller-id))
+                                      {:builder-fn rs/as-unqualified-maps})]
+        (build-response 201 {:id (:id result) :message "Product created successfully"})))))
 
 ;; TODO: check query(needs standard fields)
 (defn update-product [request]
