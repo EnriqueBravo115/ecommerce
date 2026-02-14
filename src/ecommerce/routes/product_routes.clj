@@ -15,8 +15,6 @@
            (product-handler/update-product request))
          (DELETE "/delete/:product_id" request
            (product-handler/delete-product request))
-         (GET "/search" request
-           (product-handler/search-products request))
          (GET "/sku/:sku" request
            (product-handler/get-product-by-sku request))
          (GET "/category/:category-id" request
@@ -27,16 +25,12 @@
            (product-handler/get-top-viewed-products request))
          (GET "/top-rated" request
            (product-handler/get-top-rated-products request))
-         (GET "/tags/:tags" request
-           (product-handler/get-products-by-tags request))
-         (GET "/:id/view" request
+         (GET "/view/:id" request
            (product-handler/increment-view-count request))
          (GET "/seller/:seller-id" request
            (product-handler/get-products-by-seller request))
          (GET "/status/:status" request
            (product-handler/get-products-by-status request))
-         (GET "/stats" request
-           (product-handler/get-product-stats request))
          (GET "/:id" request
            (product-handler/get-product-by-id request)))
         (wrap-auth ["ADMIN" "SELLER" "CUSTOMER"]))))

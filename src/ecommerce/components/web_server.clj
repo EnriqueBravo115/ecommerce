@@ -1,6 +1,8 @@
 (ns ecommerce.components.web-server
   (:require
    [com.stuartsierra.component :as component]
+   [ring.middleware.params :refer [wrap-params]]
+   [ring.middleware.keyword-params :refer [wrap-keyword-params]]
    [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
    [ecommerce.utils.middleware :refer [wrap-jwt wrap-datasource]]
    [ecommerce.routes.core :as routes]
@@ -11,6 +13,8 @@
   (start [this]
     (let [app (-> routes/api-routes
                   (wrap-json-body {:keywords? true})
+                  wrap-keyword-params
+                  wrap-params
                   (wrap-jwt jwt)
                   (wrap-datasource datasource)
                   wrap-json-response)]

@@ -36,28 +36,6 @@
     :where [:= :id product-id]}
    :inline true))
 
-(defn get-by-id [id]
-  (sql/format
-   {:select [:p.*
-             :s.name :seller_name
-             :c.name :category_name]
-    :from [[:product :p]]
-    :left-join [[:seller :s] [:= :p.seller_id :s.id]
-                [:category :c] [:= :p.category_id :c.id]]
-    :where [:= :p.id id]}
-   :inline true))
-
-(defn get-by-sku [sku]
-  (sql/format
-   {:select [:p.*
-             :s.name :seller_name
-             :c.name :category_name]
-    :from [[:product :p]]
-    :left-join [[:seller :s] [:= :p.seller_id :s.id]
-                [:category :c] [:= :p.category_id :c.id]]
-    :where [:= :p.sku sku]}
-   :inline true))
-
 (defn get-by-seller [seller-id]
   (sql/format
    {:select [:p.name :p.price :p.status
@@ -71,18 +49,20 @@
 
 (defn get-by-category [category-id]
   (sql/format
-   {:select [:p.* :s.name :seller_name]
+   {:select [:p.name :p.price :p.status
+             [:s.business_name :seller]]
     :from [[:product :p]]
-    :left-join [[:seller :s] [:= :p.seller_id :s.id]]
+    :left-join [[:seller :s]
+                [:= :p.seller_id :s.id]]
     :where [:= :p.category_id category-id]
     :order-by [[:p.created_at :desc]]}
    :inline true))
 
 (defn get-by-status [status]
   (sql/format
-   {:select [:p.*
-             :s.name :seller_name
-             :c.name :category_name]
+   {:select [:p.name :p.price :p.status
+             [:s.business_name :seller_name]
+             [:c.name :category_name]]
     :from [[:product :p]]
     :left-join [[:seller :s] [:= :p.seller_id :s.id]
                 [:category :c] [:= :p.category_id :c.id]]
@@ -92,9 +72,9 @@
 
 (defn get-by-price-range [min-price max-price]
   (sql/format
-   {:select [:p.*
-             :s.name :seller_name
-             :c.name :category_name]
+   {:select [:p.name :p.price
+             [:s.business_name :seller_name]
+             [:c.name :category_name]]
     :from [[:product :p]]
     :left-join [[:seller :s] [:= :p.seller_id :s.id]
                 [:category :c] [:= :p.category_id :c.id]]
@@ -102,22 +82,10 @@
     :order-by [[:p.price :asc]]}
    :inline true))
 
-(defn get-by-brand [brand]
-  (sql/format
-   {:select [:p.*
-             :s.name :seller_name
-             :c.name :category_name]
-    :from [[:product :p]]
-    :left-join [[:seller :s] [:= :p.seller_id :s.id]
-                [:category :c] [:= :p.category_id :c.id]]
-    :where [:like :p.brand (str "%" brand "%")]
-    :order-by [[:p.created_at :desc]]}
-   :inline true))
-
 (defn get-top-viewed [limit]
   (sql/format
    {:select [:p.id :p.sku :p.name :p.price :p.view_count :p.average_rating
-             :s.name :seller_name]
+             :s.business_name]
     :from [[:product :p]]
     :left-join [[:seller :s] [:= :p.seller_id :s.id]]
     :where [:> :p.view_count 0]
@@ -129,7 +97,7 @@
   (sql/format
    {:select [:p.id :p.sku :p.name :p.price :p.view_count
              :p.average_rating :p.review_count
-             :s.name :seller_name]
+             :s.business_name]
     :from [[:product :p]]
     :left-join [[:seller :s] [:= :p.seller_id :s.id]]
     :where [:and
@@ -138,77 +106,6 @@
     :order-by [[:p.average_rating :desc] [:p.review_count :desc]]
     :limit limit}
    :inline true))
-
-(defn get-by-tags [tags]
-  (if (empty? tags)
-    (sql/format
-     {:select [:p.*
-               :s.name :seller_name
-               :c.name :category_name]
-      :from [[:product :p]]
-      :left-join [[:seller :s] [:= :p.seller_id :s.id]
-                  [:category :c] [:= :p.category_id :c.id]]
-      :where [:!= :p.tags nil]
-      :order-by [[:p.created_at :desc]]}
-     :inline true)
-    (let [tag-conditions (map #(vector :like :p.tags (str "%" % "%")) tags)]
-      (sql/format
-       {:select [:p.*
-                 :s.name :seller_name
-                 :c.name :category_name]
-        :from [[:product :p]]
-        :left-join [[:seller :s] [:= :p.seller_id :s.id]
-                    [:category :c] [:= :p.category_id :c.id]]
-        :where (into [:or] tag-conditions)
-        :order-by [[:p.created_at :desc]]}
-       :inline true))))
-
-(defn get-product-stats []
-  (sql/format
-   {:select [[(sql/call :count :*) :total_products]
-             [(sql/call :avg :price) :average_price]
-             [(sql/call :sum :view_count) :total_views]
-             [(sql/call :avg :average_rating) :overall_rating]
-             [(sql/call :sum :review_count) :total_reviews]
-             [(sql/call :count (sql/call :distinct :seller_id)) :unique_sellers]
-             [(sql/call :count (sql/call :distinct :brand)) :unique_brands]]
-    :from [:product]}
-   :inline true))
-
-(defn get-count-by-status []
-  (sql/format
-   {:select [:status [(sql/call :count :*) :count]]
-    :from [:product]
-    :group-by [:status]
-    :order-by [[:count :desc]]}
-   :inline true))
-
-(defn get-count-by-category []
-  (sql/format
-   {:select [:c.name :category_name
-             [(sql/call :count :p.*) :count]]
-    :from [[:product :p]]
-    :left-join [[:category :c] [:= :p.category_id :c.id]]
-    :group-by [:c.name]
-    :order-by [[:count :desc]]}
-   :inline true))
-
-(defn search [search-term]
-  (let [search-pattern (str "%" search-term "%")]
-    (sql/format
-     {:select [:p.*
-               :s.name :seller_name
-               :c.name :category_name]
-      :from [[:product :p]]
-      :left-join [[:seller :s] [:= :p.seller_id :s.id]
-                  [:category :c] [:= :p.category_id :c.id]]
-      :where [:or
-              [:like :p.name search-pattern]
-              [:like :p.description search-pattern]
-              [:like :p.sku search-pattern]
-              [:like :p.brand search-pattern]]
-      :order-by [[:p.created_at :desc]]}
-     :inline true)))
 
 (defn increment-view-count [product-id]
   (sql/format
