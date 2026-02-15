@@ -29,3 +29,6 @@
 
 (defn new-kafka-producer [config]
   (map->KafkaProducer {:config config}))
+
+(defprotocol EventProducer
+  (publish! [this topic key value]))

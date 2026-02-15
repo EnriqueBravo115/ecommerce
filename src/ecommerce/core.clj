@@ -6,7 +6,8 @@
    [ecommerce.components.datasource :as datasource]
    [ecommerce.components.jwt :as jwt]
    [ecommerce.components.web-server :as web-server]
-   [ecommerce.components.kafka-producer :as kafka-producer])
+   [ecommerce.components.kafka-producer :as kafka-producer]
+   [ecommerce.components.fake-producer :as fake-producer])
   (:gen-class))
 
 (defn read-config
@@ -15,12 +16,13 @@
       (io/resource)
       (aero/read-config)))
 
-(defn system-component
-  [config]
+(defn system-component [config]
   (component/system-map
    :datasource (datasource/new-datasource config)
    :jwt (jwt/new-jwt config)
-   :kafka-producer (kafka-producer/new-kafka-producer config)
+   :kafka-producer (if (get-in config [:kafka :bootstrap-servers])
+                     (kafka-producer/new-kafka-producer config)
+                     (fake-producer/new-fake-producer))
    :web-server (component/using
                 (web-server/new-web-server config)
                 [:datasource :jwt :kafka-producer])))
