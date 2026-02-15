@@ -1,11 +1,16 @@
 (ns ecommerce.handlers.product-handler
   (:require
+   [cheshire.core :as json]
    [ecommerce.queries.product-queries :as queries]
+   [ecommerce.utils.jwt :as jwt]
+   [jackdaw.client :as j.client]
    [next.jdbc :as jdbc]
-   [next.jdbc.result-set :as rs]
-   [ecommerce.utils.jwt :as jwt]))
+   [next.jdbc.result-set :as rs]))
 
 (def ^:private json-headers {"Content-Type" "application/json"})
+
+(def ^:private product-topic
+  {:topic-name "product-events"})
 
 (defn- build-response [status body]
   {:status status :headers json-headers :body body})
@@ -14,6 +19,7 @@
   (let [seller-id (jwt/get-current-identity-id request)
         product-data (:body request)
         ds (:datasource request)
+        producer (:kafka request)
         sku (:sku product-data)
 
         existing-product (jdbc/execute-one! ds
@@ -29,7 +35,20 @@
                                       (queries/create-product
                                        (assoc product-data
                                               :seller_id seller-id))
-                                      {:builder-fn rs/as-unqualified-maps})]
+                                      {:builder-fn rs/as-unqualified-maps})
+
+            product-id (:id result)
+
+            event-payload {:event-type "product.created"
+                           :product-id product-id
+                           :seller-id seller-id
+                           :sku sku
+                           :timestamp (System/currentTimeMillis)}]
+
+        (j.client/produce! producer
+                           product-topic
+                           (str product-id)
+                           (json/generate-string event-payload))
         (build-response 201 {:id (:id result) :message "Product created successfully"})))))
 
 ;; TODO: check query(needs standard fields)

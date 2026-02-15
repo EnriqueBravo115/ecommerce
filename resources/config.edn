@@ -11,4 +11,9 @@
         :pass "BIaTdKox3H9Bo/PTC/77sNqTuWvP7QL7SZTz6wOoq2FG"
         :from "enriquebravo115@gmail.com"
         :ssl true
-        :port 465}}
+        :port 465}
+ :kafka {:bootstrap-servers "localhost:9092"
+         :producer-opts {"acks" "all"
+                         "retries" "3"
+                         "linger.ms" "10"
+                         "enable.idempotence" "true"}}}

@@ -4,11 +4,11 @@
    [ring.middleware.params :refer [wrap-params]]
    [ring.middleware.keyword-params :refer [wrap-keyword-params]]
    [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
-   [ecommerce.utils.middleware :refer [wrap-jwt wrap-datasource]]
+   [ecommerce.utils.middleware :refer [wrap-jwt wrap-datasource wrap-kafka]]
    [ecommerce.routes.core :as routes]
    [ring.adapter.jetty :as jetty]))
 
-(defrecord Webserver [config datasource jwt]
+(defrecord Webserver [config datasource jwt kafka-producer]
   component/Lifecycle
   (start [this]
     (let [app (-> routes/api-routes
@@ -17,6 +17,7 @@
                   wrap-params
                   (wrap-jwt jwt)
                   (wrap-datasource datasource)
+                  (wrap-kafka kafka-producer)
                   wrap-json-response)]
       (assoc this :server (jetty/run-jetty app {:port (-> config :server :port) :join? false}))))
   (stop [this]

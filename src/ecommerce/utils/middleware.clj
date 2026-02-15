@@ -32,3 +32,7 @@
       :else
       {:status 403
        :body {:error (str "Access denied. Required roles: " allowed-roles)}})))
+
+(defn wrap-kafka [handler kafka-producer]
+  (fn [request]
+    (handler (assoc request :kafka (:producer kafka-producer)))))
