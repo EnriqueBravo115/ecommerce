@@ -16,7 +16,7 @@
              :alg        :hs512
              :expires-in 3600}}
 
-     :kafka {:bootstrap-servers "localhost:9092"
+     :kafka {:bootstrap-servers "localhost:29092"
              :producer-opts {"acks" "all"
                              "retries" "3"
                              "linger.ms" "10"
