@@ -21,3 +21,7 @@
 (defn validate-product-create [product]
   (when-not (m/validate types/product-schema product)
     "Invalid product format"))
+
+(defn validate-category [category]
+  (when-not (m/validate types/category-schema category)
+    "Invalid category format"))

@@ -1,6 +1,7 @@
 (ns ecommerce.handlers.category-handler
   (:require
    [ecommerce.queries.category-queries :as queries]
+   [ecommerce.utils.validations :as validations]
    [next.jdbc :as jdbc]
    [next.jdbc.result-set :as rs]))
 
@@ -9,22 +10,38 @@
 (defn- build-response [status body]
   {:status status :headers json-headers :body body})
 
-;; TODO: 
-;; - validation on duplicates categories
-;; - validate request
 (defn create-category [request]
-  (let [category-data (:body request)
-        ds (:datasource request)
+  (let [data           (:body request)
+        ds             (:datasource request)
+        validation-msg (validations/validate-category data)]
 
-        result (jdbc/execute-one!
-                ds
-                (queries/create-category
-                 {:name (:name category-data)
-                  :parent_id (:parent_id category-data)
-                  :active (:active category-data true)})
-                {:builder-fn rs/as-unqualified-maps})]
+    (cond
+      validation-msg
+      (build-response 400 {:error validation-msg})
 
-    (build-response 201 {:id (:id result) :message "Category created successfully"})))
+      :else
+      (let [name     (:name data)
+            existing (jdbc/execute-one!
+                      ds
+                      (queries/get-category-by-name name)
+                      {:builder-fn rs/as-unqualified-maps})]
+
+        (cond
+          (some? existing)
+          (build-response 409 {:error (str "Category '" name "' already exists")
+                               :existing-id (:id existing)})
+
+          :else
+          (let [result (jdbc/execute-one!
+                        ds
+                        (queries/create-category
+                         {:name      name
+                          :parent_id (:parent_id data)
+                          :active    (:active data true)})
+                        {:builder-fn rs/as-unqualified-maps})]
+            (build-response 201
+                            {:id      (:id result)
+                             :message "Category created successfully"})))))))
 
 (defn update-category [request]
   (let [category-id (Long/parseLong (get-in request [:params :id]))

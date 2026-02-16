@@ -48,3 +48,10 @@
    [:status product-status-schema]
    [:condition product-condition-schema]
    [:tags [:string {:min 1 :max 500}]]])
+
+(def category-schema
+  [:map {:closed true}
+   [:name [:string {:min 3 :max 100
+                    :error/message "Name must be between 3 and 100 characters"}]]
+   [:parent_id pos-int?]
+   [:active [:boolean]]])

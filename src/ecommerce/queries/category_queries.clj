@@ -15,6 +15,13 @@
     :from [:category]
     :where [:= :id category_id]}))
 
+(defn get-category-by-name [name]
+  (sql/format
+   {:select [:id :name :active]
+    :from [:category]
+    :where [:= :name name]
+    :limit 1}))
+
 (defn update-category [category_id {:keys [name parent_id active updated_at]}]
   (sql/format
    {:update :category
