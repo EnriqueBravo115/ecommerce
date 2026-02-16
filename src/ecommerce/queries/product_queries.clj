@@ -8,8 +8,7 @@
   (sql/format
    {:insert-into :product
     :values [data]
-    :returning [:id]}
-   :inline true))
+    :returning [:id]}))
 
 (defn get-product-by-id [id]
   (sql/format
@@ -28,14 +27,12 @@
    {:update :product
     :set (assoc fields
                 :updated_at [:raw "current_timestamp"])
-    :where [:= :id product-id]}
-   :inline true))
+    :where [:= :id product-id]}))
 
 (defn delete-product [product-id]
   (sql/format
    {:delete-from :product
-    :where [:= :id product-id]}
-   :inline true))
+    :where [:= :id product-id]}))
 
 (defn get-by-seller [seller-id]
   (sql/format
@@ -45,8 +42,7 @@
     :left-join [[:category :c]
                 [:= :p.category_id :c.id]]
     :where  [:= :p.seller_id seller-id]
-    :order-by [[:p.created_at :desc]]}
-   :inline true))
+    :order-by [[:p.created_at :desc]]}))
 
 (defn get-by-category [category-id]
   (sql/format
@@ -56,8 +52,7 @@
     :left-join [[:seller :s]
                 [:= :p.seller_id :s.id]]
     :where [:= :p.category_id category-id]
-    :order-by [[:p.created_at :desc]]}
-   :inline true))
+    :order-by [[:p.created_at :desc]]}))
 
 (defn get-by-status [status]
   (sql/format
@@ -68,8 +63,7 @@
     :left-join [[:seller :s] [:= :p.seller_id :s.id]
                 [:category :c] [:= :p.category_id :c.id]]
     :where [:= :p.status status]
-    :order-by [[:p.created_at :desc]]}
-   :inline true))
+    :order-by [[:p.created_at :desc]]}))
 
 (defn get-by-price-range [min-price max-price]
   (sql/format
@@ -80,8 +74,7 @@
     :left-join [[:seller :s] [:= :p.seller_id :s.id]
                 [:category :c] [:= :p.category_id :c.id]]
     :where [:between :p.price min-price max-price]
-    :order-by [[:p.price :asc]]}
-   :inline true))
+    :order-by [[:p.price :asc]]}))
 
 (defn get-top-viewed [limit]
   (sql/format
@@ -91,8 +84,7 @@
     :left-join [[:seller :s] [:= :p.seller_id :s.id]]
     :where [:> :p.view_count 0]
     :order-by [[:p.view_count :desc]]
-    :limit limit}
-   :inline true))
+    :limit limit}))
 
 (defn get-top-rated [min-reviews min-rating limit]
   (sql/format
@@ -105,13 +97,11 @@
             [:>= :p.review_count min-reviews]
             [:>= :p.average_rating min-rating]]
     :order-by [[:p.average_rating :desc] [:p.review_count :desc]]
-    :limit limit}
-   :inline true))
+    :limit limit}))
 
 (defn increment-view-count [product-id]
   (sql/format
    {:update :product
     :set {:view_count [:+ :view_count 1]
           :updated_at [:raw "current_timestamp"]}
-    :where [:= :id product-id]}
-   :inline true))
+    :where [:= :id product-id]}))

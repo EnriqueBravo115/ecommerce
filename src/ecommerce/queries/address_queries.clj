@@ -6,13 +6,13 @@
   (sql/format
    {:insert-into :address
     :columns [:customer_id :country :state :city :street :postal_code :is_primary]
-    :values [[customer_id country state city street postal_code is_primary]]} :inline true))
+    :values [[customer_id country state city street postal_code is_primary]]}))
 
 (defn count-addresses [customer-id]
   (sql/format
    {:select [:%count.*]
     :from [:address]
-    :where [:= :customer_id customer-id]} :inline true))
+    :where [:= :customer_id customer-id]}))
 
 (defn has-primary-address [customer-id]
   (sql/format
@@ -20,7 +20,7 @@
     :from [:address]
     :where [:and
             [:= :customer_id customer-id]
-            [:= :is_primary true]]} :inline true))
+            [:= :is_primary true]]}))
 
 (defn unset-existing-primary [customer-id]
   (sql/format
@@ -28,7 +28,7 @@
     :set {:is_primary false}
     :where [:and
             [:= :customer_id customer-id]
-            [:= :is_primary true]]} :inline true))
+            [:= :is_primary true]]}))
 
 (defn get-addresses-by-customer-id [customer_id]
   (sql/format
@@ -47,14 +47,12 @@
   (sql/format
    {:update :address
     :set {:country country :state state :city city :street street :postal_code postal_code}
-    :where [:= :id address_id]}
-   :inline true))
+    :where [:= :id address_id]}))
 
 (defn delete-address [address_id]
   (sql/format
    {:delete-from :address
-    :where [:= :id address_id]}
-   :inline true))
+    :where [:= :id address_id]}))
 
 (defn unset-all-primary [customer_id]
   (sql/format

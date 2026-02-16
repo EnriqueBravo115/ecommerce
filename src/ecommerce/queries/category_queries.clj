@@ -7,15 +7,13 @@
    {:insert-into :category
     :columns [:name :parent_id :active]
     :values [[name parent_id active]]
-    :returning [:id]}
-   :inline true))
+    :returning [:id]}))
 
 (defn get-category-by-id [category_id]
   (sql/format
    {:select [:id :name :parent_id :active :created_at :updated_at]
     :from [:category]
-    :where [:= :id category_id]}
-   :inline true))
+    :where [:= :id category_id]}))
 
 (defn update-category [category_id {:keys [name parent_id active updated_at]}]
   (sql/format
@@ -24,24 +22,21 @@
                  :parent_id parent_id
                  :active active}
                 (when updated_at {:updated_at updated_at}))
-    :where [:= :id category_id]}
-   :inline true))
+    :where [:= :id category_id]}))
 
 (defn deactivate-category [category_id]
   (sql/format
    {:update :category
     :set {:active false
           :updated_at [:raw "current_timestamp"]}
-    :where [:= :id category_id]}
-   :inline true))
+    :where [:= :id category_id]}))
 
 (defn deactivate-child-categories [parent_id]
   (sql/format
    {:update :category
     :set {:active false
           :updated_at [:raw "current_timestamp"]}
-    :where [:= :parent_id parent_id]}
-   :inline true))
+    :where [:= :parent_id parent_id]}))
 
 (defn get-active-categories []
   (sql/format
