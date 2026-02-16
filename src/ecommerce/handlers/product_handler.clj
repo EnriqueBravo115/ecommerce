@@ -5,7 +5,8 @@
    [ecommerce.utils.jwt :as jwt]
    [jackdaw.client :as j.client]
    [next.jdbc :as jdbc]
-   [next.jdbc.result-set :as rs]))
+   [next.jdbc.result-set :as rs]
+   [ecommerce.utils.validations :as validations]))
 
 (def ^:private json-headers {"Content-Type" "application/json"})
 
@@ -20,36 +21,38 @@
         product-data (:body request)
         ds (:datasource request)
         producer (:kafka request)
-        sku (:sku product-data)
-
-        existing-product (jdbc/execute-one! ds
-                                            (queries/get-product-by-sku sku)
-                                            {:builder-fn rs/as-unqualified-maps})]
-
+        validation-error (validations/validate-product-create product-data)]
     (cond
-      existing-product
-      (build-response 409 {:error "Product with this SKU already exists"})
+      validation-error
+      (build-response 400 {:error validation-error})
 
       :else
-      (let [result (jdbc/execute-one! ds
-                                      (queries/create-product
-                                       (assoc product-data
-                                              :seller_id seller-id))
-                                      {:builder-fn rs/as-unqualified-maps})
+      (let [sku (:sku product-data)
+            existing-product (jdbc/execute-one! ds
+                                                (queries/get-product-by-sku sku)
+                                                {:builder-fn rs/as-unqualified-maps})]
+        (cond
+          existing-product
+          (build-response 409 {:error "Product with this SKU already exists"})
 
-            product-id (:id result)
+          :else
+          (let [result (jdbc/execute-one! ds
+                                          (queries/create-product
+                                           (assoc product-data
+                                                  :seller_id seller-id))
+                                          {:builder-fn rs/as-unqualified-maps})
+                product-id (:id result)
+                event-payload {:event-type "product.created"
+                               :product-id product-id
+                               :seller-id seller-id
+                               :sku sku
+                               :timestamp (str (java.time.Instant/now))}]
 
-            event-payload {:event-type "product.created"
-                           :product-id product-id
-                           :seller-id seller-id
-                           :sku sku
-                           :timestamp (System/currentTimeMillis)}]
-
-        (j.client/produce! producer
-                           product-topic
-                           (str product-id)
-                           (json/generate-string event-payload))
-        (build-response 201 {:id (:id result) :message "Product created successfully"})))))
+            (j.client/produce! producer
+                               product-topic
+                               (str product-id)
+                               (json/generate-string event-payload))
+            (build-response 201 {:id (product-id) :message "Product created successfully"})))))))
 
 ;; TODO: check query(needs standard fields)
 (defn update-product [request]

@@ -17,3 +17,7 @@
 (defn validate-address-update [address]
   (when-not (m/validate types/address-schema-update address)
     "Invalid address format"))
+
+(defn validate-product-create [product]
+  (when-not (m/validate types/product-schema product)
+    "Invalid product format"))
