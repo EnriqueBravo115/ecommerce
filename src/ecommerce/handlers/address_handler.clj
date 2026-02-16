@@ -12,65 +12,47 @@
   {:status status :headers json-headers :body body})
 
 (defn create-address [request]
-  (let [customer-id (jwt/get-current-identity-id request)
-        address-data (:body request)
-        validation-error (validations/validate-address address-data)
-        ds (:datasource request)]
+  (let [customer-id    (jwt/get-current-identity-id request)
+        address-data   (:body request)
+        ds             (:datasource request)
+        validation-error (validations/validate-address address-data)]
 
     (cond
       validation-error
       (build-response 400 {:error validation-error})
 
       :else
-      (let [address-count-result (jdbc/execute! ds (queries/count-addresses customer-id))
-            address-count (-> address-count-result first :count)
-            is-primary (:is_primary address-data false)
-            primary-exists-result (jdbc/execute! ds (queries/has-primary-address customer-id))
-            primary-exists (-> primary-exists-result first :count pos?)]
+      (let [address-count (-> (jdbc/execute! ds (queries/count-addresses customer-id))
+                              first :count)
+            primary-exists (-> (jdbc/execute! ds (queries/has-primary-address customer-id))
+                               first :count pos?)
+            is-primary     (:is_primary address-data false)
+            max-reached?   (>= address-count 3)
+            conflict?      (and is-primary primary-exists)
+            base-address   {:customer_id  customer-id
+                            :country      (:country address-data)
+                            :state        (:state address-data)
+                            :city         (:city address-data)
+                            :street       (:street address-data)
+                            :postal_code  (:postal_code address-data)}]
 
         (cond
-          (>= address-count 3)
+          max-reached?
           (build-response 400 {:error "Customer cannot have more than 3 addresses, delete at least 1"})
 
-          (and is-primary primary-exists)
+          conflict?
           (do
             (jdbc/execute! ds (queries/unset-existing-primary customer-id))
-            (jdbc/execute! ds
-                           (queries/create-address
-                            {:customer_id customer-id
-                             :country (:country address-data)
-                             :state (:state address-data)
-                             :city (:city address-data)
-                             :street (:street address-data)
-                             :postal_code (:postal_code address-data)
-                             :is_primary true}))
+            (jdbc/execute! ds (queries/create-address (assoc base-address :is_primary true)))
             (build-response 201 {:message "Primary address updated successfully"}))
 
-          is-primary
-          (do
-            (jdbc/execute! ds
-                           (queries/create-address
-                            {:customer_id customer-id
-                             :country (:country address-data)
-                             :state (:state address-data)
-                             :city (:city address-data)
-                             :street (:street address-data)
-                             :postal_code (:postal_code address-data)
-                             :is_primary true}))
-            (build-response 201 {:message "Primary address created successfully"}))
-
           :else
-          (do
-            (jdbc/execute! ds
-                           (queries/create-address
-                            {:customer_id customer-id
-                             :country (:country address-data)
-                             :state (:state address-data)
-                             :city (:city address-data)
-                             :street (:street address-data)
-                             :postal_code (:postal_code address-data)
-                             :is_primary false}))
-            (build-response 201 {:message "Address created successfully"})))))))
+          (let [final-is-primary (if is-primary true false)
+                message (if is-primary
+                          "Primary address created successfully"
+                          "Address created successfully")]
+            (jdbc/execute! ds (queries/create-address (assoc base-address :is_primary final-is-primary)))
+            (build-response 201 {:message message})))))))
 
 (defn update-address [request]
   (let [customer-id (jwt/get-current-identity-id request)
