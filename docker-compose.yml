@@ -11,7 +11,7 @@ services:
       POSTGRES_INITDB_ARGS: --encoding=UTF-8
 
   broker:
-    image: apache/kafka:latest
+    image: apache/kafka:4.2.0
     container_name: broker
     ports:
       - "9092:9092"

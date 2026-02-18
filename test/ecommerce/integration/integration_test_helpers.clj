@@ -45,7 +45,7 @@
 
 (defn with-test-database-and-kafka [test-fn]
   (let [database-container (PostgreSQLContainer. "postgres:15.4")
-        kafka-container (KafkaContainer. "apache/kafka:latest")]
+        kafka-container (KafkaContainer. "apache/kafka:4.2.0")]
     (try
       (.start database-container)
       (.start kafka-container)

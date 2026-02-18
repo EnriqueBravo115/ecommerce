@@ -8,7 +8,7 @@
 
 (defn valid-product []
   {:category_id       1
-   :sku               (str "LAPTOP-" (subs (str (System/currentTimeMillis)) 6 10))
+   :sku               "LAPTOP-001"
    :name              "Gaming Laptop RTX 5080"
    :description       "High performance gaming laptop 2026 edition"
    :short_description "RTX 50-series Gaming"
@@ -24,7 +24,7 @@
 
 (deftest ^:integration create-product-test
   (testing "POST /api/v1/product/create - should create product"
-    (test-helper/with-test-database
+    (test-helper/with-test-database-and-kafka
       (fn []
         (testing "Create product without authorization should throw error"
           (let [response (client/post "http://localhost:3001/api/v1/product/create"
@@ -40,21 +40,19 @@
           (let [response (client/post "http://localhost:3001/api/v1/product/create"
                                       {:accept :json
                                        :content-type :json
-                                       :headers {"Authorization"
-                                                 (str "Bearer " (jwt/generate-admin-test-token))}
+                                       :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
                                        :form-params (valid-product)})
                 body (-> response :body (cheshire/parse-string true))]
             (is (= 201 (:status response)))
-            (is (= "Product created successfully" (:message body)))))
+            (is (= "Product created successfully" (:message body))))
 
-        (testing "Create duplicated product should throw error"
-          (let [response (client/post "http://localhost:3001/api/v1/product/create"
-                                      {:accept :json
-                                       :content-type :json
-                                       :throw-exceptions false
-                                       :headers {"Authorization"
-                                                 (str "Bearer " (jwt/generate-admin-test-token))}
-                                       :form-params (valid-product)})
-                body (-> response :body (cheshire/parse-string true))]
-            (is (= 409 (:status response)))
-            (is (= "Product with this SKU already exists" (:error body)))))))))
+          (testing "Create duplicated product should throw error"
+            (let [response (client/post "http://localhost:3001/api/v1/product/create"
+                                        {:accept :json
+                                         :content-type :json
+                                         :throw-exceptions false
+                                         :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
+                                         :form-params (valid-product)})
+                  body (-> response :body (cheshire/parse-string true))]
+              (is (= 409 (:status response)))
+              (is (= "Product with this SKU already exists" (:error body))))))))))
