@@ -2,10 +2,7 @@
   (:require
    [com.stuartsierra.component :as component]
    [ecommerce.core :as system])
-  (:import (org.testcontainers.containers PostgreSQLContainer)
-           (org.testcontainers.kafka ConfluentKafkaContainer)
-           (org.testcontainers.utility DockerImageName)
-           (org.testcontainers.containers Network)))
+  (:import (org.testcontainers.containers PostgreSQLContainer)))
 
 (defmacro with-system
   [[bound-var binding-expr] & body]
@@ -44,23 +41,3 @@
       (with-system [sut (system/system-component (test-system-config database-container))]
         (test-fn))
       (finally (.stop database-container)))))
-
-(defn with-test-database-and-kafka [test-fn]
-  (let [network           (Network/newNetwork)
-        database-container (doto (PostgreSQLContainer. "postgres:15.4")
-                             (.withNetwork network))
-        kafka-container    (doto (ConfluentKafkaContainer. (DockerImageName/parse "confluentinc/cp-kafka:7.5.0"))
-                             (.withNetwork network)
-                             (.withListener "kafka:9092"))]
-    (try
-      (.start database-container)
-      (.start kafka-container)
-      (with-system [sut (system/system-component (test-system-config-with-kafka database-container kafka-container))]
-        (test-fn))
-
-      (finally
-        (.stop kafka-container)
-        (.stop database-container)
-        (.close network)
-        (println "Kafka container logs:")
-        (println (.getLogs kafka-container))))))

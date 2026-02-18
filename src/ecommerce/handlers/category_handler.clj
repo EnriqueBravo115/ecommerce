@@ -13,11 +13,11 @@
 (defn create-category [request]
   (let [data           (:body request)
         ds             (:datasource request)
-        validation-msg (validations/validate-category data)]
+        validation-error (validations/validate-category data)]
 
     (cond
-      validation-msg
-      (build-response 400 {:error validation-msg})
+      validation-error
+      (build-response 400 {:error validation-error})
 
       :else
       (let [name     (:name data)

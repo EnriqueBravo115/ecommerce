@@ -51,7 +51,6 @@
 
 (def category-schema
   [:map {:closed true}
-   [:name [:string {:min 3 :max 100
-                    :error/message "Name must be between 3 and 100 characters"}]]
-   [:parent_id pos-int?]
+   [:name [:string {:min 3 :max 100}]]
+   [:parent_id [:maybe pos-int?]]
    [:active [:boolean]]])
