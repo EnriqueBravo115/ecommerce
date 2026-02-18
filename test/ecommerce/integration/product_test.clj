@@ -22,37 +22,69 @@
    :condition         "new"
    :tags              "laptop,gaming,rtx,2026"})
 
-(deftest ^:integration create-product-test
-  (testing "POST /api/v1/product/create - should create product"
+(defn- auth-headers []
+  {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))})
+
+(defn- parse-body [response]
+  (-> response :body (cheshire/parse-string true)))
+
+(defn- post-product
+  ([product] (post-product product {}))
+  ([product extra-opts]
+   (client/post "http://localhost:3001/api/v1/product/create"
+                (merge {:accept           :json
+                        :content-type     :json
+                        :throw-exceptions false
+                        :form-params      product}
+                       extra-opts))))
+
+(deftest ^:integration create-product-unauthorized-test
+  (testing "POST /api/v1/product/create - without authorization should return 401"
     (test-helper/with-test-database-and-kafka
       (fn []
-        (testing "Create product without authorization should throw error"
-          (let [response (client/post "http://localhost:3001/api/v1/product/create"
-                                      {:accept :json
-                                       :content-type :json
-                                       :throw-exceptions false
-                                       :form-params (valid-product)})
-                body (-> response :body (cheshire/parse-string true))]
-            (is (= 401 (:status response)))
-            (is (= "Authentication required" (:error body)))))
+        (let [response (post-product (valid-product))
+              body     (parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
-        (testing "Create product with valid data"
-          (let [response (client/post "http://localhost:3001/api/v1/product/create"
-                                      {:accept :json
-                                       :content-type :json
-                                       :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                       :form-params (valid-product)})
-                body (-> response :body (cheshire/parse-string true))]
-            (is (= 201 (:status response)))
-            (is (= "Product created successfully" (:message body))))
+(deftest ^:integration create-product-success-test
+  (testing "POST /api/v1/product/create - with valid data should create product"
+    (test-helper/with-test-database-and-kafka
+      (fn []
+        (let [response (post-product (valid-product) {:headers (auth-headers)})
+              body     (parse-body response)]
+          (is (= 201 (:status response)))
+          (is (= "Product created successfully" (:message body)))
+          (is (some? (:id body))))))))
 
-          (testing "Create duplicated product should throw error"
-            (let [response (client/post "http://localhost:3001/api/v1/product/create"
-                                        {:accept :json
-                                         :content-type :json
-                                         :throw-exceptions false
-                                         :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                         :form-params (valid-product)})
-                  body (-> response :body (cheshire/parse-string true))]
-              (is (= 409 (:status response)))
-              (is (= "Product with this SKU already exists" (:error body))))))))))
+(deftest ^:integration create-product-publishes-kafka-event-test
+  (testing "POST /api/v1/product/create - should publish event to product-events topic"
+    (test-helper/with-test-database-and-kafka
+      (fn []
+        (post-product (valid-product) {:headers (auth-headers)})
+
+        (test-helper/with-test-consumer
+          (fn [consumer]
+            (let [msg     (test-helper/consume-next-message consumer "product-events" 10000)
+                  payload (some-> msg :value (cheshire/parse-string true))]
+
+              (testing "A message should arrive within the timeout"
+                (is (some? msg) "No message received from product-events within 10s"))
+
+              (testing "Event payload should contain correct fields"
+                (is (= "product.created" (:event-type payload)))
+                (is (= "LAPTOP-001"      (:sku payload)))
+                (is (some? (:product-id  payload)))
+                (is (some? (:seller-id   payload)))
+                (is (some? (:timestamp   payload)))))))))))
+
+(deftest ^:integration create-duplicate-product-test
+  (testing "POST /api/v1/product/create - duplicate SKU should return 409"
+    (test-helper/with-test-database-and-kafka
+      (fn []
+        (post-product (valid-product) {:headers (auth-headers)})
+
+        (let [response (post-product (valid-product) {:headers (auth-headers)})
+              body     (parse-body response)]
+          (is (= 409 (:status response)))
+          (is (= "Product with this SKU already exists" (:error body))))))))
