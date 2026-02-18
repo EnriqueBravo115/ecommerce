@@ -2,12 +2,20 @@
   (:require
    [com.stuartsierra.component :as component]
    [ecommerce.core :as system]
+   [ecommerce.utils.jwt :as jwt]
+   [cheshire.core :as cheshire]
    [jackdaw.client :as j.client]
    [jackdaw.admin :as j.admin])
   (:import (org.testcontainers.containers PostgreSQLContainer)
            (org.testcontainers.kafka KafkaContainer)))
 
 (def ^:dynamic *kafka-bootstrap-server* nil)
+
+(defn auth-headers []
+  {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))})
+
+(defn parse-body [response]
+  (-> response :body (cheshire/parse-string true)))
 
 (defmacro with-system
   [[bound-var binding-expr] & body]
