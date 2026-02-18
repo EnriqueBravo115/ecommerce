@@ -52,7 +52,7 @@
                                product-topic
                                (str product-id)
                                (json/generate-string event-payload))
-            (build-response 201 {:id (product-id) :message "Product created successfully"})))))))
+            (build-response 201 {:id product-id :message "Product created successfully"})))))))
 
 ;; TODO: check query(needs standard fields)
 (defn update-product [request]

@@ -2,7 +2,8 @@
   (:require
    [com.stuartsierra.component :as component]
    [ecommerce.core :as system])
-  (:import (org.testcontainers.containers PostgreSQLContainer)))
+  (:import (org.testcontainers.containers PostgreSQLContainer)
+           (org.testcontainers.kafka KafkaContainer)))
 
 (defmacro with-system
   [[bound-var binding-expr] & body]
@@ -41,3 +42,15 @@
       (with-system [sut (system/system-component (test-system-config database-container))]
         (test-fn))
       (finally (.stop database-container)))))
+
+(defn with-test-database-and-kafka [test-fn]
+  (let [database-container (PostgreSQLContainer. "postgres:15.4")
+        kafka-container (KafkaContainer. "apache/kafka:latest")]
+    (try
+      (.start database-container)
+      (.start kafka-container)
+      (with-system [sut (system/system-component (test-system-config-with-kafka database-container kafka-container))]
+        (test-fn))
+      (finally
+        (.stop database-container)
+        (.stop kafka-container)))))
