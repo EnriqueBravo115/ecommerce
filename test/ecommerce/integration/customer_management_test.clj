@@ -4,6 +4,9 @@
    [clojure.test :refer [deftest is testing]]
    [ecommerce.integration.integration-test-helpers :as test-helper]))
 
+;; TODO: add create-customer-test endpoint with ADMIN role for test data isolation
+;;- Enable isolated test data creation without relying on database migrations
+
 (deftest ^:integration get-customer-by-id
   (testing "GET /api/v1/customer-management/:id should return customer"
     (test-helper/with-test-database

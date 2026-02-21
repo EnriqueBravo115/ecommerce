@@ -14,6 +14,9 @@
 (defn auth-headers []
   {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))})
 
+(defn auth-headers-customer []
+  {"Authorization" (str "Bearer " (jwt/generate-customer-test-token))})
+
 (defn parse-body [response]
   (-> response :body (cheshire/parse-string true)))
 

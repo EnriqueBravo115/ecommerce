@@ -13,7 +13,7 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZ
 
 ### POST update address
 POST http://localhost:3000/api/v1/address/update-address/6
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwiZW1haWwiOiJjb250YWN0QHRlY2hpbm5vdmF0b3JzLmNvbSIsInJvbGVzIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NzE2OTk2MjgsImV4cCI6MTc3NDI5MTYyOH0.q_8AjaYu4YWzudFv7drWjXZP46yjTL61vElbqSMVzQS-bdfvS0LVI4Vl9RAxB2_wtmk8atAu5eQdiIv3dmK3Gg
 
 {
   "country": "Mexico",

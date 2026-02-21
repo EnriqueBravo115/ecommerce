@@ -41,18 +41,20 @@
           (build-response 400 {:error "Customer cannot have more than 3 addresses, delete at least 1"})
 
           conflict?
-          (do
-            (jdbc/execute! ds (queries/unset-existing-primary customer-id))
-            (jdbc/execute! ds (queries/create-address (assoc base-address :is_primary true)))
-            (build-response 201 {:message "Primary address updated successfully"}))
-
+          (let [created-id (-> (jdbc/execute! ds (queries/unset-existing-primary customer-id))
+                               (do (-> (jdbc/execute! ds (queries/create-address (assoc base-address :is_primary true)))
+                                       first :address/id)))]
+            (build-response 201 {:message "Primary address updated successfully"
+                                 :id created-id}))
           :else
           (let [final-is-primary (if is-primary true false)
-                message (if is-primary
-                          "Primary address created successfully"
-                          "Address created successfully")]
-            (jdbc/execute! ds (queries/create-address (assoc base-address :is_primary final-is-primary)))
-            (build-response 201 {:message message})))))))
+                message          (if is-primary
+                                   "Primary address created successfully"
+                                   "Address created successfully")
+                created-id       (-> (jdbc/execute! ds (queries/create-address (assoc base-address :is_primary final-is-primary)))
+                                     first :address/id)]
+            (build-response 201 {:message message
+                                 :id created-id})))))))
 
 (defn update-address [request]
   (let [customer-id (jwt/get-current-identity-id request)

@@ -6,7 +6,8 @@
   (sql/format
    {:insert-into :address
     :columns [:customer_id :country :state :city :street :postal_code :is_primary]
-    :values [[customer_id country state city street postal_code is_primary]]}))
+    :values [[customer_id country state city street postal_code is_primary]]
+    :returning [:id]}))
 
 (defn count-addresses [customer-id]
   (sql/format
