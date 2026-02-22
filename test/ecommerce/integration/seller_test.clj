@@ -4,179 +4,126 @@
    [clj-http.client :as client]
    [ecommerce.utils.jwt :as jwt]
    [clojure.test :refer [deftest is testing]]
+   [ecommerce.integration.seller-test-helpers :as seller-helpers]
    [ecommerce.integration.integration-test-helpers :as test-helper]))
 
-(deftest ^:integration create-seller-test
-  (testing "POST /api/v1/seller/create-seller - should create seller"
+(deftest ^:integration create-seller-success-test
+  (testing "POST /api/v1/seller/create-seller - should create seller with valid data"
     (test-helper/with-test-database
       (fn []
-        (testing "Create seller with valid data"
-          (let [seller-data {:business_name "Tech Solutions MX"
-                             :legal_name "Soluciones Tecnológicas S.A. de C.V."
-                             :tax_id "TEC123456789"
-                             :email "ventas@techsolutions.mx"
-                             :phone "+525512345678"
-                             :country "Mexico"
-                             :state "Ciudad de México"
-                             :city "CDMX"
-                             :address "Av. Reforma 123"
-                             :postal_code "06600"
-                             :website "https://techsolutions.mx"
-                             :status "PENDING"
-                             :verified false
-                             :commission_rate 15.5
-                             :password "password"
-                             :bank_account "0123456789"
-                             :bank_name "Banco Nacional"}
-                response (client/post "http://localhost:3001/api/v1/seller/create-seller"
-                                      {:accept :json
-                                       :content-type :json
-                                       :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                       :form-params seller-data})
-                body (-> response :body (cheshire/parse-string true))]
+        (let [response (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 201 (:status response)))
+          (is (= "Seller created successfully" (:message body))))))))
 
-            (is (= 201 (:status response)))
-            (is (= "Seller created successfully" (:message body)))))
+(deftest ^:integration create-seller-duplicate-email-test
+  (testing "POST /api/v1/seller/create-seller - should return 409 when email already exists"
+    (test-helper/with-test-database
+      (fn []
+        (let [_        (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              response (seller-helpers/post-seller (seller-helpers/seller-data-duplicate-email) {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 409 (:status response)))
+          (is (= "Seller with this email already exists" (:error body))))))))
 
-        (testing "Create seller with duplicate email should return conflict"
-          (let [seller-data {:business_name "Another Tech Solutions"
-                             :legal_name "Otra Solución S.A. de C.V."
-                             :tax_id "TEC987654321"
-                             :email "ventas@techsolutions.mx"
-                             :phone "+525598765432"
-                             :country "Mexico"
-                             :state "Ciudad de México"
-                             :city "CDMX"
-                             :address "Av. Insurgentes 456"
-                             :postal_code "06610"
-                             :website "https://anothertech.mx"
-                             :status "PENDING"
-                             :verified false
-                             :commission_rate 12.0
-                             :password "anotherpassword"
-                             :bank_account "9876543210"
-                             :bank_name "Banco del Norte"}
-                response (client/post "http://localhost:3001/api/v1/seller/create-seller"
-                                      {:accept :json
-                                       :content-type :json
-                                       :throw-exceptions false
-                                       :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                       :form-params seller-data})
-                body (-> response :body (cheshire/parse-string true))]
+(deftest ^:integration create-seller-validation-error-test
+  (testing "POST /api/v1/seller/create-seller - should return 400 when data is invalid"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/post-seller {} {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 400 (:status response)))
+          (is (contains? body :error)))))))
 
-            (is (= 409 (:status response)))
-            (is (= "Seller with this email already exists" (:error body)))))
+(deftest ^:integration create-seller-no-auth-test
+  (testing "POST /api/v1/seller/create-seller - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/post-seller (seller-helpers/seller-data))
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
-        (testing "Create seller without authorization should fail"
-          (let [seller-data {:business_name "Unauthorized Seller"
-                             :legal_name "Vendedor No Autorizado S.A."
-                             :tax_id "UNA001234567"
-                             :email "unauthorized@example.com"
-                             :phone "+525511111111"
-                             :country "Mexico"
-                             :state "Ciudad de México"
-                             :city "CDMX"
-                             :address "Some Address"
-                             :postal_code "00000"
-                             :website "https://unauthorized.mx"
-                             :status "PENDING"
-                             :verified false
-                             :commission_rate 10.0
-                             :password "password"
-                             :bank_account "1111111111"
-                             :bank_name "Some Bank"}
-                response (client/post "http://localhost:3001/api/v1/seller/create-seller"
-                                      {:accept :json
-                                       :content-type :json
-                                       :throw-exceptions false
-                                       :form-params seller-data})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 401 (:status response)))
-            (is (contains? body :error))))))))
-
-(deftest ^:integration update-seller-location-test
+(deftest ^:integration update-seller-location-success-test
   (testing "PUT /api/v1/seller/update-seller-location/:seller_id - should update seller location"
     (test-helper/with-test-database
       (fn []
-        (testing "Update seller location as ADMIN"
-          (let [location-data {:state "Jalisco"
-                               :city "Guadalajara"
-                               :address "Av. Chapultepec 789"
-                               :postal_code "44100"}
-                response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/1"
-                                     {:accept :json
-                                      :content-type :json
-                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                      :form-params location-data})
-                body (-> response :body (cheshire/parse-string true))]
-
+        (let [create-response (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              create-body     (test-helper/parse-body create-response)
+              seller-id       (:id create-body)]
+          (is (= 201 (:status create-response)))
+          (let [response (seller-helpers/put-seller-location seller-id (seller-helpers/seller-location-data)
+                                                             {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
             (is (= 200 (:status response)))
-            (is (= "Seller updated successfully" (:message body)))))
+            (is (= "Seller updated successfully" (:message body)))))))))
 
-        (testing "Update nonexistent seller should return 404"
-          (let [location-data {:state "CDMX"
-                               :city "Ciudad de México"
-                               :address "Av. Reforma"
-                               :postal_code "06600"}
-                response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/999999"
-                                     {:accept :json
-                                      :content-type :json
-                                      :throw-exceptions false
-                                      :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}
-                                      :form-params location-data})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 404 (:status response)))
-            (is (= "Seller not found" (:error body)))))
-
-        (testing "Update seller location without authorization should return 401"
-          (let [location-data {:state "Veracruz"
-                               :city "Veracruz"
-                               :address "Boulevard"
-                               :postal_code "91000"}
-                response (client/put "http://localhost:3001/api/v1/seller/update-seller-location/1"
-                                     {:accept :json
-                                      :content-type :json
-                                      :throw-exceptions false
-                                      :form-params location-data})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 401 (:status response)))
-            (is (contains? body :error))))))))
-
-(deftest ^:integration delete-seller-test
-  (testing "DELETE /api/v1/seller/delete-seller/:seller_id - should delete seller"
+(deftest ^:integration update-seller-location-not-found-test
+  (testing "PUT /api/v1/seller/update-seller-location/:seller_id - should return 404 when seller does not exist"
     (test-helper/with-test-database
       (fn []
-        (testing "Delete seller successfully"
-          (let [response (client/delete "http://localhost:3001/api/v1/seller/delete-seller/2"
-                                        {:accept :json
-                                         :content-type :json
-                                         :throw-exceptions false
-                                         :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
+        (let [response (seller-helpers/put-seller-location 999999 (seller-helpers/seller-location-data)
+                                                           {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 404 (:status response)))
+          (is (= "Seller not found" (:error body))))))))
 
+(deftest ^:integration update-seller-location-validation-error-test
+  (testing "PUT /api/v1/seller/update-seller-location/:seller_id - should return 400 when data is invalid"
+    (test-helper/with-test-database
+      (fn []
+        (let [create-response (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              create-body     (test-helper/parse-body create-response)
+              seller-id       (:id create-body)]
+          (is (= 201 (:status create-response)))
+          (let [response (seller-helpers/put-seller-location seller-id {} {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
+            (is (= 400 (:status response)))
+            (is (contains? body :error))))))))
+
+(deftest ^:integration update-seller-location-no-auth-test
+  (testing "PUT /api/v1/seller/update-seller-location/:seller_id - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/put-seller-location 1 (seller-helpers/seller-location-data))
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
+
+(deftest ^:integration delete-seller-success-test
+  (testing "DELETE /api/v1/seller/delete-seller/:seller_id - should delete seller successfully"
+    (test-helper/with-test-database
+      (fn []
+        (let [create-response (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              create-body     (test-helper/parse-body create-response)
+              seller-id       (:id create-body)]
+          (is (= 201 (:status create-response)))
+          (let [response (seller-helpers/delete-seller seller-id {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
             (is (= 200 (:status response)))
-            (is (= "Seller deleted successfully" (:message body)))))
+            (is (= "Seller deleted successfully" (:message body)))))))))
 
-        (testing "Delete nonexistent seller should return 404"
-          (let [response (client/delete "http://localhost:3001/api/v1/seller/delete-seller/999999"
-                                        {:accept :json
-                                         :content-type :json
-                                         :throw-exceptions false
-                                         :headers {"Authorization" (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
+(deftest ^:integration delete-seller-with-sales-history-test
+  (testing "DELETE /api/v1/seller/delete-seller/:seller_id - should return 400 when seller has sales history"
+    (println "SKIPPED: requires a sales creation flow to set total_sales")))
 
-            (is (= 404 (:status response)))
-            (is (= "Seller not found" (:error body)))))
+(deftest ^:integration delete-seller-not-found-test
+  (testing "DELETE /api/v1/seller/delete-seller/:seller_id - should return 404 when seller does not exist"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/delete-seller 999999 {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 404 (:status response)))
+          (is (= "Seller not found" (:error body))))))))
 
-        (testing "Delete seller without authorization should return 401"
-          (let [response (client/delete "http://localhost:3001/api/v1/seller/delete-seller/1"
-                                        {:accept :json
-                                         :content-type :json
-                                         :throw-exceptions false})]
-            (is (= 401 (:status response)))))))))
+(deftest ^:integration delete-seller-no-auth-test
+  (testing "DELETE /api/v1/seller/delete-seller/:seller_id - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/delete-seller 1)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
 (deftest ^:integration update-seller-status-test
   (testing "PUT /api/v1/seller/update-seller-status/:seller_id - should update seller status"

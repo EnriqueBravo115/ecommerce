@@ -1,8 +1,8 @@
 (ns ecommerce.handlers.seller-handler
   (:require
    [ecommerce.queries.seller-queries :as queries]
-   [ecommerce.utils.jwt :as jwt]
    [ecommerce.utils.password :as password]
+   [ecommerce.utils.validations :as validations]
    [next.jdbc :as jdbc]
    [next.jdbc.result-set :as rs]))
 
@@ -11,45 +11,63 @@
 (defn- build-response [status body]
   {:status status :headers json-headers :body body})
 
-;; TODO: need validation in required fields
 (defn create-seller [request]
-  (let [seller-data (:body request)
-        ds (:datasource request)
-        email (:email seller-data)
-        existing-seller (jdbc/execute-one! ds
-                                           (queries/get-seller-by-email email)
-                                           {:builder-fn rs/as-unqualified-maps})]
-
+  (let [seller-data      (:body request)
+        ds               (:datasource request)
+        validation-error (validations/validate-seller seller-data)]
     (cond
-      existing-seller
-      (build-response 409 {:error "Seller with this email already exists"})
+      validation-error
+      (build-response 400 {:error validation-error})
 
       :else
-      (let [password-encoded (password/encode (:password seller-data))]
-        (jdbc/execute! ds
-                       (queries/create-seller
-                        (assoc seller-data :password password-encoded)))
-        (build-response 201 {:message "Seller created successfully"})))))
+      (let [email           (:email seller-data)
+            tax-id          (:tax_id seller-data)
+            existing-seller (jdbc/execute-one! ds
+                                               (queries/get-seller-by-email email)
+                                               {:builder-fn rs/as-unqualified-maps})
+            existing-tax-id (jdbc/execute-one! ds
+                                               (queries/get-seller-by-tax-id tax-id)
+                                               {:builder-fn rs/as-unqualified-maps})]
+        (cond
+          existing-seller
+          (build-response 409 {:error "Seller with this email already exists"})
+          existing-tax-id
+          (build-response 409 {:error "Seller with this tax-id already exists"})
+
+          :else
+          (let [password-encoded (password/encode (:password seller-data))
+                created-id       (-> (jdbc/execute-one! ds
+                                                        (queries/create-seller
+                                                         (assoc seller-data :password password-encoded))
+                                                        {:builder-fn rs/as-unqualified-maps})
+                                     :id)]
+            (build-response 201 {:message "Seller created successfully"
+                                 :id      created-id})))))))
 
 ;; TODO: need validation in required fields
 ;; TODO: id should match when seller change location
 (defn update-seller-location [request]
-  (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
-        seller-data (:body request)
-        ds (:datasource request)
-        existing-seller (jdbc/execute-one! ds
-                                           (queries/get-seller-by-id seller-id)
-                                           {:builder-fn rs/as-unqualified-maps})]
-
+  (let [seller-id        (Long/parseLong (get-in request [:params :seller_id]))
+        seller-data      (:body request)
+        ds               (:datasource request)
+        validation-error (validations/validate-seller-location seller-data)]
     (cond
-      (nil? existing-seller)
-      (build-response 404 {:error "Seller not found"})
+      validation-error
+      (build-response 400 {:error validation-error})
 
       :else
-      (do
-        (jdbc/execute-one! ds
-                           (queries/update-seller-location seller-id seller-data))
-        (build-response 200 {:message "Seller updated successfully"})))))
+      (let [existing-seller (jdbc/execute-one! ds
+                                               (queries/get-seller-by-id seller-id)
+                                               {:builder-fn rs/as-unqualified-maps})]
+        (cond
+          (nil? existing-seller)
+          (build-response 404 {:error "Seller not found"})
+
+          :else
+          (do
+            (jdbc/execute-one! ds
+                               (queries/update-seller-location seller-id seller-data))
+            (build-response 200 {:message "Seller updated successfully"})))))))
 
 ;; needs nullpointer validation
 (defn delete-seller [request]
@@ -62,7 +80,7 @@
       (nil? existing-seller)
       (build-response 404 {:error "Seller not found"})
 
-      (> (:total_sales existing-seller 0) 0)
+      (> (or (:total_sales existing-seller) 0) 0)
       (build-response 400 {:error "Cannot delete seller with sales history"})
 
       :else

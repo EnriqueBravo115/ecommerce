@@ -25,3 +25,11 @@
 (defn validate-category [category]
   (when-not (m/validate types/category-schema category)
     "Invalid category format"))
+
+(defn validate-seller [seller]
+  (when-not (m/validate types/seller-schema seller)
+    "Invalid seller format"))
+
+(defn validate-seller-location [seller]
+  (when-not (m/validate types/seller-location-schema seller)
+    "Invalid seller location format"))

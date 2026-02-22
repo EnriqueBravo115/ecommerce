@@ -15,8 +15,8 @@
     :values [[business_name legal_name tax_id email phone
               country state city address postal_code website
               status verified commission_rate rating total_sales
-              account_balance bank_account bank_name password]]}
-   :inline true))
+              account_balance bank_account bank_name password]]
+    :returning [:id]}))
 
 (defn get-seller-by-id [seller_id]
   (sql/format
@@ -30,6 +30,12 @@
    {:select [:id :business_name :email :verified :status :password]
     :from [:seller]
     :where [:= :email email]}))
+
+(defn get-seller-by-tax-id [tax-id]
+  (sql/format
+   {:select [:id :business_name :email :verified :status :password]
+    :from [:seller]
+    :where [:= :tax_id tax-id]}))
 
 (defn update-seller-location [seller_id {:keys [state city address postal_code]}]
   (sql/format
