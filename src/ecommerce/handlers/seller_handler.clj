@@ -44,7 +44,6 @@
             (build-response 201 {:message "Seller created successfully"
                                  :id      created-id})))))))
 
-;; TODO: need validation in required fields
 ;; TODO: id should match when seller change location
 (defn update-seller-location [request]
   (let [seller-id        (Long/parseLong (get-in request [:params :seller_id]))
@@ -69,7 +68,7 @@
                                (queries/update-seller-location seller-id seller-data))
             (build-response 200 {:message "Seller updated successfully"})))))))
 
-;; needs nullpointer validation
+;; TODO: needs nullpointer validation
 (defn delete-seller [request]
   (let [seller-id (Long/parseLong (get-in request [:params :seller_id]))
         ds (:datasource request)

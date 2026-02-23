@@ -35,4 +35,4 @@
 
 (defn wrap-kafka [handler kafka-producer]
   (fn [request]
-    (handler (assoc request :kafka (:producer kafka-producer)))))
+    (handler (assoc request :kafka-producer (:producer kafka-producer)))))

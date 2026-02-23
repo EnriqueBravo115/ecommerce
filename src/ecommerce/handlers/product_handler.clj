@@ -20,7 +20,7 @@
   (let [seller-id (jwt/get-current-identity-id request)
         product-data (:body request)
         ds (:datasource request)
-        producer (:kafka request)
+        producer (:kafka-producer request)
         validation-error (validations/validate-product-create product-data)]
     (cond
       validation-error

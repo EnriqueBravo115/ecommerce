@@ -1,8 +1,5 @@
 (ns ecommerce.integration.address-test
   (:require
-   [cheshire.core :as cheshire]
-   [clj-http.client :as client]
-   [ecommerce.utils.jwt :as jwt]
    [clojure.test :refer [deftest is testing]]
    [ecommerce.integration.address-test-helpers :as address-helpers]
    [ecommerce.integration.integration-test-helpers :as test-helper]))
