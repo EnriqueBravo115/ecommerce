@@ -40,11 +40,8 @@
          :bank_account    "9876543210"
          :bank_name       "Banco del Norte"))
 
-(defn seller-data-with-sales []
-  (assoc (seller-data)
-         :email       "seller-with-sales@techsolutions.mx"
-         :tax_id      "TEC111111111"
-         :total_sales 1500.00))
+(defn seller-status-data []
+  {:status "active"})
 
 (defn post-seller
   ([seller] (post-seller seller {}))
@@ -73,3 +70,59 @@
                   (merge {:accept           :json
                           :throw-exceptions false}
                          extra-opts))))
+
+(defn put-seller-status
+  ([seller-id status] (put-seller-status seller-id status {}))
+  ([seller-id status extra-opts]
+   (client/put (str "http://localhost:3001/api/v1/seller/update-seller-status/" seller-id)
+               (merge {:accept           :json
+                       :content-type     :json
+                       :throw-exceptions false
+                       :form-params      status}
+                      extra-opts))))
+
+(defn put-verify-seller
+  ([seller-id] (put-verify-seller seller-id {}))
+  ([seller-id extra-opts]
+   (client/put (str "http://localhost:3001/api/v1/seller/verify-seller/" seller-id)
+               (merge {:accept           :json
+                       :throw-exceptions false}
+                      extra-opts))))
+
+(defn get-seller-by-id
+  ([seller-id] (get-seller-by-id seller-id {}))
+  ([seller-id extra-opts]
+   (client/get (str "http://localhost:3001/api/v1/seller/get-seller-by-id/" seller-id)
+               (merge {:accept           :json
+                       :throw-exceptions false}
+                      extra-opts))))
+
+(defn get-sellers-by-country-stats
+  ([opts] (client/get "http://localhost:3001/api/v1/seller/get-sellers-by-country-stats"
+                      (merge {:accept           :json
+                              :throw-exceptions false}
+                             opts)))
+  ([] (get-sellers-by-country-stats {})))
+
+(defn get-sellers-by-status
+  ([status] (get-sellers-by-status status {}))
+  ([status extra-opts]
+   (client/get (str "http://localhost:3001/api/v1/seller/get-sellers-by-status/" status)
+               (merge {:accept           :json
+                       :throw-exceptions false}
+                      extra-opts))))
+
+(defn get-top-sellers
+  ([limit] (get-top-sellers limit {}))
+  ([limit extra-opts]
+   (client/get (str "http://localhost:3001/api/v1/seller/get-top-sellers/" limit)
+               (merge {:accept           :json
+                       :throw-exceptions false}
+                      extra-opts))))
+
+(defn get-unverified-sellers
+  ([opts] (client/get "http://localhost:3001/api/v1/seller/get-unverified-sellers"
+                      (merge {:accept           :json
+                              :throw-exceptions false}
+                             opts)))
+  ([] (get-unverified-sellers {})))

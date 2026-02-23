@@ -181,4 +181,4 @@
 
     (if (seq result)
       (build-response 200 {:unverified_sellers result})
-      (build-response 200 {:message "All sellers are verified"}))))
+      (build-response 404 {:error "No sellers with sales found"}))))

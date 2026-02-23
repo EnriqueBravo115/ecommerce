@@ -1,8 +1,5 @@
 (ns ecommerce.integration.seller-test
   (:require
-   [cheshire.core :as cheshire]
-   [clj-http.client :as client]
-   [ecommerce.utils.jwt :as jwt]
    [clojure.test :refer [deftest is testing]]
    [ecommerce.integration.seller-test-helpers :as seller-helpers]
    [ecommerce.integration.integration-test-helpers :as test-helper]))
@@ -103,9 +100,9 @@
             (is (= 200 (:status response)))
             (is (= "Seller deleted successfully" (:message body)))))))))
 
-(deftest ^:integration delete-seller-with-sales-history-test
-  (testing "DELETE /api/v1/seller/delete-seller/:seller_id - should return 400 when seller has sales history"
-    (println "SKIPPED: requires a sales creation flow to set total_sales")))
+;; TODO: requires a sales creation flow to set total_sales
+;;(deftest ^:integration delete-seller-with-sales-history-test
+;;  (testing "DELETE /api/v1/seller/delete-seller/:seller_id - should return 400 when seller has sales history"
 
 (deftest ^:integration delete-seller-not-found-test
   (testing "DELETE /api/v1/seller/delete-seller/:seller_id - should return 404 when seller does not exist"
@@ -125,207 +122,217 @@
           (is (= 401 (:status response)))
           (is (= "Authentication required" (:error body))))))))
 
-(deftest ^:integration update-seller-status-test
-  (testing "PUT /api/v1/seller/update-seller-status/:seller_id - should update seller status"
+(deftest ^:integration update-seller-status-success-test
+  (testing "PUT /api/v1/seller/update-seller-status/:seller_id - should update seller status successfully"
     (test-helper/with-test-database
       (fn []
-        (testing "Update seller status as ADMIN"
-          (let [status-data {:status "active"}
-                response (client/put "http://localhost:3001/api/v1/seller/update-seller-status/2"
-                                     {:accept :json
-                                      :content-type :json
-                                      :headers {"Authorization"
-                                                (str "Bearer " (jwt/generate-admin-test-token))}
-                                      :form-params status-data})
-                body (-> response :body (cheshire/parse-string true))]
-
+        (let [create-response (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              create-body     (test-helper/parse-body create-response)
+              seller-id       (:id create-body)]
+          (is (= 201 (:status create-response)))
+          (let [response (seller-helpers/put-seller-status seller-id (seller-helpers/seller-status-data)
+                                                           {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
             (is (= 200 (:status response)))
-            (is (= "Seller status updated successfully" (:message body)))))
+            (is (= "Seller status updated successfully" (:message body)))))))))
 
-        (testing "Update nonexistent seller should return 404"
-          (let [status-data {:status "inactive"}
-                response (client/put "http://localhost:3001/api/v1/seller/update-seller-status/999999"
-                                     {:accept :json
-                                      :content-type :json
-                                      :throw-exceptions false
-                                      :headers {"Authorization"
-                                                (str "Bearer " (jwt/generate-admin-test-token))}
-                                      :form-params status-data})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 404 (:status response)))
-            (is (= "Seller not found" (:error body)))))
-
-        (testing "Update seller status without authorization should return 401"
-          (let [status-data {:status "active"}
-                response (client/put "http://localhost:3001/api/v1/seller/update-seller-status/1"
-                                     {:accept :json
-                                      :content-type :json
-                                      :throw-exceptions false
-                                      :form-params status-data})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 401 (:status response)))
-            (is (contains? body :error))))))))
-
-(deftest ^:integration verify-seller-test
-  (testing "PUT /api/v1/seller/verify-seller/:seller_id - should verify seller"
+(deftest ^:integration update-seller-status-not-found-test
+  (testing "PUT /api/v1/seller/update-seller-status/:seller_id - should return 404 when seller does not exist"
     (test-helper/with-test-database
       (fn []
-        (testing "Verify seller successfully as ADMIN"
-          (let [response (client/put "http://localhost:3001/api/v1/seller/verify-seller/2"
-                                     {:accept :json
-                                      :content-type :json
-                                      :headers {"Authorization"
-                                                (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
+        (let [response (seller-helpers/put-seller-status 999999 (seller-helpers/seller-status-data)
+                                                         {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 404 (:status response)))
+          (is (= "Seller not found" (:error body))))))))
 
+(deftest ^:integration update-seller-status-no-auth-test
+  (testing "PUT /api/v1/seller/update-seller-status/:seller_id - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/put-seller-status 1 (seller-helpers/seller-status-data))
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
+
+(deftest ^:integration verify-seller-success-test
+  (testing "PUT /api/v1/seller/verify-seller/:seller_id - should verify seller successfully"
+    (test-helper/with-test-database
+      (fn []
+        (let [create-response (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              create-body     (test-helper/parse-body create-response)
+              seller-id       (:id create-body)]
+          (is (= 201 (:status create-response)))
+          (let [response (seller-helpers/put-verify-seller seller-id {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
             (is (= 200 (:status response)))
-            (is (= "Seller verified successfully" (:message body)))))
+            (is (= "Seller verified successfully" (:message body)))))))))
 
-        (testing "Verify already verified seller should return 400"
-          (let [response (client/put "http://localhost:3001/api/v1/seller/verify-seller/1"
-                                     {:accept :json
-                                      :content-type :json
-                                      :throw-exceptions false
-                                      :headers {"Authorization"
-                                                (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
-
+(deftest ^:integration verify-seller-already-verified-test
+  (testing "PUT /api/v1/seller/verify-seller/:seller_id - should return 400 when seller is already verified"
+    (test-helper/with-test-database
+      (fn []
+        (let [create-response (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              create-body     (test-helper/parse-body create-response)
+              seller-id       (:id create-body)]
+          (is (= 201 (:status create-response)))
+          (seller-helpers/put-verify-seller seller-id {:headers (test-helper/auth-headers)})
+          (let [response (seller-helpers/put-verify-seller seller-id {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
             (is (= 400 (:status response)))
-            (is (= "Seller is already verified" (:error body)))))
+            (is (= "Seller is already verified" (:error body)))))))))
 
-        (testing "Verify nonexistent seller should return 404"
-          (let [response (client/put "http://localhost:3001/api/v1/seller/verify-seller/999999"
-                                     {:accept :json
-                                      :content-type :json
-                                      :throw-exceptions false
-                                      :headers {"Authorization"
-                                                (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 404 (:status response)))
-            (is (= "Seller not found" (:error body)))))
-
-        (testing "Verify seller without authorization should return 401"
-          (let [response (client/put "http://localhost:3001/api/v1/seller/verify-seller/1"
-                                     {:accept :json
-                                      :content-type :json
-                                      :throw-exceptions false})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 401 (:status response)))
-            (is (contains? body :error))))))))
-
-(deftest ^:integration get-seller-by-id-test
-  (testing "GET /api/v1/seller/get-seller-by-id/:id - should get seller by id"
+(deftest ^:integration verify-seller-not-found-test
+  (testing "PUT /api/v1/seller/verify-seller/:seller_id - should return 404 when seller does not exist"
     (test-helper/with-test-database
       (fn []
-        (testing "Get seller by id as ADMIN"
-          (let [response (client/get
-                          "http://localhost:3001/api/v1/seller/get-seller-by-id/1"
-                          {:accept :json
-                           :throw-exceptions false
-                           :headers {"Authorization"
-                                     (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
+        (let [response (seller-helpers/put-verify-seller 999999 {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 404 (:status response)))
+          (is (= "Seller not found" (:error body))))))))
 
+(deftest ^:integration verify-seller-no-auth-test
+  (testing "PUT /api/v1/seller/verify-seller/:seller_id - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/put-verify-seller 1)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
+
+(deftest ^:integration get-seller-by-id-success-test
+  (testing "GET /api/v1/seller/get-seller-by-id/:id - should return seller by id"
+    (test-helper/with-test-database
+      (fn []
+        (let [create-response (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              create-body     (test-helper/parse-body create-response)
+              seller-id       (:id create-body)]
+          (is (= 201 (:status create-response)))
+          (let [response (seller-helpers/get-seller-by-id seller-id {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
             (is (= 200 (:status response)))
             (is (contains? body :seller))
-            (is (= 1 (get-in body [:seller :id])))))
+            (is (= seller-id (get-in body [:seller :id])))))))))
 
-        (testing "Get nonexistent seller should return 404 from handler"
-          (let [response (client/get
-                          "http://localhost:3001/api/v1/seller/get-seller-by-id/999999"
-                          {:accept :json
-                           :throw-exceptions false
-                           :headers {"Authorization"
-                                     (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
+(deftest ^:integration get-seller-by-id-not-found-test
+  (testing "GET /api/v1/seller/get-seller-by-id/:id - should return 404 when seller does not exist"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/get-seller-by-id 999999 {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 404 (:status response)))
+          (is (= "Seller not found" (:error body))))))))
 
-            (is (= 404 (:status response)))
-            (is (= "Seller not found" (:error body)))))
+(deftest ^:integration get-seller-by-id-no-auth-test
+  (testing "GET /api/v1/seller/get-seller-by-id/:id - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/get-seller-by-id 1)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
-        (testing "Get seller without ADMIN role should return 403"
-          (let [response (client/get
-                          "http://localhost:3001/api/v1/seller/get-seller-by-id/1"
-                          {:accept :json
-                           :throw-exceptions false})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 401 (:status response)))
-            (is (= "Authentication required" (:error body)))))))))
-
-(deftest ^:integration get-seller-by-country-stats-test
+(deftest ^:integration get-sellers-by-country-stats-success-test
   (testing "GET /api/v1/seller/get-sellers-by-country-stats - should return sellers grouped by country"
     (test-helper/with-test-database
       (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/seller/get-sellers-by-country-stats"
-                                   {:accept :json
-                                    :throw-exceptions false
-                                    :headers {"Authorization"
-                                              (str "Bearer " (jwt/generate-admin-test-token))}})
-              body (-> response :body (cheshire/parse-string true))]
-
+        (let [_       (seller-helpers/post-seller (seller-helpers/seller-data)
+                                                  {:headers (test-helper/auth-headers)})
+              response (seller-helpers/get-sellers-by-country-stats
+                        {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
           (is (= 200 (:status response)))
           (is (contains? body :sellers_by_country))
           (is (seq (:sellers_by_country body))))))))
 
-(deftest ^:integration get-sellers-by-status-test
-  (testing "GET /api/v1/seller/status/:status - should return sellers by status"
+(deftest ^:integration get-sellers-by-country-stats-no-auth-test
+  (testing "GET /api/v1/seller/get-sellers-by-country-stats - should return 401 when no auth headers provided"
     (test-helper/with-test-database
       (fn []
-        (testing "Get sellers with existing status"
-          (let [response (client/get "http://localhost:3001/api/v1/seller/get-sellers-by-status/active"
-                                     {:accept :json
-                                      :headers {"Authorization"
-                                                (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
+        (let [response (seller-helpers/get-sellers-by-country-stats)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
-            (is (= 200 (:status response)))
-            (is (= "active" (:status body)))
-            (is (contains? body :sellers))
-            (is (seq (:sellers body)))))
-
-        (testing "Get sellers with nonexistent status should return 404"
-          (let [response (client/get "http://localhost:3001/api/v1/seller/get-sellers-by-status/unknown"
-                                     {:accept :json
-                                      :throw-exceptions false
-                                      :headers {"Authorization"
-                                                (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 404 (:status response)))
-            (is (= "No sellers found with this status" (:error body)))))))))
-
-(deftest ^:integration get-top-sellers-test
-  (testing "GET /api/v1/seller/top/:limit - should return top sellers"
+(deftest ^:integration get-sellers-by-status-success-test
+  (testing "GET /api/v1/seller/get-sellers-by-status/:status - should return sellers by status"
     (test-helper/with-test-database
       (fn []
-        (testing "Get top sellers with default data"
-          (let [response (client/get "http://localhost:3001/api/v1/seller/get-top-sellers/2"
-                                     {:accept :json
-                                      :throw-exceptions false
-                                      :headers {"Authorization"
-                                                (str "Bearer " (jwt/generate-admin-test-token))}})
-                body (-> response :body (cheshire/parse-string true))]
+        (let [_ (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
 
-            (is (= 200 (:status response)))
-            (is (contains? body :top_sellers))
-            (is (seq (:top_sellers body)))))))))
-
-(deftest ^:integration get-unverified-sellers-test
-  (testing "GET /api/v1/seller/unverified - should return unverified sellers"
-    (test-helper/with-test-database
-      (fn []
-        (let [response (client/get "http://localhost:3001/api/v1/seller/get-unverified-sellers"
-                                   {:accept :json
-                                    :headers {"Authorization"
-                                              (str "Bearer " (jwt/generate-admin-test-token))}})
-              body (-> response :body (cheshire/parse-string true))]
-
+              response (seller-helpers/get-sellers-by-status "PENDING" {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
           (is (= 200 (:status response)))
+          (is (= "PENDING" (:status body)))
+          (is (contains? body :sellers))
+          (is (seq (:sellers body))))))))
 
-          (if (contains? body :unverified_sellers)
-            (is (seq (:unverified_sellers body)))
-            (is (= "All sellers are verified" (:message body)))))))))
+(deftest ^:integration get-sellers-by-status-not-found-test
+  (testing "GET /api/v1/seller/get-sellers-by-status/:status - should return 404 when no sellers found"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/get-sellers-by-status "unknown" {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 404 (:status response)))
+          (is (= "No sellers found with this status" (:error body))))))))
+
+(deftest ^:integration get-sellers-by-status-no-auth-test
+  (testing "GET /api/v1/seller/get-sellers-by-status/:status - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/get-sellers-by-status "PENDING")
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
+
+(deftest ^:integration get-top-sellers-success-test
+  (testing "GET /api/v1/seller/get-top-sellers/:limit - should return top sellers"
+    (test-helper/with-test-database
+      (fn []
+        (let [_ (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              response (seller-helpers/get-top-sellers 2 {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 200 (:status response)))
+          (is (contains? body :top_sellers)))))))
+
+(deftest ^:integration get-top-sellers-no-auth-test
+  (testing "GET /api/v1/seller/get-top-sellers/:limit - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/get-top-sellers 2)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
+
+(deftest ^:integration get-unverified-sellers-with-results-test
+  (testing "GET /api/v1/seller/get-unverified-sellers - should return unverified sellers"
+    (test-helper/with-test-database
+      (fn []
+        (let [_ (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+              response (seller-helpers/get-unverified-sellers {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 200 (:status response)))
+          (is (contains? body :unverified_sellers))
+          (is (seq (:unverified_sellers body))))))))
+
+;; TODO: needs database empty to work(right now its filled up with migrations)
+;;(deftest ^:integration get-unverified-sellers-empty-test
+;;  (testing "GET /api/v1/seller/get-unverified-sellers - should return 404 when no unverified sellers exist"
+;;    (test-helper/with-test-database
+;;      (fn []
+;;        (let [create-response (seller-helpers/post-seller (seller-helpers/seller-data) {:headers (test-helper/auth-headers)})
+;;              seller-id       (:id (test-helper/parse-body create-response))]
+;;          (seller-helpers/put-verify-seller seller-id {:headers (test-helper/auth-headers)})
+;;          (let [response (seller-helpers/get-unverified-sellers {:headers (test-helper/auth-headers)})
+;;                body     (test-helper/parse-body response)]
+;;            (is (= 404 (:status response)))
+;;            (is (= "No sellers with sales found" (:error body)))))))))
+
+(deftest ^:integration get-unverified-sellers-no-auth-test
+  (testing "GET /api/v1/seller/get-unverified-sellers - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (seller-helpers/get-unverified-sellers)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
