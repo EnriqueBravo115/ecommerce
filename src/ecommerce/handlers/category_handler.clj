@@ -43,6 +43,7 @@
                             {:id      (:id result)
                              :message "Category created successfully"})))))))
 
+;; TODO: needs params validation
 (defn update-category [request]
   (let [category-id (Long/parseLong (get-in request [:params :id]))
         category-data (:body request)

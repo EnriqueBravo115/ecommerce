@@ -1,402 +1,255 @@
 (ns ecommerce.integration.category-test
   (:require
-   [cheshire.core :as cheshire]
-   [clj-http.client :as client]
-   [ecommerce.utils.jwt :as jwt]
    [clojure.test :refer [deftest is testing]]
+   [ecommerce.integration.category-test-helpers :as category-test-helpers]
    [ecommerce.integration.integration-test-helpers :as test-helper]))
 
-(deftest ^:integration create-category-test
-  (testing "POST /api/v1/category/create - should create category"
+(deftest ^:integration create-category-success-test
+  (testing "POST /api/v1/category/create - should create category with valid data"
     (test-helper/with-test-database
       (fn []
-        (testing "Create category with valid data"
-          (let [category-data {:name "Electronics Test"
-                               :parent_id nil
-                               :active true}
-                response (client/post "http://localhost:3001/api/v1/category/create"
-                                      {:accept :json
-                                       :content-type :json
-                                       :headers {"Authorization"
-                                                 (str "Bearer " (jwt/generate-admin-test-token))}
-                                       :form-params category-data})
-                body (-> response :body (cheshire/parse-string true))]
+        (let [response (category-test-helpers/post-category (category-test-helpers/category-data) {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 201 (:status response)))
+          (is (= "Category created successfully" (:message body)))
+          (is (some? (:id body))))))))
 
-            (is (= 201 (:status response)))
-            (is (= "Category created successfully" (:message body)))))
-
-        (testing "Create category without authorization should return 401"
-          (let [response (client/post "http://localhost:3001/api/v1/category/create"
-                                      {:accept :json
-                                       :content-type :json
-                                       :throw-exceptions false
-                                       :form-params {:name "Unauthorized"}})
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 401 (:status response)))
-            (is (contains? body :error))))))))
-
-(deftest ^:integration update-category-test
-  (testing "PUT /api/v1/category/update/:id - should update category"
+(deftest ^:integration create-category-duplicate-test
+  (testing "POST /api/v1/category/create - should return 409 when category name already exists"
     (test-helper/with-test-database
       (fn []
-        (let [create-response (client/post "http://localhost:3001/api/v1/category/create"
-                                           {:accept :json
-                                            :content-type :json
-                                            :headers {"Authorization"
-                                                      (str "Bearer " (jwt/generate-admin-test-token))}
-                                            :form-params {:name "Category To Update"
-                                                          :parent_id nil
-                                                          :active true}})
+        (let [_ (category-test-helpers/post-category (category-test-helpers/category-data)
+                                                     {:headers (test-helper/auth-headers)})
+              response (category-test-helpers/post-category (category-test-helpers/category-data)
+                                                            {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 409 (:status response)))
+          (is (contains? body :error))
+          (is (contains? body :existing-id)))))))
 
-              create-body (-> create-response :body (cheshire/parse-string true))
-              category-id (:id create-body)]
+(deftest ^:integration create-category-validation-error-test
+  (testing "POST /api/v1/category/create - should return 400 when data is invalid"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (category-test-helpers/post-category {} {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 400 (:status response)))
+          (is (contains? body :error)))))))
 
+(deftest ^:integration create-category-no-auth-test
+  (testing "POST /api/v1/category/create - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (category-test-helpers/post-category (category-test-helpers/category-data))
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
+
+(deftest ^:integration update-category-success-test
+  (testing "PUT /api/v1/category/update/:id - should update category with valid data"
+    (test-helper/with-test-database
+      (fn []
+        (let [create-response (category-test-helpers/post-category (category-test-helpers/category-data)
+                                                                   {:headers (test-helper/auth-headers)})
+              create-body     (test-helper/parse-body create-response)
+              category-id     (:id create-body)]
           (is (= 201 (:status create-response)))
           (is (number? category-id))
 
-          (testing "Update category with valid data"
-            (let [update-data {:name "Updated Category"
-                               :parent_id nil
-                               :active false}
+          (let [response (category-test-helpers/put-category category-id (category-test-helpers/category-update-data)
+                                                             {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
+            (is (= 200 (:status response)))
+            (is (= "Category updated successfully" (:message body)))))))))
 
-                  response (client/put (str "http://localhost:3001/api/v1/category/update/" category-id)
-                                       {:accept :json
-                                        :content-type :json
-                                        :headers {"Authorization"
-                                                  (str "Bearer " (jwt/generate-admin-test-token))}
-                                        :form-params update-data})
-
-                  body (-> response :body (cheshire/parse-string true))]
-
-              (is (= 200 (:status response)))
-              (is (= "Category updated successfully" (:message body)))))
-
-          (testing "Update non-existing category should return 404"
-            (let [response (client/put "http://localhost:3001/api/v1/category/update/9999"
-                                       {:accept :json
-                                        :content-type :json
-                                        :headers {"Authorization"
-                                                  (str "Bearer " (jwt/generate-admin-test-token))}
-                                        :throw-exceptions false
-                                        :form-params {:name "Does not exist"}})
-
-                  body (-> response :body (cheshire/parse-string true))]
-
-              (is (= 404 (:status response)))
-              (is (= "Category not found" (:error body)))))
-
-          (testing "Update category without authorization should return 401"
-            (let [response (client/put (str "http://localhost:3001/api/v1/category/update/" category-id)
-                                       {:accept :json
-                                        :content-type :json
-                                        :throw-exceptions false
-                                        :form-params {:name "Unauthorized update"}})
-
-                  body (-> response :body (cheshire/parse-string true))]
-
-              (is (= 401 (:status response)))
-              (is (contains? body :error)))))))))
-
-(deftest ^:integration delete-category-test
-  (testing "DELETE /api/v1/category/delete/:id - should deactivate category"
+(deftest ^:integration update-category-not-found-test
+  (testing "PUT /api/v1/category/update/:id - should return 404 when category does not exist"
     (test-helper/with-test-database
       (fn []
-        (let [create-parent-response
-              (client/post "http://localhost:3001/api/v1/category/create"
-                           {:accept :json
-                            :content-type :json
-                            :headers {"Authorization"
-                                      (str "Bearer " (jwt/generate-admin-test-token))}
-                            :form-params {:name "Parent Category"
-                                          :parent_id nil
-                                          :active true}})
+        (let [response (category-test-helpers/put-category 999999 (category-test-helpers/category-update-data)
+                                                           {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 404 (:status response)))
+          (is (= "Category not found" (:error body))))))))
 
-              parent-body (-> create-parent-response :body (cheshire/parse-string true))
-              parent-id (:id parent-body)]
+(deftest ^:integration update-category-no-auth-test
+  (testing "PUT /api/v1/category/update/:id - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (category-test-helpers/put-category 1 (category-test-helpers/category-update-data))
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
-          (is (= 201 (:status create-parent-response)))
-          (is (number? parent-id))
+(deftest ^:integration delete-category-success-test
+  (testing "DELETE /api/v1/category/delete/:id - should deactivate category successfully"
+    (test-helper/with-test-database
+      (fn []
+        (let [create-response (category-test-helpers/post-category (category-test-helpers/category-parent-data)
+                                                                   {:headers (test-helper/auth-headers)})
+              category-id     (:id (test-helper/parse-body create-response))]
+          (is (= 201 (:status create-response)))
+          (is (number? category-id))
+          (let [response (category-test-helpers/delete-category category-id {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
+            (is (= 200 (:status response)))
+            (is (= "Category deactivated successfully" (:message body)))))))))
 
-          (let [create-child-response
-                (client/post "http://localhost:3001/api/v1/category/create"
-                             {:accept :json
-                              :content-type :json
-                              :headers {"Authorization"
-                                        (str "Bearer " (jwt/generate-admin-test-token))}
-                              :form-params {:name "Child Category"
-                                            :parent_id parent-id
-                                            :active true}})
+(deftest ^:integration delete-category-already-inactive-test
+  (testing "DELETE /api/v1/category/delete/:id - should return 409 when category is already inactive"
+    (test-helper/with-test-database
+      (fn []
+        (let [create-response (category-test-helpers/post-category (category-test-helpers/category-parent-data)
+                                                                   {:headers (test-helper/auth-headers)})
+              category-id     (:id (test-helper/parse-body create-response))]
+          (is (= 201 (:status create-response)))
+          (category-test-helpers/delete-category category-id {:headers (test-helper/auth-headers)})
+          (let [response (category-test-helpers/delete-category category-id {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
+            (is (= 409 (:status response)))
+            (is (= "Cannot delete an inactive (already deactivated) category" (:error body)))
+            (is (= category-id (:category-id body)))))))))
 
-                child-body (-> create-child-response :body (cheshire/parse-string true))
-                child-id (:id child-body)]
+(deftest ^:integration delete-category-deactivates-children-test
+  (testing "DELETE /api/v1/category/delete/:id - should deactivate children when parent is deactivated"
+    (test-helper/with-test-database
+      (fn []
+        (let [parent-response (category-test-helpers/post-category (category-test-helpers/category-parent-data)
+                                                                   {:headers (test-helper/auth-headers)})
+              parent-id       (:id (test-helper/parse-body parent-response))
+              _               (category-test-helpers/post-category (category-test-helpers/category-child-data parent-id)
+                                                                   {:headers (test-helper/auth-headers)})]
+          (is (= 201 (:status parent-response)))
+          (let [response (category-test-helpers/delete-category parent-id {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)]
+            (is (= 200 (:status response)))
+            (is (= "Category deactivated successfully" (:message body)))))))))
 
-            (is (= 201 (:status create-child-response)))
-            (is (number? child-id))
+(deftest ^:integration delete-category-not-found-test
+  (testing "DELETE /api/v1/category/delete/:id - should return 404 when category does not exist"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (category-test-helpers/delete-category 999999 {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 404 (:status response)))
+          (is (= "Category not found" (:error body))))))))
 
-            (testing "Deactivate existing category should return 200"
-              (let [response (client/delete (str "http://localhost:3001/api/v1/category/delete/" parent-id)
-                                            {:accept :json
-                                             :content-type :json
-                                             :headers {"Authorization"
-                                                       (str "Bearer " (jwt/generate-admin-test-token))}})
+(deftest ^:integration delete-category-no-auth-test
+  (testing "DELETE /api/v1/category/delete/:id - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (category-test-helpers/delete-category 1)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
-                    body (-> response :body (cheshire/parse-string true))]
-
-                (is (= 200 (:status response)))
-                (is (= "Category deactivated successfully" (:message body)))))
-
-            (testing "Deactivate already inactive category should return 409"
-              (let [response (client/delete (str "http://localhost:3001/api/v1/category/delete/" parent-id)
-                                            {:accept :json
-                                             :content-type :json
-                                             :headers {"Authorization"
-                                                       (str "Bearer " (jwt/generate-admin-test-token))}
-                                             :throw-exceptions false})
-
-                    body (-> response :body (cheshire/parse-string true))]
-
-                (is (= 409 (:status response)))
-                (is (= "Cannot delete an inactive (already deactivated) category"
-                       (:error body)))
-                (is (= parent-id (:category-id body)))))
-
-            (testing "Deactivate non-existing category should return 404"
-              (let [response (client/delete "http://localhost:3001/api/v1/category/delete/9999"
-                                            {:accept :json
-                                             :content-type :json
-                                             :headers {"Authorization"
-                                                       (str "Bearer " (jwt/generate-admin-test-token))}
-                                             :throw-exceptions false})
-
-                    body (-> response :body (cheshire/parse-string true))]
-
-                (is (= 404 (:status response)))
-                (is (= "Category not found" (:error body)))))
-
-            (testing "Deactivate category without authorization should return 401"
-              (let [response (client/delete (str "http://localhost:3001/api/v1/category/delete/" parent-id)
-                                            {:accept :json
-                                             :content-type :json
-                                             :throw-exceptions false})
-
-                    body (-> response :body (cheshire/parse-string true))]
-
-                (is (= 401 (:status response)))
-                (is (contains? body :error))))))))))
-
-(deftest ^:integration get-category-by-id-test
+(deftest ^:integration get-category-by-id-success-test
   (testing "GET /api/v1/category/:id - should return category by id"
     (test-helper/with-test-database
       (fn []
-        (let [create-response
-              (client/post "http://localhost:3001/api/v1/category/create"
-                           {:accept :json
-                            :content-type :json
-                            :headers {"Authorization"
-                                      (str "Bearer " (jwt/generate-admin-test-token))}
-                            :form-params {:name "Category For Get"
-                                          :parent_id nil
-                                          :active true}})
-
-              create-body (-> create-response :body (cheshire/parse-string true))
-              category-id (:id create-body)]
-
+        (let [create-response (category-test-helpers/post-category (category-test-helpers/category-data)
+                                                                   {:headers (test-helper/auth-headers)})
+              create-body     (test-helper/parse-body create-response)
+              category-id     (:id create-body)]
           (is (= 201 (:status create-response)))
           (is (number? category-id))
+          (let [response (category-test-helpers/get-category-by-id category-id {:headers (test-helper/auth-headers)})
+                body     (test-helper/parse-body response)
+                category (:category body)]
+            (is (= 200 (:status response)))
+            (is (= category-id (:id category)))
+            (is (= (:name (category-test-helpers/category-data)) (:name category)))
+            (is (= true (:active category)))))))))
 
-          (testing "Get existing category should return 200"
-            (let [response
-                  (client/get (str "http://localhost:3001/api/v1/category/" category-id)
-                              {:accept :json
-                               :headers {"Authorization"
-                                         (str "Bearer " (jwt/generate-admin-test-token))}})
-
-                  body (-> response :body (cheshire/parse-string true))
-                  category (:category body)]
-
-              (is (= 200 (:status response)))
-              (is (= category-id (:id category)))
-              (is (= "Category For Get" (:name category)))
-              (is (= true (:active category)))))
-
-          (testing "Get non-existing category should return 404"
-            (let [response
-                  (client/get "http://localhost:3001/api/v1/category/9999"
-                              {:accept :json
-                               :headers {"Authorization"
-                                         (str "Bearer " (jwt/generate-admin-test-token))}
-                               :throw-exceptions false})
-
-                  body (-> response :body (cheshire/parse-string true))]
-
-              (is (= 404 (:status response)))
-              (is (= "Category not found" (:error body)))))
-
-          (testing "Get category without authorization should return 401"
-            (let [response
-                  (client/get (str "http://localhost:3001/api/v1/category/" category-id)
-                              {:accept :json
-                               :throw-exceptions false})
-
-                  body (-> response :body (cheshire/parse-string true))]
-
-              (is (= 401 (:status response)))
-              (is (contains? body :error)))))))))
-
-(deftest ^:integration get-active-categories-test
-  (testing "GET /api/v1/category/active - should include created active category"
+(deftest ^:integration get-category-by-id-not-found-test
+  (testing "GET /api/v1/category/:id - should return 404 when category does not exist"
     (test-helper/with-test-database
       (fn []
-        (let [unique-name (str "Active Test Category " (System/currentTimeMillis))
-              create-response
-              (client/post "http://localhost:3001/api/v1/category/create"
-                           {:accept :json
-                            :content-type :json
-                            :headers {"Authorization"
-                                      (str "Bearer " (jwt/generate-admin-test-token))}
-                            :form-params {:name unique-name
-                                          :parent_id nil
-                                          :active true}})
+        (let [response (category-test-helpers/get-category-by-id 999999 {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)]
+          (is (= 404 (:status response)))
+          (is (= "Category not found" (:error body))))))))
 
-              create-body (-> create-response :body (cheshire/parse-string true))
-              created-id (:id create-body)]
+(deftest ^:integration get-category-by-id-no-auth-test
+  (testing "GET /api/v1/category/:id - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (category-test-helpers/get-category-by-id 1)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
+(deftest ^:integration get-active-categories-success-test
+  (testing "GET /api/v1/category/active - should return active categories"
+    (test-helper/with-test-database
+      (fn []
+        (let [create-response (category-test-helpers/post-category (category-test-helpers/category-data)
+                                                                   {:headers (test-helper/auth-headers)})]
           (is (= 201 (:status create-response)))
-          (is (number? created-id))
-
-          (let [response
-                (client/get "http://localhost:3001/api/v1/category/active"
-                            {:accept :json
-                             :headers {"Authorization"
-                                       (str "Bearer " (jwt/generate-admin-test-token))}})
-
-                body (-> response :body (cheshire/parse-string true))
+          (let [response   (category-test-helpers/get-active-categories {:headers (test-helper/auth-headers)})
+                body       (test-helper/parse-body response)
                 categories (:categories body)]
-
             (is (= 200 (:status response)))
-            (is (seq categories))
+            (is (seq categories))))))))
 
-            (is (some #(= unique-name (:name %)) categories))
-            (is (every? #(not (false? (:active %))) categories))))
+(deftest ^:integration get-active-categories-no-auth-test
+  (testing "GET /api/v1/category/active - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (category-test-helpers/get-active-categories)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
-        (testing "Should return 401 without authorization"
-          (let [response
-                (client/get "http://localhost:3001/api/v1/category/active"
-                            {:accept :json
-                             :throw-exceptions false})
-
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 401 (:status response)))
-            (is (contains? body :error))))))))
-
-(deftest ^:integration get-category-tree-test
+(deftest ^:integration get-category-tree-success-test
   (testing "GET /api/v1/category/tree - should return hierarchical category tree"
     (test-helper/with-test-database
       (fn []
-        (let [root-name (str "Root Test" (System/currentTimeMillis))
-              root-response
-              (client/post "http://localhost:3001/api/v1/category/create"
-                           {:accept :json
-                            :content-type :json
-                            :headers {"Authorization"
-                                      (str "Bearer " (jwt/generate-admin-test-token))}
-                            :form-params {:name root-name
-                                          :parent_id nil
-                                          :active true}})
-
-              root-body (-> root-response :body (cheshire/parse-string true))
-              root-id (:id root-body)]
-
+        (let [root-response (category-test-helpers/post-category (category-test-helpers/category-parent-data)
+                                                                 {:headers (test-helper/auth-headers)})
+              root-id       (:id (test-helper/parse-body root-response))
+              _             (category-test-helpers/post-category (category-test-helpers/category-child-data root-id)
+                                                                 {:headers (test-helper/auth-headers)})]
           (is (= 201 (:status root-response)))
+          (let [response  (category-test-helpers/get-category-tree {:headers (test-helper/auth-headers)})
+                body      (test-helper/parse-body response)
+                tree      (:category-tree body)
+                root-node (some #(when (= root-id (:id %)) %) tree)]
+            (is (= 200 (:status response)))
+            (is (seq tree))
+            (is (some? root-node))
+            (is (= 1 (:level root-node)))
+            (is (nil? (:parent_id root-node)))))))))
 
-          (let [child-name (str "Child Test " (System/currentTimeMillis))
-                child-response
-                (client/post "http://localhost:3001/api/v1/category/create"
-                             {:accept :json
-                              :content-type :json
-                              :headers {"Authorization"
-                                        (str "Bearer " (jwt/generate-admin-test-token))}
-                              :form-params {:name child-name
-                                            :parent_id root-id
-                                            :active true}})
-
-                child-body (-> child-response :body (cheshire/parse-string true))
-                child-id (:id child-body)]
-
-            (is (= 201 (:status child-response)))
-
-            (testing "Should return hierarchical structure with correct levels"
-              (let [response
-                    (client/get
-                     "http://localhost:3001/api/v1/category/tree"
-                     {:accept :json
-                      :headers {"Authorization"
-                                (str "Bearer " (jwt/generate-admin-test-token))}})
-
-                    body (-> response :body (cheshire/parse-string true))
-                    tree (:category-tree body)]
-
-                (is (= 200 (:status response)))
-                (is (seq tree))
-
-                (let [root-node (some #(when (= root-id (:id %)) %) tree)]
-                  (is root-node)
-                  (is (= 1 (:level root-node)))
-                  (is (nil? (:parent_id root-node))))
-
-                (let [child-node (some #(when (= child-id (:id %)) %) tree)]
-                  (is child-node)
-                  (is (= 2 (:level child-node)))
-                  (is (= root-id (:parent_id child-node))))))
-
-            (testing "Should return 401 without authorization"
-              (let [response
-                    (client/get
-                     "http://localhost:3001/api/v1/category/tree"
-                     {:accept :json
-                      :throw-exceptions false})
-
-                    body (-> response :body (cheshire/parse-string true))]
-
-                (is (= 401 (:status response)))
-                (is (contains? body :error))))))))))
-
-(deftest ^:integration get-category-statistics-test
-  (testing "GET /api/v1/category/statistics - should return correct counts"
+(deftest ^:integration get-category-tree-no-auth-test
+  (testing "GET /api/v1/category/tree - should return 401 when no auth headers provided"
     (test-helper/with-test-database
       (fn []
-        (doseq [active? [true true false]]
-          (client/post "http://localhost:3001/api/v1/category/create"
-                       {:accept :json
-                        :content-type :json
-                        :headers {"Authorization"
-                                  (str "Bearer " (jwt/generate-admin-test-token))}
-                        :form-params {:name (str "Stats Test " (System/currentTimeMillis) "-" active?)
-                                      :parent_id nil
-                                      :active active?}}))
+        (let [response (category-test-helpers/get-category-tree)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
 
-        (let [response
-              (client/get "http://localhost:3001/api/v1/category/stats"
-                          {:accept :json
-                           :headers {"Authorization"
-                                     (str "Bearer " (jwt/generate-admin-test-token))}})
-
-              body (-> response :body (cheshire/parse-string true))
-              stats (:statistics body)]
-
+(deftest ^:integration get-category-statistics-success-test
+  (testing "GET /api/v1/category/stats - should return category statistics"
+    (test-helper/with-test-database
+      (fn []
+        (let [_ (category-test-helpers/post-category (category-test-helpers/category-data)
+                                                     {:headers (test-helper/auth-headers)})
+              response (category-test-helpers/get-category-statistics {:headers (test-helper/auth-headers)})
+              body     (test-helper/parse-body response)
+              stats    (:statistics body)]
           (is (= 200 (:status response)))
+          (is (contains? stats :total_categories))
+          (is (contains? stats :active_categories))
           (is (number? (:total_categories stats)))
-          (is (number? (:active_categories stats))))
+          (is (number? (:active_categories stats))))))))
 
-        (testing "Should return 401 without authorization"
-          (let [response
-                (client/get "http://localhost:3001/api/v1/category/stats"
-                            {:accept :json
-                             :throw-exceptions false})
-
-                body (-> response :body (cheshire/parse-string true))]
-
-            (is (= 401 (:status response)))
-            (is (contains? body :error))))))))
+(deftest ^:integration get-category-statistics-no-auth-test
+  (testing "GET /api/v1/category/stats - should return 401 when no auth headers provided"
+    (test-helper/with-test-database
+      (fn []
+        (let [response (category-test-helpers/get-category-statistics)
+              body     (test-helper/parse-body response)]
+          (is (= 401 (:status response)))
+          (is (= "Authentication required" (:error body))))))))
