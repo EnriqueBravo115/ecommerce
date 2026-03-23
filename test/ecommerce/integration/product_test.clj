@@ -18,7 +18,8 @@
   (testing "POST /api/v1/product/create - with valid data should create product"
     (test-helper/with-test-database-and-kafka
       (fn []
-        (let [response (product-test-helpers/post-product (product-test-helpers/valid-product) {:headers (test-helper/auth-headers)})
+        (let [response (product-test-helpers/post-product (product-test-helpers/valid-product)
+                                                          {:headers (test-helper/auth-headers)})
               body     (test-helper/parse-body response)]
           (is (= 201 (:status response)))
           (is (= "Product created successfully" (:message body)))

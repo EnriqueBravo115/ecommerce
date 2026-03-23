@@ -53,4 +53,4 @@ services:
   #     - db
   #     - kafka
   #   environment:
-  #     SPRING_KAFKA_BOOTSTRAPSERVERS: kafka:9092   # ejemplo si usas Spring
+  #     SPRING_KAFKA_BOOTSTRAPSERVERS: kafka:9092

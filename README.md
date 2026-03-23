@@ -1,3 +1,9 @@
+## Ecommerce
+A Clojure monolithic ecommerce backend built with Component, Ring, Compojure, Malli, and HoneySql, featuring Kafka 
+event streaming, Postgres persistence with Flyway migrations, JWT auth via Buddy, and AWS SES email delivery.
+
+![Architecture](img/architecture.png)
+
 ## Start app local
 Make sure Docker Compose is installed.
 ```bash
