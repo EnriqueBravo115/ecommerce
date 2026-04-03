@@ -1,6 +1,9 @@
+@baseUrl = http://localhost:3000/api/v1/seller
+@token = Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NzUyNDY5MjIsImV4cCI6MTc3NzgzODkyMn0.FR5z1zWVVTuaUD2ffx2nNvTtboA7Qh5A8rCOwAxLPEzpp4Em0yGJq7uOtzP8dEap-9XzKqr2fYo6ZhdGa9_aOg
+
 ### POST create seller
-POST http://localhost:3000/api/v1/seller/create-seller
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+POST {{baseUrl}}/create-seller
+Authorization: {{token}}
 Content-Type: application/json
 
 {
@@ -24,8 +27,8 @@ Content-Type: application/json
 }
 
 ### PUT update seller location
-PUT http://localhost:3000/api/v1/seller/update-seller-location/11
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+PUT {{baseUrl}}/update-seller-location/11
+Authorization: {{token}}
 Content-Type: application/json
 
 {
@@ -36,12 +39,12 @@ Content-Type: application/json
 }
 
 ### DELETE seller
-DELETE http://localhost:3000/api/v1/seller/delete-seller/5
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+DELETE {{baseUrl}}/delete-seller/5
+Authorization: {{token}}
 
 ### PUT update seller status
-PUT http://localhost:3000/api/v1/seller/update-seller-status/2
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+PUT {{baseUrl}}/update-seller-status/2
+Authorization: {{token}}
 Content-Type: application/json
 
 {
@@ -49,25 +52,25 @@ Content-Type: application/json
 }
 
 ### PUT verify seller
-PUT http://localhost:3000/api/v1/seller/verify-seller/7
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+PUT {{baseUrl}}/verify-seller/7
+Authorization: {{token}}
 
 ### GET seller by ID
-GET http://localhost:3000/api/v1/seller/get-seller-by-id/1
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/get-seller-by-id/1
+Authorization: {{token}}
 
 ### GET sellers by country stats
-GET http://localhost:3000/api/v1/seller/get-sellers-by-country-stats
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/get-sellers-by-country-stats
+Authorization: {{token}}
 
 ### GET sellers by status
-GET http://localhost:3000/api/v1/seller/get-sellers-by-status/active
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/get-sellers-by-status/active
+Authorization: {{token}}
 
 ### GET top sellers by sales
-GET http://localhost:3000/api/v1/seller/get-top-sellers
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/get-top-sellers/2
+Authorization: {{token}}
 
 ### GET unverified sellers
-GET http://localhost:3000/api/v1/seller/get-unverified-sellers
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/get-unverified-sellers
+Authorization: {{token}}

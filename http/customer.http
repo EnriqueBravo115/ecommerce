@@ -1,39 +1,42 @@
+@baseUrl = http://localhost:3000/api/v1/customer-management
+@token = Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NzUyNDY5MjIsImV4cCI6MTc3NzgzODkyMn0.FR5z1zWVVTuaUD2ffx2nNvTtboA7Qh5A8rCOwAxLPEzpp4Em0yGJq7uOtzP8dEap-9XzKqr2fYo6ZhdGa9_aOg
+
 ### GET customer by id
-GET http://localhost:3000/api/v1/customer-management/1
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/1
+Authorization: {{token}}
 
 ### GET customer country count
-GET http://localhost:3000/api/v1/customer-management/country-count
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/country-count
+Authorization: {{token}}
 
 ### GET customer by age group
-GET http://localhost:3000/api/v1/customer-management/age-group
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/age-group
+Authorization: {{token}}
 
 ### GET customer by gender
-GET http://localhost:3000/api/v1/customer-management/gender/MALE
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/gender/MALE
+Authorization: {{token}}
 
 ### GET customer registration trend
-GET http://localhost:3000/api/v1/customer-management/registration-trend/YEAR
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/registration-trend/YEAR
+Authorization: {{token}}
 
 ### GET customer active
-GET http://localhost:3000/api/v1/customer-management/active
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/active
+Authorization: {{token}}
 
 ### GET customer inactive
-GET http://localhost:3000/api/v1/customer-management/inactive
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/inactive
+Authorization: {{token}}
 
 ### GET customer by segment demographics
-GET http://localhost:3000/api/v1/customer-management/segment-demographics/Mexico/MALE/10/40
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/segment-demographics/Mexico/MALE/10/40
+Authorization: {{token}}
 
 ### GET customer registrations by country code
-GET http://localhost:3000/api/v1/customer-management/registration-by-country-code
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/registration-by-country-code
+Authorization: {{token}}
 
 ### GET customer with password reset code
-GET http://localhost:3000/api/v1/customer-management/customers-with-password-reset-code
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/customers-with-password-reset-code
+Authorization: {{token}}

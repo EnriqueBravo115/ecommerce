@@ -1,6 +1,9 @@
+@baseUrl = http://localhost:3000/api/v1/address
+@token = Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NzUyNDY5MjIsImV4cCI6MTc3NzgzODkyMn0.FR5z1zWVVTuaUD2ffx2nNvTtboA7Qh5A8rCOwAxLPEzpp4Em0yGJq7uOtzP8dEap-9XzKqr2fYo6ZhdGa9_aOg
+
 ### POST create address
-POST http://localhost:3000/api/v1/address/create-address
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+POST {{baseUrl}}/create-address
+Authorization: {{token}}
 
 {
   "country": "Mexico",
@@ -12,8 +15,8 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZ
 }
 
 ### POST update address
-POST http://localhost:3000/api/v1/address/update-address/6
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwiZW1haWwiOiJjb250YWN0QHRlY2hpbm5vdmF0b3JzLmNvbSIsInJvbGVzIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NzE2OTk2MjgsImV4cCI6MTc3NDI5MTYyOH0.q_8AjaYu4YWzudFv7drWjXZP46yjTL61vElbqSMVzQS-bdfvS0LVI4Vl9RAxB2_wtmk8atAu5eQdiIv3dmK3Gg
+POST {{baseUrl}}/update-address/6
+Authorization: {{token}}
 
 {
   "country": "Mexico",
@@ -24,33 +27,33 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwiZW1haWwiOiJjb250YWN0QHRlY
 }
 
 ### DELETE address
-DELETE http://localhost:3000/api/v1/address/delete-address/6
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+DELETE {{baseUrl}}/delete-address/6
+Authorization: {{token}}
 
 ### POST set primary address
-POST http://localhost:3000/api/v1/address/set-primary-address/5
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+POST {{baseUrl}}/set-primary-address/5
+Authorization: {{token}}
 
 ### GET customer addresses
-GET http://localhost:3000/api/v1/address/get-customer-addresses
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwiZW1haWwiOiJjb250YWN0QHRlY2hpbm5vdmF0b3JzLmNvbSIsInJvbGVzIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NzA2Njk0NDgsImV4cCI6MTc3MzI2MTQ0OH0.w29_8ttgJfh6tRJ2TFhfwA8T8sklXzJNtvHCkBnOYwxhmJ4Ztgcn06QD5CS4hi2YXfw_DskbLKOyILk3hhqh8w
+GET {{baseUrl}}/get-customer-addresses
+Authorization: {{token}}
 
 ### GET primary address
-GET http://localhost:3000/api/v1/address/get-primary-address
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/get-primary-address
+Authorization: {{token}}
 
 ### GET customers by location
-GET http://localhost:3000/api/v1/address/admin/get-customers-by-location/Mexico/Jalisco/Guadalajara
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/admin/get-customers-by-location/Mexico/Jalisco/Guadalajara
+Authorization: {{token}}
 
 ### GET customers by postal code
-GET http://localhost:3000/api/v1/address/admin/get-customers-by-postal-code/76000
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/admin/get-customers-by-postal-code/76000
+Authorization: {{token}}
 
 ### GET location statistics
-GET http://localhost:3000/api/v1/address/admin/get-location-statistics
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/admin/get-location-statistics
+Authorization: {{token}}
 
 ### GET recent id address
-GET http://localhost:3000/api/v1/address/get-recent-id-address
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywiZW1haWwiOiJhbmEuaGVybmFuZGV6QGVtYWlsLmNvbSIsInJvbGVzIjoiQURNSU4iLCJpYXQiOjE3NjkzNjY1NDksImV4cCI6MTc3MTk1ODU0OX0.B-jj_2hhNrf0fYr_rjur2yo_WhkellnvZsV2Q9NQqeofvbaznGADdoUksy22t-PkhYGxBMbO4zDV-dORRWKKhg
+GET {{baseUrl}}/get-recent-id-address
+Authorization: {{token}}

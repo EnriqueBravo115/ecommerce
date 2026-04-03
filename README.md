@@ -24,3 +24,9 @@ clj -M:test :unit
 (in-ns 'dev)
 (component-repl/reset)
 ```
+
+## Test app
+1. Check de folder `http` to perform request on the app
+2. In order to obtain a valid token to test against the endpoints, eval-file `src/ecommerce/utils/jwt.clj`
+  - Local Port: 3000
+  - Container Port: 8080
