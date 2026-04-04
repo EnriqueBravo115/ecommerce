@@ -100,6 +100,16 @@
                        (queries/delete-product product-id))
         (build-response 200 {:message "Product deleted successfully"})))))
 
+(defn increment-view-count [request]
+  (let [ds (:datasource request)
+        product-id (Long/parseLong (get-in request [:params :id]))
+        update-query (queries/increment-view-count product-id)
+        result (jdbc/execute-one! ds update-query)]
+
+    (if (= 1 (:next.jdbc/update-count result))
+      (build-response 200 {:success true :message "View count incremented"})
+      (build-response 404 {:error "Product not found"}))))
+
 ;; FIX: only ADMIN
 (defn get-product-by-id [request]
   (let [ds (:datasource request)
@@ -131,9 +141,10 @@
       (build-response 200 {:products result})
       (build-response 404 {:error "No products found for this seller"}))))
 
+;; TODO: limit products results
 (defn get-products-by-category [request]
   (let [ds (:datasource request)
-        category-id (get-in request [:params :category-id])
+        category-id (Long/parseLong (get-in request [:params :category-id]))
         query (queries/get-by-category category-id)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
@@ -141,10 +152,10 @@
       (build-response 200 {:products result})
       (build-response 404 {:error "No products found in this category"}))))
 
+;; TODO: add validation based on status
 (defn get-products-by-status [request]
   (let [ds (:datasource request)
         status (get-in request [:params :status])
-
         query (queries/get-by-status status)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
@@ -152,10 +163,11 @@
       (build-response 200 {:products result})
       (build-response 404 {:error "No products found with this status"}))))
 
+;; TODO: limit products results
 (defn get-products-by-price-range [request]
   (let [ds (:datasource request)
-        min-price (get-in request [:params :min-price])
-        max-price (get-in request [:params :max-price])
+        min-price (Long/parseLong (get-in request [:params :min-price]))
+        max-price (Long/parseLong (get-in request [:params :max-price]))
         query (queries/get-by-price-range min-price max-price)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
@@ -165,7 +177,7 @@
 
 (defn get-top-viewed-products [request]
   (let [ds (:datasource request)
-        limit (or (get-in request [:params :limit]) 10)
+        limit (or (Long/parseLong (get-in request [:params :limit])) 10)
         query (queries/get-top-viewed limit)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
@@ -175,22 +187,12 @@
 
 (defn get-top-rated-products [request]
   (let [ds (:datasource request)
-        min-reviews (or (get-in request [:params :min-reviews]) 5)
-        min-rating (or (get-in request [:params :min-rating]) 4.0)
-        limit (or (get-in request [:params :limit]) 10)
+        min-reviews (or (Double/parseDouble (get-in request [:params :min-reviews])) 5)
+        min-rating (or (Double/parseDouble (get-in request [:params :min-rating])) 4.0)
+        limit (or (Long/parseLong (get-in request [:params :limit])) 10)
         query (queries/get-top-rated min-reviews min-rating limit)
         result (jdbc/execute! ds query {:builder-fn rs/as-unqualified-maps})]
 
     (if (seq result)
       (build-response 200 {:top-rated result})
       (build-response 404 {:error "No products found"}))))
-
-(defn increment-view-count [request]
-  (let [ds (:datasource request)
-        product-id (get-in request [:params :id])
-        update-query (queries/increment-view-count product-id)
-        result (jdbc/execute-one! ds update-query)]
-
-    (if (= 1 (:next.jdbc/update-count result))
-      (build-response 200 {:success true :message "View count incremented"})
-      (build-response 404 {:error "Product not found"}))))

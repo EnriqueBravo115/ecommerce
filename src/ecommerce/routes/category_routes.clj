@@ -7,10 +7,6 @@
 (defroutes category-routes
   (context "/category" []
     (-> (routes
-         (GET "/active" request
-           (category-handler/get-active-categories request))
-         (GET "/tree" request
-           (category-handler/get-category-tree request))
          (GET "/stats" request
            (category-handler/get-category-statistics request))
          (POST "/create" request

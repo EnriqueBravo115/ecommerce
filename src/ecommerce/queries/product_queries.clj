@@ -18,7 +18,7 @@
 
 (defn get-product-by-sku [sku]
   (sql/format
-   {:select [:id :sku]
+   {:select [:sku :name :price :status]
     :from [:product]
     :where [:= :sku sku]}))
 
@@ -78,8 +78,7 @@
 
 (defn get-top-viewed [limit]
   (sql/format
-   {:select [:p.id :p.sku :p.name :p.price :p.view_count :p.average_rating
-             :s.business_name]
+   {:select [:p.id :p.sku :p.name :p.price :p.view_count :p.average_rating]
     :from [[:product :p]]
     :left-join [[:seller :s] [:= :p.seller_id :s.id]]
     :where [:> :p.view_count 0]

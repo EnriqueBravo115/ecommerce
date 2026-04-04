@@ -104,26 +104,6 @@
       (build-response 200 {:category category})
       (build-response 404 {:error "Category not found"}))))
 
-(defn get-active-categories [request]
-  (let [ds (:datasource request)
-        categories (jdbc/execute! ds
-                                  (queries/get-active-categories)
-                                  {:builder-fn rs/as-unqualified-maps})]
-
-    (if (seq categories)
-      (build-response 200 {:categories categories})
-      (build-response 404 {:error "No active categories found"}))))
-
-(defn get-category-tree [request]
-  (let [ds (:datasource request)
-        categories (jdbc/execute! ds
-                                  (queries/get-category-tree)
-                                  {:builder-fn rs/as-unqualified-maps})]
-
-    (if (seq categories)
-      (build-response 200 {:category-tree categories})
-      (build-response 404 {:error "No categories found"}))))
-
 (defn get-category-statistics [request]
   (let [ds (:datasource request)
         total-categories (jdbc/execute-one! ds
@@ -131,9 +111,13 @@
                                             {:builder-fn rs/as-unqualified-maps})
         active-categories (jdbc/execute-one! ds
                                              (queries/get-active-categories-count)
-                                             {:builder-fn rs/as-unqualified-maps})]
+                                             {:builder-fn rs/as-unqualified-maps})
+        inactive-categories (jdbc/execute-one! ds
+                                               (queries/get-inactive-categories-count)
+                                               {:builder-fn rs/as-unqualified-maps})]
 
     (build-response 200
                     {:statistics
                      {:total_categories (:total total-categories)
-                      :active_categories (:active_count active-categories)}})))
+                      :total_active (:active_count active-categories)
+                      :total_inactive (:inactive_count inactive-categories)}})))

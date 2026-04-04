@@ -45,33 +45,6 @@
           :updated_at [:raw "current_timestamp"]}
     :where [:= :parent_id parent_id]}))
 
-(defn get-active-categories []
-  (sql/format
-   {:select [:name :parent_id]
-    :from [:category]
-    :where [:= :active true]
-    :order-by [[:name :asc]]}))
-
-(defn get-category-tree []
-  (sql/format
-   {:with-recursive
-    [[:category_tree
-      {:union-all
-       [{:select [:id :name :parent_id :active
-                  [1 :level]]
-         :from   [:category]
-         :where  [:is :parent_id nil]}
-
-        {:select [:c.id :c.name :c.parent_id :c.active
-                  [(sql/call :+ :ct.level 1) :level]]
-         :from   [[:category :c]]
-         :join   [[:category_tree :ct]
-                  [:= :c.parent_id :ct.id]]}]}]]
-
-    :select   [:*]
-    :from     [:category_tree]
-    :order-by [[:level :asc] [:name :asc]]}))
-
 (defn get-total-categories []
   (sql/format
    {:select [[(sql/call :count :*) :total]]
@@ -82,3 +55,9 @@
    {:select [[(sql/call :count :*) :active_count]]
     :from [:category]
     :where [:= :active true]}))
+
+(defn get-inactive-categories-count []
+  (sql/format
+   {:select [[(sql/call :count :*) :inactive_count]]
+    :from [:category]
+    :where [:= :active false]}))

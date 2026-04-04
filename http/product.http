@@ -39,6 +39,10 @@ Content-Type: application/json
 DELETE {{baseUrl}}/delete/1
 Authorization: {{token}}
 
+### PUT increment view count
+PUT {{baseUrl}}/view/1
+Authorization: {{token}}
+
 ### GET my products
 GET {{baseUrl}}/my-products
 Authorization: {{token}}
@@ -55,38 +59,22 @@ Authorization: {{token}}
 GET {{baseUrl}}/seller/5
 Authorization: {{token}}
 
-### GET products by category(ERROR)
-GET {{baseUrl}}/category/4
+### GET products by category
+GET {{baseUrl}}/category/19
 Authorization: {{token}}
 
 ### GET products by status
 GET {{baseUrl}}/status/active
 Authorization: {{token}}
 
-### GET products by price range(ERROR)
+### GET products by price range
 GET {{baseUrl}}/price-range?min-price=100&max-price=500
 Authorization: {{token}}
 
-### GET top viewed products(ERROR)
-GET {{baseUrl}}/top-viewed?limit=5
+### GET top viewed products
+GET {{baseUrl}}/top-viewed?limit=2
 Authorization: {{token}}
 
-### GET top rated products(ERROR)
+### GET top rated products
 GET {{baseUrl}}/top-rated?min-reviews=5&min-rating=4.5&limit=5
-Authorization: {{token}}
-
-### GET products by tags(ERROR)
-GET {{baseUrl}}/tags/laptop,gaming,ssd
-Authorization: {{token}}
-
-### GET increment view count(ERROR)
-GET {{baseUrl}}/view/1
-Authorization: {{token}}
-
-### GET search products(ERROR)
-GET {{baseUrl}}/search?q=laptop
-Authorization: {{token}}
-
-### GET product stats
-GET {{baseUrl}}/stats
 Authorization: {{token}}

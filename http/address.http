@@ -45,15 +45,3 @@ Authorization: {{token}}
 ### GET customers by location
 GET {{baseUrl}}/admin/get-customers-by-location/Mexico/Jalisco/Guadalajara
 Authorization: {{token}}
-
-### GET customers by postal code
-GET {{baseUrl}}/admin/get-customers-by-postal-code/76000
-Authorization: {{token}}
-
-### GET location statistics
-GET {{baseUrl}}/admin/get-location-statistics
-Authorization: {{token}}
-
-### GET recent id address
-GET {{baseUrl}}/get-recent-id-address
-Authorization: {{token}}

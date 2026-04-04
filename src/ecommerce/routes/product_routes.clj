@@ -1,6 +1,6 @@
 (ns ecommerce.routes.product-routes
   (:require
-   [compojure.core :refer [context routes defroutes GET POST DELETE]]
+   [compojure.core :refer [context routes defroutes GET POST PUT DELETE]]
    [ecommerce.handlers.product-handler :as product-handler]
    [ecommerce.utils.middleware :refer [wrap-auth]]))
 
@@ -25,7 +25,7 @@
            (product-handler/get-top-viewed-products request))
          (GET "/top-rated" request
            (product-handler/get-top-rated-products request))
-         (GET "/view/:id" request
+         (PUT "/view/:id" request
            (product-handler/increment-view-count request))
          (GET "/seller/:seller-id" request
            (product-handler/get-products-by-seller request))

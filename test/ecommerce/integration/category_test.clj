@@ -179,57 +179,6 @@
           (is (= 401 (:status response)))
           (is (= "Authentication required" (:error body))))))))
 
-(deftest ^:integration get-active-categories-success-test
-  (testing "GET /api/v1/category/active - should return active categories"
-    (test-helper/with-test-database
-      (fn []
-        (let [create-response (category-test-helpers/post-category (category-test-helpers/category-data)
-                                                                   {:headers (test-helper/auth-headers)})]
-          (is (= 201 (:status create-response)))
-          (let [response   (category-test-helpers/get-active-categories {:headers (test-helper/auth-headers)})
-                body       (test-helper/parse-body response)
-                categories (:categories body)]
-            (is (= 200 (:status response)))
-            (is (seq categories))))))))
-
-(deftest ^:integration get-active-categories-no-auth-test
-  (testing "GET /api/v1/category/active - should return 401 when no auth headers provided"
-    (test-helper/with-test-database
-      (fn []
-        (let [response (category-test-helpers/get-active-categories)
-              body     (test-helper/parse-body response)]
-          (is (= 401 (:status response)))
-          (is (= "Authentication required" (:error body))))))))
-
-(deftest ^:integration get-category-tree-success-test
-  (testing "GET /api/v1/category/tree - should return hierarchical category tree"
-    (test-helper/with-test-database
-      (fn []
-        (let [root-response (category-test-helpers/post-category (category-test-helpers/category-parent-data)
-                                                                 {:headers (test-helper/auth-headers)})
-              root-id       (:id (test-helper/parse-body root-response))
-              _             (category-test-helpers/post-category (category-test-helpers/category-child-data root-id)
-                                                                 {:headers (test-helper/auth-headers)})]
-          (is (= 201 (:status root-response)))
-          (let [response  (category-test-helpers/get-category-tree {:headers (test-helper/auth-headers)})
-                body      (test-helper/parse-body response)
-                tree      (:category-tree body)
-                root-node (some #(when (= root-id (:id %)) %) tree)]
-            (is (= 200 (:status response)))
-            (is (seq tree))
-            (is (some? root-node))
-            (is (= 1 (:level root-node)))
-            (is (nil? (:parent_id root-node)))))))))
-
-(deftest ^:integration get-category-tree-no-auth-test
-  (testing "GET /api/v1/category/tree - should return 401 when no auth headers provided"
-    (test-helper/with-test-database
-      (fn []
-        (let [response (category-test-helpers/get-category-tree)
-              body     (test-helper/parse-body response)]
-          (is (= 401 (:status response)))
-          (is (= "Authentication required" (:error body))))))))
-
 (deftest ^:integration get-category-statistics-success-test
   (testing "GET /api/v1/category/stats - should return category statistics"
     (test-helper/with-test-database
@@ -241,9 +190,11 @@
               stats    (:statistics body)]
           (is (= 200 (:status response)))
           (is (contains? stats :total_categories))
-          (is (contains? stats :active_categories))
+          (is (contains? stats :total_active))
+          (is (contains? stats :total_inactive))
           (is (number? (:total_categories stats)))
-          (is (number? (:active_categories stats))))))))
+          (is (number? (:total_active stats)))
+          (is (number? (:total_inactive stats))))))))
 
 (deftest ^:integration get-category-statistics-no-auth-test
   (testing "GET /api/v1/category/stats - should return 401 when no auth headers provided"

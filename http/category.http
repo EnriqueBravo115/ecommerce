@@ -22,20 +22,12 @@ Content-Type: application/json
   "active": true
 }
 
-### DELETE deactivate category by id
-DELETE {{baseUrl}}/delete/90
+### DELETE category by id
+DELETE {{baseUrl}}/delete/1
 Authorization: {{token}}
 
 ### GET category by id
 GET {{baseUrl}}/1
-Authorization: {{token}}
-
-### GET categories active
-GET {{baseUrl}}/active
-Authorization: {{token}}
-
-### GET category tree
-GET {{baseUrl}}/tree
 Authorization: {{token}}
 
 ### GET category stats
