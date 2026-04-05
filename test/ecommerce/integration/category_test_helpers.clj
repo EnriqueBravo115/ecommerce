@@ -57,20 +57,6 @@
                        :throw-exceptions false}
                       extra-opts))))
 
-(defn get-active-categories
-  ([opts] (client/get "http://localhost:3001/api/v1/category/active"
-                      (merge {:accept           :json
-                              :throw-exceptions false}
-                             opts)))
-  ([] (get-active-categories {})))
-
-(defn get-category-tree
-  ([opts] (client/get "http://localhost:3001/api/v1/category/tree"
-                      (merge {:accept           :json
-                              :throw-exceptions false}
-                             opts)))
-  ([] (get-category-tree {})))
-
 (defn get-category-statistics
   ([opts] (client/get "http://localhost:3001/api/v1/category/stats"
                       (merge {:accept           :json

@@ -60,21 +60,6 @@
                       opts)))
   ([country state city] (get-customers-by-location country state city {})))
 
-(defn get-customers-by-postal-code
-  ([postal-code opts]
-   (client/get (str "http://localhost:3001/api/v1/address/admin/get-customers-by-postal-code/" postal-code)
-               (merge {:accept           :json
-                       :throw-exceptions false}
-                      opts)))
-  ([postal-code] (get-customers-by-postal-code postal-code {})))
-
-(defn get-location-statistics
-  ([opts] (client/get "http://localhost:3001/api/v1/address/admin/get-location-statistics"
-                      (merge {:accept           :json
-                              :throw-exceptions false}
-                             opts)))
-  ([] (get-location-statistics {})))
-
 (defn address_primary_true []
   {:country "Mexico"
    :state "Guanajuato"

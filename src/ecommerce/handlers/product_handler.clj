@@ -110,7 +110,6 @@
       (build-response 200 {:success true :message "View count incremented"})
       (build-response 404 {:error "Product not found"}))))
 
-;; FIX: only ADMIN
 (defn get-product-by-id [request]
   (let [ds (:datasource request)
         id (Long/parseLong (get-in request [:params :id]))
