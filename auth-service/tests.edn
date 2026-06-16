@@ -1,0 +1,7 @@
+#kaocha/v1
+{:tests [{:id :unit
+          :source-paths ["src"]
+          :test-paths ["test/auth_service/unit"]
+          :ns-pattern ".*-unit$"}]}
+
+:kaocha/reporters [kaocha.report/progress kaocha.report/documentation]

@@ -1,0 +1,10 @@
+{:server {:port 8080}
+ :db-spec {:jdbcUrl "jdbc:postgresql://db:5432/ecommerce"
+           :username "ecommerce"
+           :password "ecommerce"}
+ :smtp {:host "email-smtp.us-east-1.amazonaws.com"
+        :user "AKIARVSK33G3SWJ7LHHZ"
+        :pass "BIaTdKox3H9Bo/PTC/77sNqTuWvP7QL7SZTz6wOoq2FG"
+        :from "enriquebravo115@gmail.com"
+        :ssl true
+        :port 465}}

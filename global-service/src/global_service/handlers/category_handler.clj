@@ -1,0 +1,123 @@
+(ns global-service.handlers.category-handler
+  (:require
+   [global-service.queries.category-queries :as queries]
+   [global-service.utils.validations :as validations]
+   [next.jdbc :as jdbc]
+   [next.jdbc.result-set :as rs]))
+
+(def ^:private json-headers {"Content-Type" "application/json"})
+
+(defn- build-response [status body]
+  {:status status :headers json-headers :body body})
+
+(defn create-category [request]
+  (let [data           (:body request)
+        ds             (:datasource request)
+        validation-error (validations/validate-category data)]
+
+    (cond
+      validation-error
+      (build-response 400 {:error validation-error})
+
+      :else
+      (let [name     (:name data)
+            existing (jdbc/execute-one!
+                      ds
+                      (queries/get-category-by-name name)
+                      {:builder-fn rs/as-unqualified-maps})]
+
+        (cond
+          (some? existing)
+          (build-response 409 {:error (str "Category '" name "' already exists")
+                               :existing-id (:id existing)})
+
+          :else
+          (let [result (jdbc/execute-one!
+                        ds
+                        (queries/create-category
+                         {:name      name
+                          :parent_id (:parent_id data)
+                          :active    (:active data true)})
+                        {:builder-fn rs/as-unqualified-maps})]
+            (build-response 201
+                            {:id      (:id result)
+                             :message "Category created successfully"})))))))
+
+;; TODO: needs params validation
+(defn update-category [request]
+  (let [category-id (Long/parseLong (get-in request [:params :id]))
+        category-data (:body request)
+        ds (:datasource request)
+        existing-category (jdbc/execute-one! ds
+                                             (queries/get-category-by-id category-id)
+                                             {:builder-fn rs/as-unqualified-maps})]
+
+    (cond
+      (nil? existing-category)
+      (build-response 404 {:error "Category not found"})
+
+      :else
+      (do
+        (jdbc/execute! ds
+                       (queries/update-category
+                        category-id
+                        {:name (:name category-data)
+                         :parent_id (:parent_id category-data)
+                         :active (:active category-data)
+                         :updated_at [:raw "current_timestamp"]}))
+        (build-response 200 {:message "Category updated successfully"})))))
+
+(defn delete-category [request]
+  (let [category-id (Long/parseLong (get-in request [:params :id]))
+        ds (:datasource request)
+        existing-category (jdbc/execute-one! ds
+                                             (queries/get-category-by-id category-id)
+                                             {:builder-fn rs/as-unqualified-maps})]
+
+    (cond
+      (nil? existing-category)
+      (build-response 404 {:error "Category not found"})
+
+      (not (:active existing-category))
+      (build-response 409 {:error "Cannot delete an inactive (already deactivated) category"
+                           :category-id category-id
+                           :status :inactive})
+
+      :else
+      (do
+        (jdbc/execute! ds
+                       (queries/deactivate-category category-id))
+
+        (jdbc/execute! ds
+                       (queries/deactivate-child-categories category-id))
+
+        (build-response 200 {:message "Category deactivated successfully"})))))
+
+(defn get-category-by-id [request]
+  (let [category-id (Long/parseLong (get-in request [:params :id]))
+        ds (:datasource request)
+        category (jdbc/execute-one! ds
+                                    (queries/get-category-by-id category-id)
+                                    {:builder-fn rs/as-unqualified-maps})]
+
+    (if category
+      (build-response 200 {:category category})
+      (build-response 404 {:error "Category not found"}))))
+
+(defn get-category-statistics [request]
+  (let [ds (:datasource request)
+        total-categories (jdbc/execute-one! ds
+                                            (queries/get-total-categories)
+                                            {:builder-fn rs/as-unqualified-maps})
+        active-categories (jdbc/execute-one! ds
+                                             (queries/get-active-categories-count)
+                                             {:builder-fn rs/as-unqualified-maps})
+        inactive-categories (jdbc/execute-one! ds
+                                               (queries/get-inactive-categories-count)
+                                               {:builder-fn rs/as-unqualified-maps})]
+
+    (build-response 200
+                    {:statistics
+                     {:total_categories (:total total-categories)
+                      :total_active (:active_count active-categories)
+                      :total_inactive (:inactive_count inactive-categories)}})))
