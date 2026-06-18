@@ -11,7 +11,7 @@
 (defrecord Webserver [config datasource]
   component/Lifecycle
   (start [this]
-    (let [app (-> routes/api-routes
+    (let [app (-> routes/handler
                   (wrap-json-body {:keywords? true})
                   wrap-keyword-params
                   wrap-params

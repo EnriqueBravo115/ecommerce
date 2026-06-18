@@ -16,7 +16,7 @@
               :gender :rfc :curp :password :phone_number :phone_code :country_code
               :role :active]
     :values [[names first_surname second_surname email country_of_birth
-              (when birthday (java.time.LocalDate/parse birthday))
+              birthday
               gender rfc curp password phone_number phone_code country_code
               "CUSTOMER" false]]}))
 

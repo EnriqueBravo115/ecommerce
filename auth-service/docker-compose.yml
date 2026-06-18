@@ -10,10 +10,10 @@ services:
       POSTGRES_DB: ecommerce
       POSTGRES_INITDB_ARGS: --encoding=UTF-8
 
-  api:
-    build: .
-    container_name: auth-api
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
+#  api:
+#    build: .
+#    container_name: auth-api
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - db

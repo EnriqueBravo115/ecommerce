@@ -1,16 +1,15 @@
 (ns auth-service.routes.core
   (:require
-   [compojure.core :refer [context defroutes GET routes]]
+   [reitit.ring :as ring]
    [auth-service.routes.register-routes :refer [register-routes]]))
 
-(defroutes api-routes
-  (GET "/health" []
-    {:status 200 :body {:status "healthy"}})
+(def router
+  (ring/router
+   [["/health" {:get (fn [_] {:status 200 :body {:status "healthy"}})}]
+    ["/api/v1" register-routes]]))
 
-  (context "/api/v1" []
-    (routes
-     register-routes))
-
-  (GET "*" []
-    {:status 404
-     :body {:error "Endpoint not found"}}))
+(def handler
+  (ring/ring-handler
+   router
+   (ring/create-default-handler
+    {:not-found (fn [_] {:status 404 :body {:error "Endpoint not found"}})})))

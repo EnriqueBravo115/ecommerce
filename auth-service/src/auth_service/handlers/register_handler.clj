@@ -15,60 +15,36 @@
 (defn- generate-activation-code []
   (subs (str (java.util.UUID/randomUUID)) 0 7))
 
-(defn create-customer [request]
-  (let [registration-data (:body request)
-        ds (:datasource request)
-        email (:email registration-data)
-        password_encoded (password/encode (:password registration-data))
-        existing-customer (jdbc/execute-one! ds
-                                             (queries/get-customer-by-email email)
-                                             {:builder-fn rs/as-unqualified-maps})]
+(defn- customer-data [body encoded-password]
+  (-> (select-keys body [:names :first_surname :second_surname :email
+                         :country_of_birth :birthday :gender :rfc :curp
+                         :phone_number :phone_code :country_code])
+      (update :birthday #(some-> % java.sql.Date/valueOf))
+      (assoc :password encoded-password)))
 
+(defn create-customer [request]
+  (let [{:keys [body datasource]} request
+        email (:email body)
+        data (customer-data body (password/encode (:password body)))
+        existing (jdbc/execute-one! datasource
+                                    (queries/get-customer-by-email email)
+                                    {:builder-fn rs/as-unqualified-maps})]
     (cond
-      (nil? existing-customer)
+      (nil? existing)
       (do
-        (jdbc/execute! ds
-                       (queries/create-customer
-                        {:names (:names registration-data)
-                         :first_surname (:first_surname registration-data)
-                         :second_surname (:second_surname registration-data)
-                         :email (:email registration-data)
-                         :country_of_birth (:country_of_birth registration-data)
-                         :birthday (:birthday registration-data)
-                         :gender (:gender registration-data)
-                         :rfc (:rfc registration-data)
-                         :curp (:curp registration-data)
-                         :password password_encoded
-                         :phone_number (:phone_number registration-data)
-                         :phone_code (:phone_code registration-data)
-                         :country_code (:country_code registration-data)}))
+        (jdbc/execute! datasource (queries/create-customer data))
         (build-response 200 {:message "User registered" :email email}))
 
-      (false? (:active existing-customer))
+      (false? (:active existing))
       (do
-        (jdbc/execute! ds
-                       (queries/update-customer
-                        (:id existing-customer)
-                        {:names (:names registration-data)
-                         :first_surname (:first_surname registration-data)
-                         :second_surname (:second_surname registration-data)
-                         :country_of_birth (:country_of_birth registration-data)
-                         :email (:email registration-data)
-                         :birthday (:birthday registration-data)
-                         :gender (:gender registration-data)
-                         :rfc (:rfc registration-data)
-                         :curp (:curp registration-data)
-                         :password password_encoded
-                         :phone_number (:phone_number registration-data)
-                         :phone_code (:phone_code registration-data)
-                         :country_code (:country_code registration-data)}))
+        (jdbc/execute! datasource (queries/update-customer (:id existing) data))
         (build-response 200 {:message "User updated" :email email}))
 
       :else
       (build-response 403 {:error "Email has already been taken"}))))
 
 (defn send-registration-code [request]
-  (let [email (get-in request [:params :email])
+  (let [email (get-in request [:path-params :email])
         ds (:datasource request)
         customer (jdbc/execute-one! ds
                                     (queries/get-customer-by-email email)
@@ -88,7 +64,7 @@
       (build-response 404 {:error "User not found"}))))
 
 (defn check-registration-code [request]
-  (let [code (get-in request [:params :code])
+  (let [code (get-in request [:path-params :code])
         ds (:datasource request)]
 
     (if (str/blank? code)
