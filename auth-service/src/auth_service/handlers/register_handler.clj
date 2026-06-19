@@ -15,6 +15,8 @@
 (defn- generate-activation-code []
   (subs (str (java.util.UUID/randomUUID)) 0 7))
 
+; birthday is converted to java.sql.Date here because HoneySQL serializes
+; java.time.LocalDate back to a string, causing a type mismatch on the date column.
 (defn- customer-data [body encoded-password]
   (-> (select-keys body [:names :first_surname :second_surname :email
                          :country_of_birth :birthday :gender :rfc :curp
@@ -22,6 +24,8 @@
       (update :birthday #(some-> % java.sql.Date/valueOf))
       (assoc :password encoded-password)))
 
+; Creates a new customer or updates an existing inactive one. 
+; Returns 403 if the email belongs to an already active account.
 (defn create-customer [request]
   (let [{:keys [body datasource]} request
         email (:email body)
